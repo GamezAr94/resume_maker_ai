@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import './globals.css';
+import { signOutAction } from './actions';
 
 export const metadata: Metadata = {
     title: 'Resume Generator AI',
@@ -14,7 +15,12 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body>{children}</body>
+            <body>
+                <form action={signOutAction}>
+                    <button type="submit">Exit</button>
+                </form>
+                {children}
+            </body>
         </html>
     );
 }
