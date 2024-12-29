@@ -5,24 +5,10 @@ import { SectionTypes } from '@/utils/enums';
 import { getUserInfo } from '@/app/db/user_queries';
 import { emptyStatePersonal, FormPersonalStructure } from '@/utils/interfaces';
 
+// creating the zod schema to validate the user data
 const userSchema = z.object({
     first_name: z.string().min(2),
     last_name: z.string().min(2),
-    /*
-    phone: z.string().min(1, 'Phone number is required'),
-    address: z.string().optional(),
-    linkedin: z.string().url().optional(),
-    // ... other fields ...
-    workExperience: z.array(
-        z.object({
-            company: z.string().min(1, 'Company is required'),
-            position: z.string().min(1, 'Position is required'),
-            start_date: z.date(),
-            // ... other work experience fields ...
-        }),
-    ),
-    */
-    // ... education, skills, projects ...
 });
 export default function PersonalInfoForm() {
     const [formErrors, setFormErrors] =
@@ -51,7 +37,9 @@ export default function PersonalInfoForm() {
     ) {
         // prevent the default form submission and fetch the data
         event.preventDefault();
+        // get the form data
         const formData = new FormData(event.currentTarget);
+        // parse the user data with the zod schema
         const parseUser = userSchema.safeParse(Object.fromEntries(formData));
 
         // reset the errors in the state
@@ -89,7 +77,7 @@ export default function PersonalInfoForm() {
             return;
         }
         // TODO ART: show a success message to the user
-        console.log('=====> RESPONSE');
+        console.log('=====> RESPONSE personal');
         console.log(res.ok);
         console.log(response.message);
         console.log('=====>');

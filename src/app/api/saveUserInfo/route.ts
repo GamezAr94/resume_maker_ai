@@ -1,7 +1,10 @@
 'use server';
 
 import { SectionTypes } from '@/utils/enums';
-import { FormPersonalStructure } from '@/utils/interfaces';
+import {
+    FormExperienceStructure,
+    FormPersonalStructure,
+} from '@/utils/interfaces';
 import { createClient } from '@/utils/supabase/server';
 
 export async function POST(req: Request, res: Response) {
@@ -44,11 +47,18 @@ export async function POST(req: Request, res: Response) {
 // Function to update the user data in the database depending on the section type
 async function updatePerType(
     type: SectionTypes,
-    requestBodyData: FormPersonalStructure,
+    requestBodyData: FormExperienceStructure | FormPersonalStructure,
     supabase: any,
     user_id: string,
 ): Promise<{ message: string; status: number }> {
     let error: string | null = null;
+
+    // Get the user id from the database
+    const { data: userData, error: userError } = await supabase
+        .from('user')
+        .select(`id`)
+        .eq('supabase_id', user_id);
+
     try {
         switch (type) {
             case SectionTypes.Personal:
@@ -61,9 +71,18 @@ async function updatePerType(
                     })
                     .eq('supabase_id', user_id);
 
-                error = personalError;
+                error = personalError ? personalError.message : null;
                 break;
             case SectionTypes.Experience:
+                // Save the user experience data in the supabase database
+                const { error: experienceError } = await supabase
+                    .from('experience')
+                    .upsert({
+                        user_id: userData[0].id,
+                        ...requestBodyData,
+                    });
+
+                error = experienceError ? experienceError.message : null;
                 break;
             case SectionTypes.Education:
                 break;
