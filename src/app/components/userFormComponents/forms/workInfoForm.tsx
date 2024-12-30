@@ -1,11 +1,11 @@
 'use client';
-import { getExperienceInfo } from '@/app/db/user_queries';
+import { deleteRecord, getExperienceInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
 import {
     emptyStateExperience,
     FormExperienceStructure,
 } from '@/utils/interfaces';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { z } from 'zod';
 
 const userSchema = z.object({
@@ -24,11 +24,23 @@ const userSchema = z.object({
     //    .optional(),
     //description: z.string().min(1, 'Description is required'),
 });
+interface Params {
+    setInfo: React.Dispatch<false | [FormExperienceStructure]> | null;
+    infoQuery: FormExperienceStructure | null;
+    setRefreshTrigger: Dispatch<
+        SetStateAction<{
+            experience: boolean;
+            education: boolean;
+            skill: boolean;
+            project: boolean;
+        }>
+    >;
+}
 export default function WorkInfoForm({
     infoQuery,
-}: {
-    infoQuery: FormExperienceStructure | null;
-}) {
+    setInfo,
+    setRefreshTrigger,
+}: Params) {
     const [formErrors, setFormErrors] =
         useState<FormExperienceStructure>(emptyStateExperience);
 
@@ -77,11 +89,43 @@ export default function WorkInfoForm({
             console.error(response.message);
             return;
         }
+
+        if (setInfo) {
+            const experienceInfoResp = await getExperienceInfo();
+            if (!experienceInfoResp) {
+                return;
+            }
+            setInfo(experienceInfoResp);
+        }
         // TODO ART: show a success message to the user
         console.log('=====> RESPONSE experience');
         console.log(res.ok);
         console.log(response.message);
         console.log('=====>');
+        // required to refresh the UI
+        setRefreshTrigger((prevTrigger) => ({
+            ...prevTrigger,
+            experience: !prevTrigger.experience,
+        }));
+    }
+
+    // Function to delete the record and refresh the UI
+    async function submitDeleteRecord(
+        table: string,
+        column: string,
+        value: string,
+    ) {
+        const response = await deleteRecord(table, column, value);
+        if (!response) {
+            // TODO ART: show an error message to the user
+            console.error('Error user is not Authenticated');
+            return;
+        }
+        // required to refresh the UI
+        setRefreshTrigger((prevTrigger) => ({
+            ...prevTrigger,
+            experience: !prevTrigger.experience,
+        }));
     }
 
     return (
@@ -112,6 +156,16 @@ export default function WorkInfoForm({
             />
             {formErrors.job_title && <p>{formErrors.job_title}</p>}
             <button type="submit">Save</button>
+            {infoQuery && (
+                <button
+                    type="button"
+                    onClick={() => {
+                        submitDeleteRecord('experience', 'id', infoQuery.id);
+                    }}
+                >
+                    Delete
+                </button>
+            )}
         </form>
     );
 }

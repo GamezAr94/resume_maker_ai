@@ -70,3 +70,31 @@ async function setSupabaseClient(): Promise<{ supabase: any; user: any }> {
     }
     return { supabase, user };
 }
+
+export async function deleteRecord(
+    tableName: string,
+    column_name: string,
+    id_value: string,
+) {
+    const { supabase, user } = await setSupabaseClient();
+    if (!supabase || !user) {
+        return false;
+    }
+    try {
+        const { data, error } = await supabase
+            .from(tableName)
+            .delete()
+            .eq(column_name, id_value)
+            .select();
+
+        // return false if there is an error
+        if (error) {
+            return false;
+        }
+
+        // Return the user data
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
