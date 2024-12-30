@@ -85,7 +85,6 @@ export default function PersonalInfoForm() {
 
     return (
         <form onSubmit={validatingAndSaving}>
-            <p>Personal Information</p>
             <input
                 type="text"
                 name="first_name"

@@ -24,28 +24,13 @@ const userSchema = z.object({
     //    .optional(),
     //description: z.string().min(1, 'Description is required'),
 });
-export default function WorkInfoForm() {
+export default function WorkInfoForm({
+    infoQuery,
+}: {
+    infoQuery: FormExperienceStructure | null;
+}) {
     const [formErrors, setFormErrors] =
         useState<FormExperienceStructure>(emptyStateExperience);
-    const [experienceInfo, setExperienceInfo] = useState<
-        [FormExperienceStructure] | false
-    >(false);
-
-    // Fetch the user data when the component mounts
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            const experienceInfoResp = await getExperienceInfo();
-            // If the user doesn't exist, return
-            if (!experienceInfoResp) {
-                return;
-            }
-            // TODO ART I need to print the existing records
-            console.log(experienceInfoResp);
-            // Set the user info in the state
-            setExperienceInfo(experienceInfoResp);
-        };
-        fetchUserInfo();
-    }, []);
 
     // Function to validate the user data and save it
     async function validatingAndSaving(
@@ -71,7 +56,6 @@ export default function WorkInfoForm() {
                     [issue.path[0]]: issue.message,
                 };
             }
-            console.log(newErrors);
             // set the errors in the state to show them to the user
             setFormErrors(newErrors);
             return;
@@ -99,37 +83,34 @@ export default function WorkInfoForm() {
         console.log(response.message);
         console.log('=====>');
     }
+
     return (
-        <form onSubmit={validatingAndSaving}>
-            <p>Work Experience</p>
-            {
-                // TODO ART: I need to show the ID if it is an existing recod, otherwise I dont need to show the id so that I can generate a new record
-                <input type="text" name="id" defaultValue="1" readOnly />
-            }
-            <input type="text" name="company_name" placeholder="Company" />
+        <form
+            onSubmit={validatingAndSaving}
+            style={{ border: '1px solid black', margin: '10px' }}
+        >
+            {infoQuery && (
+                <input
+                    type="text"
+                    name="id"
+                    defaultValue={infoQuery.id}
+                    readOnly
+                />
+            )}
+            <input
+                type="text"
+                name="company_name"
+                placeholder="Company"
+                defaultValue={infoQuery ? infoQuery.company_name : ''}
+            />
             {formErrors.company_name && <p>{formErrors.company_name}</p>}
-            <input type="text" name="job_title" placeholder="Job Title" />
-            {/*
+            <input
+                type="text"
+                name="job_title"
+                placeholder="Job Title"
+                defaultValue={infoQuery ? infoQuery.job_title : ''}
+            />
             {formErrors.job_title && <p>{formErrors.job_title}</p>}
-            <input type="date" name="start_date" placeholder="Start Date" />
-            {formErrors.start_date && (
-                <p>
-                    {typeof formErrors.start_date == 'string'
-                        ? formErrors.start_date
-                        : 'Invalid start Date'}
-                </p>
-            )}
-            <input type="date" name="end_date" placeholder="End Date" />
-            {formErrors.end_date && (
-                <p>
-                    {typeof formErrors.end_date == 'string'
-                        ? formErrors.end_date
-                        : 'Invalid end Date'}
-                </p>
-            )}
-            <input type="text" name="description" placeholder="Description" />
-            {formErrors.description && <p>{formErrors.description}</p>}
-                */}
             <button type="submit">Save</button>
         </form>
     );
