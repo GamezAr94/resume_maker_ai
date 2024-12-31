@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { SectionTypes } from '@/utils/enums';
-import { getUserInfo } from '@/app/db/user_queries';
 import { emptyStatePersonal, FormPersonalStructure } from '@/utils/interfaces';
+import { getDBTableInfo } from '@/app/db/user_queries';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
@@ -20,13 +20,15 @@ export default function PersonalInfoForm() {
     // Fetch the user data when the component mounts
     useEffect(() => {
         const fetchUserInfo = async () => {
-            const userInfoResp = await getUserInfo();
+            const userInfoResp = await getDBTableInfo('');
             // If the user doesn't exist, return
-            if (!userInfoResp) {
+            if (!userInfoResp.status) {
+                // TODO ART: show an error message to the user
+                console.error(userInfoResp.message);
                 return;
             }
             // Set the user info in the state
-            setUserInfo(userInfoResp[0]);
+            setUserInfo(userInfoResp.data);
         };
         fetchUserInfo();
     }, []);

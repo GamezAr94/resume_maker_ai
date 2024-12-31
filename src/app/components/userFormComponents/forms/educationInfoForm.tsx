@@ -1,12 +1,12 @@
 'use client';
-import { deleteRecord, getEducationInfo } from '@/app/db/user_queries';
+import { deleteRecord, getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
 import {
     emptyStateEducation,
     FormEducationStructure,
 } from '@/utils/interfaces';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { set, z } from 'zod';
+import { z } from 'zod';
 
 const userSchema = z.object({
     school_name: z.string().min(1, 'School Name is required'),
@@ -29,8 +29,6 @@ export default function EducationInfoForm({
     setInfo,
     setRefreshTrigger,
 }: Params) {
-    // State to store the visibility of the form
-    const [visible, setVisible] = useState<boolean>(true);
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormEducationStructure>(emptyStateEducation);
@@ -82,11 +80,13 @@ export default function EducationInfoForm({
         }
 
         if (setInfo) {
-            const experienceInfoResp = await getEducationInfo();
+            const experienceInfoResp = await getDBTableInfo(
+                SectionTypes.Education,
+            );
             if (!experienceInfoResp) {
                 return;
             }
-            setInfo(experienceInfoResp);
+            setInfo(experienceInfoResp.data);
         }
         // TODO ART: show a success message to the user
         console.log('=====> RESPONSE education');
@@ -102,64 +102,58 @@ export default function EducationInfoForm({
 
     // Function to delete the record and refresh the UI
     async function submitDeleteRecord(
-        table: string,
+        table: SectionTypes,
         column: string,
         value: string,
     ) {
         const response = await deleteRecord(table, column, value);
-        console.log(value);
         if (!response) {
             // TODO ART: show an error message to the user
             console.error('Error deleting the record');
             return;
         }
-        setVisible(false);
+
+        // required to refresh the UI
+        setRefreshTrigger((prevTrigger) => ({
+            ...prevTrigger,
+            education: !prevTrigger.education,
+        }));
     }
 
     return (
-        <>
-            {visible && (
-                <form onSubmit={validatingAndSaving}>
-                    {infoQuery && (
-                        <input
-                            type="text"
-                            name="id"
-                            defaultValue={infoQuery.id}
-                        />
-                    )}
-                    <input
-                        type="text"
-                        name="school_name"
-                        placeholder="School Name"
-                        defaultValue={infoQuery ? infoQuery.school_name : ''}
-                    />
-                    {formErrors.school_name && <p>{formErrors.school_name}</p>}
-                    <input
-                        type="text"
-                        name="field_of_study"
-                        placeholder="Field of Study"
-                        defaultValue={infoQuery ? infoQuery.field_of_study : ''}
-                    />
-                    {formErrors.field_of_study && (
-                        <p>{formErrors.field_of_study}</p>
-                    )}
-                    <button type="submit">Save</button>
-                    {infoQuery && (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                submitDeleteRecord(
-                                    'education',
-                                    'id',
-                                    infoQuery.id,
-                                );
-                            }}
-                        >
-                            Delete {infoQuery.id}
-                        </button>
-                    )}
-                </form>
+        <form onSubmit={validatingAndSaving}>
+            {infoQuery && (
+                <input type="text" name="id" defaultValue={infoQuery.id} />
             )}
-        </>
+            <input
+                type="text"
+                name="school_name"
+                placeholder="School Name"
+                defaultValue={infoQuery ? infoQuery.school_name : ''}
+            />
+            {formErrors.school_name && <p>{formErrors.school_name}</p>}
+            <input
+                type="text"
+                name="field_of_study"
+                placeholder="Field of Study"
+                defaultValue={infoQuery ? infoQuery.field_of_study : ''}
+            />
+            {formErrors.field_of_study && <p>{formErrors.field_of_study}</p>}
+            <button type="submit">Save</button>
+            {infoQuery && (
+                <button
+                    type="button"
+                    onClick={() => {
+                        submitDeleteRecord(
+                            SectionTypes.Education,
+                            'id',
+                            infoQuery.id,
+                        );
+                    }}
+                >
+                    Delete {infoQuery.id}
+                </button>
+            )}
+        </form>
     );
 }

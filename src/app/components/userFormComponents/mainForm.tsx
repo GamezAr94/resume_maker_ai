@@ -1,17 +1,20 @@
 'use client';
 
 import ProjectsInfoForm from './forms/projectsInfoForm';
-import SkillsInfoForm from './forms/skillsInfoForm';
 import PersonalInfoForm from './forms/personalInfoForm';
 
 import {
     FormEducationStructure,
     FormExperienceStructure,
+    FormSkillStructure,
 } from '@/utils/interfaces';
 import { useEffect, useState } from 'react';
-import { getEducationInfo, getExperienceInfo } from '@/app/db/user_queries';
+import { getDBTableInfo } from '@/app/db/user_queries';
 import ExperienceContainerForm from './experienceContainerForm';
 import EducationContainerForm from './educationContainerForm';
+import { SectionTypes } from '@/utils/enums';
+import SkillContainerForm from './skillContainerForm';
+import exp from 'constants';
 
 export default function UserInfoForm() {
     const [refreshTrigger, setRefreshTrigger] = useState<{
@@ -32,34 +35,57 @@ export default function UserInfoForm() {
     const [educationInfo, setEducationInfo] = useState<
         [FormEducationStructure] | false
     >(false);
+    const [skillInfo, setSkillInfo] = useState<[FormSkillStructure] | false>(
+        false,
+    );
 
-    // Fetch the user education data when the component mounts
+    // EDUCATION: Fetch the user education data when the component mounts
     useEffect(() => {
-        const fetchEducationFormInfo = async () => {
-            const educationInfoResp = await getEducationInfo();
-            if (!educationInfoResp) {
+        const fetchSkillsFormInfo = async () => {
+            const skillsInfoResp = await getDBTableInfo(SectionTypes.Skill);
+            if (!skillsInfoResp.status) {
                 // If there is an error, log it and return
-                console.error('unnexpected error, please try again');
+                console.error(skillsInfoResp.message);
                 return;
             }
             // Set the experience info in the state
-            setEducationInfo(educationInfoResp);
+            setSkillInfo(skillsInfoResp.data);
+        };
+
+        fetchSkillsFormInfo();
+    }, [refreshTrigger.skill]);
+
+    // EDUCATION: Fetch the user education data when the component mounts
+    useEffect(() => {
+        const fetchEducationFormInfo = async () => {
+            const educationInfoResp = await getDBTableInfo(
+                SectionTypes.Education,
+            );
+            if (!educationInfoResp.status) {
+                // If there is an error, log it and return
+                console.error(educationInfoResp.message);
+                return;
+            }
+            // Set the experience info in the state
+            setEducationInfo(educationInfoResp.data);
         };
 
         fetchEducationFormInfo();
     }, [refreshTrigger.education]);
 
-    // Fetch the user experience data when the component mounts
+    // EXPERIENCE: Fetch the user experience data when the component mounts
     useEffect(() => {
         const fetchExperienceFormInfo = async () => {
-            const experienceInfoResp = await getExperienceInfo();
-            if (!experienceInfoResp) {
+            const experienceInfoResp = await getDBTableInfo(
+                SectionTypes.Experience,
+            );
+            if (!experienceInfoResp.status) {
                 // If there is an error, log it and return
-                console.error('unnexpected error, please try again');
+                console.error(experienceInfoResp.message);
                 return;
             }
             // Set the experience info in the state
-            setExperienceInfo(experienceInfoResp);
+            setExperienceInfo(experienceInfoResp.data);
         };
 
         fetchExperienceFormInfo();
@@ -82,8 +108,11 @@ export default function UserInfoForm() {
                 setRefreshTrigger={setRefreshTrigger}
             />
 
-            <p>Skills</p>
-            <SkillsInfoForm />
+            <SkillContainerForm
+                setSkillInfo={setSkillInfo}
+                skillInfo={skillInfo}
+                setRefreshTrigger={setRefreshTrigger}
+            />
 
             <p>Projects</p>
             <ProjectsInfoForm />

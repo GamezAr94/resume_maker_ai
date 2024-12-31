@@ -66,3 +66,17 @@ export interface FormEducationStructure {
     end_date: Date | string;
     grades: string;
 }
+
+// SKILLS FORM
+// Initial state for the skills form errors
+export const emptyStateSkill: FormSkillStructure = {
+    id: '',
+    skill_name: '',
+    skill_level: '',
+};
+// Interface for the form skills structure
+export interface FormSkillStructure {
+    id: string;
+    skill_name: string;
+    skill_level: string;
+}

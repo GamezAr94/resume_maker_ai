@@ -2,8 +2,10 @@
 
 import { SectionTypes } from '@/utils/enums';
 import {
+    FormEducationStructure,
     FormExperienceStructure,
     FormPersonalStructure,
+    FormSkillStructure,
 } from '@/utils/interfaces';
 import { createClient } from '@/utils/supabase/server';
 
@@ -47,7 +49,11 @@ export async function POST(req: Request, res: Response) {
 // Function to update the user data in the database depending on the section type
 async function updatePerType(
     type: SectionTypes,
-    requestBodyData: FormExperienceStructure | FormPersonalStructure,
+    requestBodyData:
+        | FormExperienceStructure
+        | FormPersonalStructure
+        | FormEducationStructure
+        | FormSkillStructure,
     supabase: any,
     user_id: string,
 ): Promise<{ message: string; status: number }> {
@@ -76,7 +82,7 @@ async function updatePerType(
             case SectionTypes.Experience:
                 // Save the user experience data in the supabase database
                 const { error: experienceError } = await supabase
-                    .from('experience')
+                    .from(type)
                     .upsert({
                         user_id: userData[0].id,
                         ...requestBodyData,
@@ -87,7 +93,7 @@ async function updatePerType(
             case SectionTypes.Education:
                 // Save the user experience data in the supabase database
                 const { error: educationError } = await supabase
-                    .from('education')
+                    .from(type)
                     .upsert({
                         user_id: userData[0].id,
                         ...requestBodyData,
@@ -95,7 +101,22 @@ async function updatePerType(
 
                 error = educationError ? educationError.message : null;
                 break;
-            case SectionTypes.Skills:
+            case SectionTypes.Skill:
+                // Save the user experience data in the supabase database
+                if (!('skill_level' in requestBodyData)) {
+                    error = 'Invalid data for skill section';
+                    break;
+                }
+                const { error: skillError } = await supabase.from(type).upsert({
+                    user_id: userData[0].id,
+                    ...requestBodyData,
+                    skill_level:
+                        requestBodyData.skill_level == ''
+                            ? null
+                            : requestBodyData.skill_level,
+                });
+
+                error = skillError ? skillError.message : null;
                 break;
             case SectionTypes.Projects:
                 break;

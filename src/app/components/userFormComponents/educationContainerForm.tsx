@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 import EducationInfoForm from './forms/educationInfoForm';
 import { FormEducationStructure } from '@/utils/interfaces';
-import { z } from 'zod';
 
 interface Params {
     setEducationInfo: Dispatch<

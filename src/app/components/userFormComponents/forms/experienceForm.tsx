@@ -1,5 +1,5 @@
 'use client';
-import { deleteRecord, getExperienceInfo } from '@/app/db/user_queries';
+import { deleteRecord, getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
 import {
     emptyStateExperience,
@@ -36,13 +36,11 @@ interface Params {
         }>
     >;
 }
-export default function WorkInfoForm({
+export default function ExperienceForm({
     infoQuery,
     setInfo,
     setRefreshTrigger,
 }: Params) {
-    // State to store the visibility of the form
-    const [visible, setVisible] = useState<boolean>(true);
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormExperienceStructure>(emptyStateExperience);
@@ -94,11 +92,13 @@ export default function WorkInfoForm({
         }
 
         if (setInfo) {
-            const experienceInfoResp = await getExperienceInfo();
+            const experienceInfoResp = await getDBTableInfo(
+                SectionTypes.Experience,
+            );
             if (!experienceInfoResp) {
                 return;
             }
-            setInfo(experienceInfoResp);
+            setInfo(experienceInfoResp.data);
         }
         // TODO ART: show a success message to the user
         console.log('=====> RESPONSE experience');
@@ -114,7 +114,7 @@ export default function WorkInfoForm({
 
     // Function to delete the record and refresh the UI
     async function submitDeleteRecord(
-        table: string,
+        table: SectionTypes,
         column: string,
         value: string,
     ) {
@@ -124,54 +124,55 @@ export default function WorkInfoForm({
             console.error('Error user is not Authenticated');
             return;
         }
-        setVisible(false);
+
+        // required to refresh the UI
+        setRefreshTrigger((prevTrigger) => ({
+            ...prevTrigger,
+            experience: !prevTrigger.experience,
+        }));
     }
 
     return (
-        <>
-            {visible && (
-                <form onSubmit={validatingAndSaving}>
-                    {infoQuery && (
-                        <input
-                            type="text"
-                            name="id"
-                            defaultValue={infoQuery.id}
-                            readOnly
-                        />
-                    )}
+        <form onSubmit={validatingAndSaving}>
+            {infoQuery && (
+                <>
                     <input
                         type="text"
-                        name="company_name"
-                        placeholder="Company"
-                        defaultValue={infoQuery ? infoQuery.company_name : ''}
+                        name="id"
+                        defaultValue={infoQuery.id}
+                        readOnly
                     />
-                    {formErrors.company_name && (
-                        <p>{formErrors.company_name}</p>
-                    )}
-                    <input
-                        type="text"
-                        name="job_title"
-                        placeholder="Job Title"
-                        defaultValue={infoQuery ? infoQuery.job_title : ''}
-                    />
-                    {formErrors.job_title && <p>{formErrors.job_title}</p>}
-                    <button type="submit">Save</button>
-                    {infoQuery && (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                submitDeleteRecord(
-                                    'experience',
-                                    'id',
-                                    infoQuery.id,
-                                );
-                            }}
-                        >
-                            Delete
-                        </button>
-                    )}
-                </form>
+                </>
             )}
-        </>
+            <input
+                type="text"
+                name="company_name"
+                placeholder="Company"
+                defaultValue={infoQuery ? infoQuery.company_name : ''}
+            />
+            {formErrors.company_name && <p>{formErrors.company_name}</p>}
+            <input
+                type="text"
+                name="job_title"
+                placeholder="Job Title"
+                defaultValue={infoQuery ? infoQuery.job_title : ''}
+            />
+            {formErrors.job_title && <p>{formErrors.job_title}</p>}
+            <button type="submit">Save</button>
+            {infoQuery && (
+                <button
+                    type="button"
+                    onClick={() => {
+                        submitDeleteRecord(
+                            SectionTypes.Experience,
+                            'id',
+                            infoQuery.id,
+                        );
+                    }}
+                >
+                    Delete
+                </button>
+            )}
+        </form>
     );
 }

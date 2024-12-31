@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
-import WorkInfoForm from './forms/workInfoForm';
 import { FormExperienceStructure } from '@/utils/interfaces';
+import ExperienceForm from './forms/experienceForm';
 
 interface Params {
     setExperienceInfo: Dispatch<
@@ -27,14 +27,14 @@ export default function ExperienceContainerForm({
             <p>Work Experience</p>
             {experienceInfo &&
                 experienceInfo.map((item, index) => (
-                    <WorkInfoForm
+                    <ExperienceForm
                         key={index}
                         infoQuery={item}
                         setInfo={setExperienceInfo}
                         setRefreshTrigger={setRefreshTrigger}
                     />
                 ))}
-            <WorkInfoForm
+            <ExperienceForm
                 infoQuery={null}
                 setInfo={null}
                 setRefreshTrigger={setRefreshTrigger}
