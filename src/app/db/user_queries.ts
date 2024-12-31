@@ -19,7 +19,8 @@ export async function getDBTableInfo(
             .from('user')
             .select(`${tableName} (*)`)
             .eq('supabase_id', user.id)
-            .order('id', { ascending: true });
+            .order(`id`, { foreignTable: `${tableName}` }, { ascending: true });
+        console.log(data);
 
         // If there is an error, return an error response:
         if (error) {
