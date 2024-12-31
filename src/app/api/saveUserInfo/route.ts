@@ -85,6 +85,15 @@ async function updatePerType(
                 error = experienceError ? experienceError.message : null;
                 break;
             case SectionTypes.Education:
+                // Save the user experience data in the supabase database
+                const { error: educationError } = await supabase
+                    .from('education')
+                    .upsert({
+                        user_id: userData[0].id,
+                        ...requestBodyData,
+                    });
+
+                error = educationError ? educationError.message : null;
                 break;
             case SectionTypes.Skills:
                 break;

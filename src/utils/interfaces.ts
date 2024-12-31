@@ -1,4 +1,5 @@
 // PERSONAL FORM
+
 // Initial state for the personal form errors
 export const emptyStatePersonal: FormPersonalStructure = {
     first_name: '',
@@ -40,4 +41,28 @@ export interface FormExperienceStructure {
     start_date: Date | string;
     end_date: Date | string;
     description: string;
+}
+
+// EDUCATION FORM
+// Initial state for the education form errors
+export const emptyStateEducation: FormEducationStructure = {
+    id: '',
+    school_name: '',
+    field_of_study: '',
+    degree: '',
+    is_current: null,
+    end_date: '',
+    start_date: '',
+    grades: '',
+};
+// Interface for the form education structure
+export interface FormEducationStructure {
+    id: string;
+    school_name: string;
+    field_of_study: string;
+    degree: string;
+    is_current: boolean | null;
+    start_date: Date | string;
+    end_date: Date | string;
+    grades: string;
 }

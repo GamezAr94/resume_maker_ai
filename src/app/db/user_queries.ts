@@ -57,6 +57,34 @@ export async function getExperienceInfo() {
     }
 }
 
+export async function getEducationInfo() {
+    // Get the supabase client and the user data
+    const { supabase, user } = await setSupabaseClient();
+    if (!supabase || !user) {
+        console.error('Error user is not Authenticated');
+        return false;
+    }
+    try {
+        const { data, error } = await supabase
+            .from('user')
+            .select(`education (*)`)
+            .eq('supabase_id', user.id)
+            .order('id', { ascending: true });
+
+        // If there is an error, return an error response:
+        if (error) {
+            console.error('Error getting the experience data:', error);
+            return false;
+        }
+
+        // Return the user data
+        return data[0].education;
+    } catch (error) {
+        console.error('Error saving the user data:', error);
+        return false;
+    }
+}
+
 // Function to set up the supabase client and get the user data
 async function setSupabaseClient(): Promise<{ supabase: any; user: any }> {
     const supabase = await createClient();

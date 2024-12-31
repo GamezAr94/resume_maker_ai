@@ -41,6 +41,9 @@ export default function WorkInfoForm({
     setInfo,
     setRefreshTrigger,
 }: Params) {
+    // State to store the visibility of the form
+    const [visible, setVisible] = useState<boolean>(true);
+    // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormExperienceStructure>(emptyStateExperience);
 
@@ -121,51 +124,54 @@ export default function WorkInfoForm({
             console.error('Error user is not Authenticated');
             return;
         }
-        // required to refresh the UI
-        setRefreshTrigger((prevTrigger) => ({
-            ...prevTrigger,
-            experience: !prevTrigger.experience,
-        }));
+        setVisible(false);
     }
 
     return (
-        <form
-            onSubmit={validatingAndSaving}
-            style={{ border: '1px solid black', margin: '10px' }}
-        >
-            {infoQuery && (
-                <input
-                    type="text"
-                    name="id"
-                    defaultValue={infoQuery.id}
-                    readOnly
-                />
+        <>
+            {visible && (
+                <form onSubmit={validatingAndSaving}>
+                    {infoQuery && (
+                        <input
+                            type="text"
+                            name="id"
+                            defaultValue={infoQuery.id}
+                            readOnly
+                        />
+                    )}
+                    <input
+                        type="text"
+                        name="company_name"
+                        placeholder="Company"
+                        defaultValue={infoQuery ? infoQuery.company_name : ''}
+                    />
+                    {formErrors.company_name && (
+                        <p>{formErrors.company_name}</p>
+                    )}
+                    <input
+                        type="text"
+                        name="job_title"
+                        placeholder="Job Title"
+                        defaultValue={infoQuery ? infoQuery.job_title : ''}
+                    />
+                    {formErrors.job_title && <p>{formErrors.job_title}</p>}
+                    <button type="submit">Save</button>
+                    {infoQuery && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                submitDeleteRecord(
+                                    'experience',
+                                    'id',
+                                    infoQuery.id,
+                                );
+                            }}
+                        >
+                            Delete
+                        </button>
+                    )}
+                </form>
             )}
-            <input
-                type="text"
-                name="company_name"
-                placeholder="Company"
-                defaultValue={infoQuery ? infoQuery.company_name : ''}
-            />
-            {formErrors.company_name && <p>{formErrors.company_name}</p>}
-            <input
-                type="text"
-                name="job_title"
-                placeholder="Job Title"
-                defaultValue={infoQuery ? infoQuery.job_title : ''}
-            />
-            {formErrors.job_title && <p>{formErrors.job_title}</p>}
-            <button type="submit">Save</button>
-            {infoQuery && (
-                <button
-                    type="button"
-                    onClick={() => {
-                        submitDeleteRecord('experience', 'id', infoQuery.id);
-                    }}
-                >
-                    Delete
-                </button>
-            )}
-        </form>
+        </>
     );
 }

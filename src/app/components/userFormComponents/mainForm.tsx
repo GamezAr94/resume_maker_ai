@@ -1,14 +1,17 @@
 'use client';
 
-import EducationInfoForm from './forms/educationInfoForm';
 import ProjectsInfoForm from './forms/projectsInfoForm';
 import SkillsInfoForm from './forms/skillsInfoForm';
 import PersonalInfoForm from './forms/personalInfoForm';
 
-import { FormExperienceStructure } from '@/utils/interfaces';
+import {
+    FormEducationStructure,
+    FormExperienceStructure,
+} from '@/utils/interfaces';
 import { useEffect, useState } from 'react';
-import { getExperienceInfo } from '@/app/db/user_queries';
+import { getEducationInfo, getExperienceInfo } from '@/app/db/user_queries';
 import ExperienceContainerForm from './experienceContainerForm';
+import EducationContainerForm from './educationContainerForm';
 
 export default function UserInfoForm() {
     const [refreshTrigger, setRefreshTrigger] = useState<{
@@ -26,12 +29,33 @@ export default function UserInfoForm() {
     const [experienceInfo, setExperienceInfo] = useState<
         [FormExperienceStructure] | false
     >(false);
+    const [educationInfo, setEducationInfo] = useState<
+        [FormEducationStructure] | false
+    >(false);
 
-    // Fetch the user data when the component mounts
+    // Fetch the user education data when the component mounts
+    useEffect(() => {
+        const fetchEducationFormInfo = async () => {
+            const educationInfoResp = await getEducationInfo();
+            if (!educationInfoResp) {
+                // If there is an error, log it and return
+                console.error('unnexpected error, please try again');
+                return;
+            }
+            // Set the experience info in the state
+            setEducationInfo(educationInfoResp);
+        };
+
+        fetchEducationFormInfo();
+    }, [refreshTrigger.education]);
+
+    // Fetch the user experience data when the component mounts
     useEffect(() => {
         const fetchExperienceFormInfo = async () => {
             const experienceInfoResp = await getExperienceInfo();
             if (!experienceInfoResp) {
+                // If there is an error, log it and return
+                console.error('unnexpected error, please try again');
                 return;
             }
             // Set the experience info in the state
@@ -52,8 +76,11 @@ export default function UserInfoForm() {
                 setRefreshTrigger={setRefreshTrigger}
             />
 
-            <p>Education</p>
-            <EducationInfoForm />
+            <EducationContainerForm
+                setEducationInfo={setEducationInfo}
+                educationInfo={educationInfo}
+                setRefreshTrigger={setRefreshTrigger}
+            />
 
             <p>Skills</p>
             <SkillsInfoForm />
