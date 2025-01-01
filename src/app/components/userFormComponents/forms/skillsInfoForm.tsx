@@ -78,11 +78,11 @@ export default function SkillsInfoForm({
         }
 
         if (setInfo) {
-            const experienceInfoResp = await getDBTableInfo(SectionTypes.Skill);
-            if (!experienceInfoResp) {
+            const skillInfoResp = await getDBTableInfo(SectionTypes.Skill);
+            if (!skillInfoResp) {
                 return;
             }
-            setInfo(experienceInfoResp.data);
+            setInfo(skillInfoResp.data);
         }
         // TODO ART: show a success message to the user
         console.log('=====> RESPONSE skill');

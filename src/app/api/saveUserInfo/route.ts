@@ -118,9 +118,18 @@ async function updatePerType(
 
                 error = skillError ? skillError.message : null;
                 break;
-            case SectionTypes.Projects:
+            case SectionTypes.Project:
+                const { error: projectError } = await supabase
+                    .from(type)
+                    .upsert({
+                        user_id: userData[0].id,
+                        ...requestBodyData,
+                    });
+
+                error = projectError ? projectError.message : null;
                 break;
             default:
+                error = 'Invalid section type';
                 break;
         }
 
@@ -136,8 +145,7 @@ async function updatePerType(
 
         // Return a success response
         return {
-            //message: `${type} section was stored successfully`,
-            message: `Data was stored successfully`,
+            message: `${type} section was stored successfully`,
             status: 200,
         };
     } catch (error) {

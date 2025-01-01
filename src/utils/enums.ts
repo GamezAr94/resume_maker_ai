@@ -3,5 +3,5 @@ export enum SectionTypes {
     Experience = 'experience',
     Education = 'education',
     Skill = 'skill',
-    Projects = 'projects',
+    Project = 'project',
 }

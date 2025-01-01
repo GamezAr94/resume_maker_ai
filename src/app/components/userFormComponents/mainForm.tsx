@@ -6,6 +6,7 @@ import PersonalInfoForm from './forms/personalInfoForm';
 import {
     FormEducationStructure,
     FormExperienceStructure,
+    FormProjectStructure,
     FormSkillStructure,
 } from '@/utils/interfaces';
 import { useEffect, useState } from 'react';
@@ -14,7 +15,7 @@ import ExperienceContainerForm from './experienceContainerForm';
 import EducationContainerForm from './educationContainerForm';
 import { SectionTypes } from '@/utils/enums';
 import SkillContainerForm from './skillContainerForm';
-import exp from 'constants';
+import ProjectContainerForm from './projectContainerForm';
 
 export default function UserInfoForm() {
     const [refreshTrigger, setRefreshTrigger] = useState<{
@@ -29,6 +30,9 @@ export default function UserInfoForm() {
         project: false,
     });
 
+    const [projectInfo, setProjectInfo] = useState<
+        [FormProjectStructure] | false
+    >(false);
     const [experienceInfo, setExperienceInfo] = useState<
         [FormExperienceStructure] | false
     >(false);
@@ -38,6 +42,23 @@ export default function UserInfoForm() {
     const [skillInfo, setSkillInfo] = useState<[FormSkillStructure] | false>(
         false,
     );
+
+    // PROJECT: Fetch the user education data when the component mounts
+    useEffect(() => {
+        const fetchProjectFormInfo = async () => {
+            const projectInfoResp = await getDBTableInfo(SectionTypes.Project);
+            if (!projectInfoResp.status) {
+                // If there is an error, log it and return
+                console.error(projectInfoResp.message);
+                return;
+            }
+            // Set the experience info in the state
+            setProjectInfo(projectInfoResp.data);
+        };
+
+        // NOTE: This is commented out because the function is not defined
+        fetchProjectFormInfo();
+    }, [refreshTrigger.project]);
 
     // EDUCATION: Fetch the user education data when the component mounts
     useEffect(() => {
@@ -114,8 +135,11 @@ export default function UserInfoForm() {
                 setRefreshTrigger={setRefreshTrigger}
             />
 
-            <p>Projects</p>
-            <ProjectsInfoForm />
+            <ProjectContainerForm
+                setProjectInfo={setProjectInfo}
+                projectInfo={projectInfo}
+                setRefreshTrigger={setRefreshTrigger}
+            />
         </div>
     );
 }

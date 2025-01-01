@@ -80,3 +80,17 @@ export interface FormSkillStructure {
     skill_name: string;
     skill_level: string;
 }
+
+// PROJECT FORM
+// Initial state for the project form errors
+export const emptyStateProject: FormProjectStructure = {
+    id: '',
+    project_name: '',
+    project_description: '',
+};
+// Interface for the form project structure
+export interface FormProjectStructure {
+    id: string;
+    project_name: string;
+    project_description: string;
+}
