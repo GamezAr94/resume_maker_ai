@@ -143,6 +143,15 @@ async function updatePerType(
 
                 error = projectError ? projectError.message : null;
                 break;
+            case SectionTypes.JobOffer:
+                const { error: jobOfferError } = await supabase
+                    .from(type)
+                    .upsert({
+                        user_id: userData[0].id,
+                        ...requestBodyData,
+                    });
+                error = jobOfferError ? jobOfferError.message : null;
+                break;
             default:
                 error = 'Invalid section type';
                 break;

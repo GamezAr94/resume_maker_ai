@@ -7,8 +7,8 @@ import { getDBTableInfo } from '@/app/db/user_queries';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
-    first_name: z.string().min(2),
-    last_name: z.string().min(2),
+    first_name: z.string().min(2, 'First Name is required'),
+    last_name: z.string().min(2, 'Last Name is required'),
 });
 export default function PersonalInfoForm() {
     const [formErrors, setFormErrors] =

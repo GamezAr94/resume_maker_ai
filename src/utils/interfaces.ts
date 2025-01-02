@@ -98,3 +98,17 @@ export interface FormProjectStructure {
     experience_id: string | null;
     education_id: string | null;
 }
+
+// JOB OFFER FORM
+// Initial state for the job offer form errors
+export const emptyStateJobOffer: FormJobOfferStructure = {
+    company_name: '',
+    job_position: '',
+    job_description: '',
+};
+// Interface for the form job offer structure
+export interface FormJobOfferStructure {
+    company_name: string;
+    job_position: string;
+    job_description: string;
+}

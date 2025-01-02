@@ -17,7 +17,7 @@ import { SectionTypes } from '@/utils/enums';
 import SkillContainerForm from './skillContainerForm';
 import ProjectContainerForm from './projectContainerForm';
 
-export default function UserInfoForm() {
+export default function MainUserForm() {
     const [refreshTrigger, setRefreshTrigger] = useState<{
         experience: boolean;
         education: boolean;
