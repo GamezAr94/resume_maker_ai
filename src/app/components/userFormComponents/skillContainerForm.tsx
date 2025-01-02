@@ -4,7 +4,7 @@ import SkillsInfoForm from './forms/skillsInfoForm';
 
 interface Params {
     setSkillInfo: Dispatch<SetStateAction<false | [FormSkillStructure]>>;
-    skillInfo: [FormSkillStructure] | false;
+    skillInfo: [FormSkillStructure] | [];
     setRefreshTrigger: Dispatch<
         SetStateAction<{
             experience: boolean;

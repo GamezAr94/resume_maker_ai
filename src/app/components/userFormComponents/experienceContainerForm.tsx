@@ -6,7 +6,7 @@ interface Params {
     setExperienceInfo: Dispatch<
         SetStateAction<false | [FormExperienceStructure]>
     >;
-    experienceInfo: [FormExperienceStructure] | false;
+    experienceInfo: [FormExperienceStructure] | [];
     setRefreshTrigger: Dispatch<
         SetStateAction<{
             experience: boolean;

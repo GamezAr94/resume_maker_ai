@@ -87,10 +87,14 @@ export const emptyStateProject: FormProjectStructure = {
     id: '',
     project_name: '',
     project_description: '',
+    experience_id: null,
+    education_id: null,
 };
 // Interface for the form project structure
 export interface FormProjectStructure {
     id: string;
     project_name: string;
     project_description: string;
+    experience_id: string | null;
+    education_id: string | null;
 }

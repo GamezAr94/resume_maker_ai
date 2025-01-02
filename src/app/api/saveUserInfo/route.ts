@@ -6,6 +6,7 @@ import {
     FormExperienceStructure,
     FormPersonalStructure,
     FormSkillStructure,
+    FormProjectStructure,
 } from '@/utils/interfaces';
 import { createClient } from '@/utils/supabase/server';
 
@@ -50,10 +51,11 @@ export async function POST(req: Request, res: Response) {
 async function updatePerType(
     type: SectionTypes,
     requestBodyData:
+        | FormEducationStructure
         | FormExperienceStructure
         | FormPersonalStructure
-        | FormEducationStructure
-        | FormSkillStructure,
+        | FormSkillStructure
+        | FormProjectStructure,
     supabase: any,
     user_id: string,
 ): Promise<{ message: string; status: number }> {
@@ -119,6 +121,19 @@ async function updatePerType(
                 error = skillError ? skillError.message : null;
                 break;
             case SectionTypes.Project:
+                // if the experience_id or education_id is not in the request body, set it to null
+                if (!('experience_id' in requestBodyData)) {
+                    requestBodyData = {
+                        ...requestBodyData,
+                        experience_id: null,
+                    };
+                }
+                if (!('education_id' in requestBodyData)) {
+                    requestBodyData = {
+                        ...requestBodyData,
+                        education_id: null,
+                    };
+                }
                 const { error: projectError } = await supabase
                     .from(type)
                     .upsert({

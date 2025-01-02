@@ -1,10 +1,14 @@
-import { FormProjectStructure } from '@/utils/interfaces';
+import {
+    FormEducationStructure,
+    FormExperienceStructure,
+    FormProjectStructure,
+} from '@/utils/interfaces';
 import { Dispatch, SetStateAction } from 'react';
 import ProjectsInfoForm from './forms/projectsInfoForm';
 
 interface Params {
     setProjectInfo: Dispatch<SetStateAction<false | [FormProjectStructure]>>;
-    projectInfo: [FormProjectStructure] | false;
+    projectInfo: [FormProjectStructure] | [];
     setRefreshTrigger: Dispatch<
         SetStateAction<{
             experience: boolean;
@@ -13,11 +17,15 @@ interface Params {
             project: boolean;
         }>
     >;
+    educationInfo: [FormEducationStructure] | [];
+    experienceInfo: [FormExperienceStructure] | [];
 }
 export default function ProjectContainerForm({
     setProjectInfo,
     projectInfo,
     setRefreshTrigger,
+    educationInfo,
+    experienceInfo,
 }: Params) {
     return (
         <>
@@ -29,12 +37,16 @@ export default function ProjectContainerForm({
                         infoQuery={item}
                         setInfo={setProjectInfo}
                         setRefreshTrigger={setRefreshTrigger}
+                        educationInfo={educationInfo}
+                        experienceInfo={experienceInfo}
                     />
                 ))}
             <ProjectsInfoForm
                 infoQuery={null}
                 setInfo={null}
                 setRefreshTrigger={setRefreshTrigger}
+                educationInfo={educationInfo}
+                experienceInfo={experienceInfo}
             />
         </>
     );

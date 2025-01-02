@@ -56,7 +56,6 @@ export default function UserInfoForm() {
             setProjectInfo(projectInfoResp.data);
         };
 
-        // NOTE: This is commented out because the function is not defined
         fetchProjectFormInfo();
     }, [refreshTrigger.project]);
 
@@ -119,26 +118,28 @@ export default function UserInfoForm() {
 
             <ExperienceContainerForm
                 setExperienceInfo={setExperienceInfo}
-                experienceInfo={experienceInfo}
+                experienceInfo={experienceInfo === false ? [] : experienceInfo}
                 setRefreshTrigger={setRefreshTrigger}
             />
 
             <EducationContainerForm
                 setEducationInfo={setEducationInfo}
-                educationInfo={educationInfo}
+                educationInfo={educationInfo === false ? [] : educationInfo}
                 setRefreshTrigger={setRefreshTrigger}
             />
 
             <SkillContainerForm
                 setSkillInfo={setSkillInfo}
-                skillInfo={skillInfo}
+                skillInfo={skillInfo === false ? [] : skillInfo}
                 setRefreshTrigger={setRefreshTrigger}
             />
 
             <ProjectContainerForm
                 setProjectInfo={setProjectInfo}
-                projectInfo={projectInfo}
+                projectInfo={projectInfo === false ? [] : projectInfo}
                 setRefreshTrigger={setRefreshTrigger}
+                educationInfo={educationInfo === false ? [] : educationInfo}
+                experienceInfo={experienceInfo == false ? [] : experienceInfo}
             />
         </div>
     );

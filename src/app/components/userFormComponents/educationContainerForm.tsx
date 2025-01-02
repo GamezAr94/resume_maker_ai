@@ -6,7 +6,7 @@ interface Params {
     setEducationInfo: Dispatch<
         SetStateAction<false | [FormEducationStructure]>
     >;
-    educationInfo: [FormEducationStructure] | false;
+    educationInfo: [FormEducationStructure] | [];
     setRefreshTrigger: Dispatch<
         SetStateAction<{
             experience: boolean;

@@ -2,8 +2,13 @@
 
 import { deleteRecord, getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
-import { emptyStateProject, FormProjectStructure } from '@/utils/interfaces';
-import { Dispatch, SetStateAction, useState } from 'react';
+import {
+    emptyStateProject,
+    FormEducationStructure,
+    FormExperienceStructure,
+    FormProjectStructure,
+} from '@/utils/interfaces';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { z } from 'zod';
 
 interface Params {
@@ -17,6 +22,8 @@ interface Params {
             project: boolean;
         }>
     >;
+    educationInfo: [FormEducationStructure] | [];
+    experienceInfo: [FormExperienceStructure] | [];
 }
 const userSchema = z.object({
     project_name: z.string().min(1, 'Project Name is required'),
@@ -28,11 +35,34 @@ export default function ProjectsInfoForm({
     setInfo,
     infoQuery,
     setRefreshTrigger,
+    educationInfo,
+    experienceInfo,
 }: Params) {
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormProjectStructure>(emptyStateProject);
 
+    const [getCategory, setGetCategory] = useState<{
+        personal_type: boolean;
+        experience_type: boolean;
+        education_type: boolean;
+    }>({ personal_type: true, experience_type: false, education_type: false });
+
+    useEffect(() => {
+        if (infoQuery?.experience_id) {
+            setGetCategory({
+                personal_type: false,
+                experience_type: true,
+                education_type: false,
+            });
+        } else if (infoQuery?.education_id) {
+            setGetCategory({
+                personal_type: false,
+                experience_type: false,
+                education_type: true,
+            });
+        }
+    }, []);
     // Function to validate the user data and save it
     async function validatingAndSaving(
         event: React.FormEvent<HTMLFormElement>,
@@ -80,7 +110,7 @@ export default function ProjectsInfoForm({
         }
 
         if (setInfo) {
-            const projectInfoResp = await getDBTableInfo(SectionTypes.Skill);
+            const projectInfoResp = await getDBTableInfo(SectionTypes.Project);
             if (!projectInfoResp) {
                 return;
             }
@@ -118,6 +148,22 @@ export default function ProjectsInfoForm({
         }));
     }
 
+    // Function to set the project type experience or education
+    function setType(event: React.ChangeEvent<HTMLSelectElement>) {
+        const key = event.target.value;
+        // Create a new object with all values set to false initially
+        const newGetCategory = {
+            personal_type: false,
+            experience_type: false,
+            education_type: false,
+        };
+
+        // Set the selected key to true
+        newGetCategory[key as keyof typeof newGetCategory] = true;
+
+        setGetCategory(newGetCategory);
+    }
+
     return (
         <form onSubmit={validatingAndSaving}>
             {infoQuery && (
@@ -130,6 +176,60 @@ export default function ProjectsInfoForm({
                 defaultValue={infoQuery ? infoQuery.project_name : ''}
             />
             {formErrors.project_name && <p>{formErrors.project_name}</p>}
+
+            <label>Proyect Type:</label>
+            <select
+                defaultValue={
+                    infoQuery?.education_id
+                        ? 'education_type'
+                        : infoQuery?.experience_id
+                        ? 'experience_type'
+                        : 'personal_type'
+                }
+                onChange={setType}
+            >
+                <option value="personal_type">Personal</option>
+                <option
+                    disabled={experienceInfo.length <= 0}
+                    hidden={experienceInfo.length <= 0}
+                    value="experience_type"
+                >
+                    Experience
+                </option>
+                <option
+                    disabled={educationInfo.length <= 0}
+                    hidden={educationInfo.length <= 0}
+                    value="education_type"
+                >
+                    Education
+                </option>
+            </select>
+
+            {getCategory.experience_type && (
+                <select
+                    defaultValue={infoQuery?.experience_id ?? ''}
+                    name="experience_id"
+                >
+                    {experienceInfo.map((item, index) => (
+                        <option key={index} value={item.id}>
+                            {item.company_name}
+                        </option>
+                    ))}
+                </select>
+            )}
+            {getCategory.education_type && (
+                <select
+                    defaultValue={infoQuery?.education_id ?? ''}
+                    name="education_id"
+                >
+                    {educationInfo.map((item, index) => (
+                        <option key={index} value={item.id}>
+                            {item.school_name} {item.degree}
+                        </option>
+                    ))}
+                </select>
+            )}
+
             <input
                 type="text"
                 name="project_description"
