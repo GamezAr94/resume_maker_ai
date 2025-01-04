@@ -49,7 +49,9 @@ export default function MainJobForm() {
             return;
         }
 
-        const res = await fetch('api/saveUserInfo', {
+        /*
+        // TODO we dont need to store the job offer right away, maybe we can just store it ONLY if the user saves the resume
+        const resSaving = await fetch('api/saveUserInfo', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -57,18 +59,38 @@ export default function MainJobForm() {
                 data: Object.fromEntries(formData),
             }),
         });
-        const response = await res.json();
+        const responseSaving = await resSaving.json();
 
         // show a message to the user
-        if (!res.ok) {
-            // TODO ART: show an error message to the user
-            console.error(response.message);
+        if (!resSaving.ok) {
+            // TODO ART: show an error message to the user. Error processing the job offer, try again
+            console.error(responseSaving.message);
             return;
         }
+            */
+
+        const resGemini = await fetch('api/geminiResumeInteraction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: SectionTypes.JobOffer,
+                data: Object.fromEntries(formData),
+            }),
+        });
+        const responseGemini = await resGemini.json();
+
+        // show a message to the user
+        if (!resGemini.ok) {
+            // TODO ART: show an error message to the user. Error processing the job offer, try again
+            console.error(responseGemini.message);
+            return;
+        }
+
         // TODO ART: show a success message to the user
-        console.log('=====> RESPONSE job offer');
-        console.log(res.ok);
-        console.log(response.message);
+        console.log('=====> RESPONSE GEMINI job offer');
+        console.log(resGemini.ok);
+        //console.log(JSON.parse(responseGemini.message));
+        console.log(responseGemini.message);
         console.log('=====>');
     }
 

@@ -112,3 +112,44 @@ export interface FormJobOfferStructure {
     job_position: string;
     job_description: string;
 }
+
+// ==============================
+
+// GEMINI RESUME RESPONSE
+interface GeminiResponse {
+    contact_info: ContactInfo;
+    summary: string;
+    experience: Experience[];
+    education: Education[];
+    skills: string[];
+    projects: Project[];
+    keywords: string[];
+    recommendations: string;
+    explanation: string;
+}
+interface ContactInfo {
+    name: string;
+    email: string;
+    phone: string;
+    linkedin: string;
+}
+
+interface Experience {
+    title: string;
+    company: string;
+    years: string; // Note: I've changed this to 'years' to match your response
+    description: string;
+    relevance: string;
+}
+
+interface Education {
+    degree: string;
+    university: string; // Note: I've changed this to 'university'
+    years: string;
+}
+
+interface Project {
+    name: string;
+    description: string;
+    relevance: string;
+}
