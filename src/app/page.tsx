@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import MainUserForm from './components/userFormComponents/mainUserForm';
 import MainJobForm from './components/jobOfferFormComponents/mainJobForm';
+import Header from './components/header/Header';
 
 export default async function Home() {
     // This code redirect to the dashboard if it is authenticated
@@ -16,10 +17,13 @@ export default async function Home() {
     }
 
     return (
-        <main className={styles.main}>
-            <MainUserForm />
-            <hr />
-            <MainJobForm />
-        </main>
+        <div>
+            <Header />
+            <main className={styles.main}>
+                <MainUserForm />
+                <hr />
+                <MainJobForm />
+            </main>
+        </div>
     );
 }

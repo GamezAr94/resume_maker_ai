@@ -1,6 +1,5 @@
 'use client';
 
-import ProjectsInfoForm from './forms/projectsInfoForm';
 import PersonalInfoForm from './forms/personalInfoForm';
 
 import {

@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "@mantine/core": "^7.15.2",
+    "@mantine/hooks": "^7.15.2",
     "@supabase/ssr": "^0.5.2",
     "next": "15.1.3",
     "react": "^19.0.0",
@@ -23,6 +25,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.3",
+    "postcss": "^8.4.49",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
     "typescript": "^5"
   }
 }
