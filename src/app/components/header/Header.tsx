@@ -1,5 +1,6 @@
 'use client';
 
+import { signOutAction } from '@/app/actions';
 import { Button, useMantineColorScheme } from '@mantine/core';
 
 export default function Header() {
@@ -12,6 +13,9 @@ export default function Header() {
             <div>
                 <div>Tokens #</div>
                 <div>Hamburger menu</div>
+                <form action={signOutAction}>
+                    <button type="submit">Logout</button>
+                </form>
                 <Button
                     styles={{ root: { height: 69 } }}
                     onClick={() => setColorScheme('light')}

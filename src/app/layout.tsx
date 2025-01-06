@@ -10,7 +10,6 @@ import {
 } from '@mantine/core';
 
 import './globals.css';
-import { signOutAction } from './actions';
 
 export const metadata: Metadata = {
     title: 'Resume Generator AI',
@@ -40,12 +39,7 @@ export default function RootLayout({
                 <ColorSchemeScript />
             </head>
             <body>
-                <MantineProvider theme={theme}>
-                    <form action={signOutAction}>
-                        <button type="submit">Exit</button>
-                    </form>
-                    {children}
-                </MantineProvider>
+                <MantineProvider theme={theme}>{children}</MantineProvider>
             </body>
         </html>
     );
