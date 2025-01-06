@@ -7,7 +7,6 @@ import {
     FormPersonalStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { getDBTableInfo } from '@/app/db/user_queries';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
@@ -85,6 +84,7 @@ export default function PersonalInfoForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
+            <p>Add New Record</p>
             <input
                 type="text"
                 name="first_name"

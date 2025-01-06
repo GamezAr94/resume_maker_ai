@@ -116,8 +116,10 @@ export default function EducationInfoForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            {infoQuery && (
+            {infoQuery ? (
                 <input type="text" name="id" defaultValue={infoQuery.id} />
+            ) : (
+                <p>Add New Record</p>
             )}
             <input
                 type="text"

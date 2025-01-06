@@ -128,7 +128,7 @@ export default function ExperienceForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            {infoQuery && (
+            {infoQuery ? (
                 <>
                     <input
                         type="text"
@@ -137,6 +137,8 @@ export default function ExperienceForm({
                         readOnly
                     />
                 </>
+            ) : (
+                <p>Add New Record</p>
             )}
             <input
                 type="text"

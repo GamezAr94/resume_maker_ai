@@ -93,19 +93,34 @@ export default function ResumeBuilderForm() {
         console.log('=====>');
     }
     return (
-        <form onSubmit={validatingAndSaving} className={styles.container_form}>
+        <div className={styles.resume_maker_container}>
             <h2>Resume Maker</h2>
-            <input type="text" name="company_name" placeholder="Company Name" />
-            {formErrors.company_name && <p>{formErrors.company_name}</p>}
-            <input type="text" name="job_position" placeholder="Job Position" />
-            {formErrors.job_position && <p>{formErrors.job_position}</p>}
-            <input
-                type="text"
-                name="job_description"
-                placeholder="Job Description"
-            />
-            {formErrors.job_description && <p>{formErrors.job_description}</p>}
-            <button type="submit">Generate Resume</button>
-        </form>
+            <form
+                onSubmit={validatingAndSaving}
+                className={styles.form_container}
+            >
+                <input
+                    type="text"
+                    name="company_name"
+                    placeholder="Company Name"
+                />
+                {formErrors.company_name && <p>{formErrors.company_name}</p>}
+                <input
+                    type="text"
+                    name="job_position"
+                    placeholder="Job Position"
+                />
+                {formErrors.job_position && <p>{formErrors.job_position}</p>}
+                <input
+                    type="text"
+                    name="job_description"
+                    placeholder="Job Description"
+                />
+                {formErrors.job_description && (
+                    <p>{formErrors.job_description}</p>
+                )}
+                <button type="submit">Generate Resume</button>
+            </form>
+        </div>
     );
 }

@@ -1,7 +1,5 @@
 'use client';
 
-import PersonalInfoForm from './forms/personalInfoForm';
-
 import {
     emptyStatePersonal,
     FormEducationStructure,
@@ -13,13 +11,15 @@ import {
 } from '@/utils/interfaces';
 import { useEffect, useState } from 'react';
 import { getDBTableInfo } from '@/app/db/user_queries';
-import ExperienceContainerForm from './experienceContainerForm';
-import EducationContainerForm from './educationContainerForm';
+import ExperienceContainerForm from './formContainers/experienceContainerForm';
+import EducationContainerForm from './formContainers/educationContainerForm';
 import { SectionTypes } from '@/utils/enums';
-import SkillContainerForm from './skillContainerForm';
-import ProjectContainerForm from './projectContainerForm';
+import SkillContainerForm from './formContainers/skillContainerForm';
+import ProjectContainerForm from './formContainers/projectContainerForm';
 import { SegmentedControl } from '@mantine/core';
-import PersonalContainerForm from './personalContainerForm';
+import PersonalContainerForm from './formContainers/personalContainerForm';
+
+import styles from './mainUserForm.module.css';
 
 interface Props {
     className: string;
@@ -138,73 +138,86 @@ export default function MainUserForm({ className }: Props) {
 
     return (
         <div className={className}>
-            <SegmentedControl
-                value={sectionDisplayed}
-                onChange={(value) =>
-                    setSectionDisplayed(
-                        value as
-                            | 'personal'
-                            | 'education'
-                            | 'job_experience'
-                            | 'skills'
-                            | 'projects',
-                    )
-                }
-                data={[
-                    { value: 'personal', label: <p>Personal</p> },
-                    { value: 'education', label: <p>Education</p> },
-                    { value: 'job_experience', label: <p>Experience</p> },
-                    { value: 'skills', label: <p>Skills</p> },
-                    { value: 'projects', label: <p>Projects</p> },
-                ]}
-            />
-
-            {sectionDisplayed == 'personal' && (
-                <PersonalContainerForm
-                    personalInfo={
-                        userInfo === false ? emptyStatePersonal : userInfo
+            <div>
+                <SegmentedControl
+                    value={sectionDisplayed}
+                    onChange={(value) =>
+                        setSectionDisplayed(
+                            value as
+                                | 'personal'
+                                | 'education'
+                                | 'job_experience'
+                                | 'skills'
+                                | 'projects',
+                        )
                     }
-                    setRefreshTrigger={setRefreshTrigger}
+                    data={[
+                        { value: 'personal', label: <p>Personal</p> },
+                        { value: 'education', label: <p>Education</p> },
+                        { value: 'job_experience', label: <p>Experience</p> },
+                        { value: 'skills', label: <p>Skills</p> },
+                        { value: 'projects', label: <p>Projects</p> },
+                    ]}
                 />
-            )}
+            </div>
 
-            {sectionDisplayed == 'job_experience' && (
-                <ExperienceContainerForm
-                    setExperienceInfo={setExperienceInfo}
-                    experienceInfo={
-                        experienceInfo === false ? [] : experienceInfo
-                    }
-                    setRefreshTrigger={setRefreshTrigger}
-                />
-            )}
+            <div>
+                {sectionDisplayed == 'personal' && (
+                    <PersonalContainerForm
+                        className={styles.section_container}
+                        personalInfo={
+                            userInfo === false ? emptyStatePersonal : userInfo
+                        }
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                )}
 
-            {sectionDisplayed == 'education' && (
-                <EducationContainerForm
-                    setEducationInfo={setEducationInfo}
-                    educationInfo={educationInfo === false ? [] : educationInfo}
-                    setRefreshTrigger={setRefreshTrigger}
-                />
-            )}
+                {sectionDisplayed == 'job_experience' && (
+                    <ExperienceContainerForm
+                        className={styles.section_container}
+                        setExperienceInfo={setExperienceInfo}
+                        experienceInfo={
+                            experienceInfo === false ? [] : experienceInfo
+                        }
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                )}
 
-            {sectionDisplayed == 'skills' && (
-                <SkillContainerForm
-                    setSkillInfo={setSkillInfo}
-                    skillInfo={skillInfo === false ? [] : skillInfo}
-                    setRefreshTrigger={setRefreshTrigger}
-                />
-            )}
+                {sectionDisplayed == 'education' && (
+                    <EducationContainerForm
+                        className={styles.section_container}
+                        setEducationInfo={setEducationInfo}
+                        educationInfo={
+                            educationInfo === false ? [] : educationInfo
+                        }
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                )}
 
-            {sectionDisplayed == 'projects' && (
-                <ProjectContainerForm
-                    setProjectInfo={setProjectInfo}
-                    projectInfo={projectInfo === false ? [] : projectInfo}
-                    setRefreshTrigger={setRefreshTrigger}
-                    educationInfo={educationInfo === false ? [] : educationInfo}
-                    experienceInfo={
-                        experienceInfo == false ? [] : experienceInfo
-                    }
-                />
-            )}
+                {sectionDisplayed == 'skills' && (
+                    <SkillContainerForm
+                        className={styles.section_container}
+                        setSkillInfo={setSkillInfo}
+                        skillInfo={skillInfo === false ? [] : skillInfo}
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                )}
+
+                {sectionDisplayed == 'projects' && (
+                    <ProjectContainerForm
+                        className={styles.section_container}
+                        setProjectInfo={setProjectInfo}
+                        projectInfo={projectInfo === false ? [] : projectInfo}
+                        setRefreshTrigger={setRefreshTrigger}
+                        educationInfo={
+                            educationInfo === false ? [] : educationInfo
+                        }
+                        experienceInfo={
+                            experienceInfo == false ? [] : experienceInfo
+                        }
+                    />
+                )}
+            </div>
         </div>
     );
 }
