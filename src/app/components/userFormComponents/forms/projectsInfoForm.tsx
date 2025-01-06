@@ -7,6 +7,7 @@ import {
     FormEducationStructure,
     FormExperienceStructure,
     FormProjectStructure,
+    RefreshSections,
 } from '@/utils/interfaces';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -14,14 +15,7 @@ import { z } from 'zod';
 interface Params {
     setInfo: React.Dispatch<false | [FormProjectStructure]> | null;
     infoQuery: FormProjectStructure | null;
-    setRefreshTrigger: Dispatch<
-        SetStateAction<{
-            experience: boolean;
-            education: boolean;
-            skill: boolean;
-            project: boolean;
-        }>
-    >;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     educationInfo: [FormEducationStructure] | [];
     experienceInfo: [FormExperienceStructure] | [];
 }

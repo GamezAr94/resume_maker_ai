@@ -4,6 +4,7 @@ import { SectionTypes } from '@/utils/enums';
 import {
     emptyStateEducation,
     FormEducationStructure,
+    RefreshSections,
 } from '@/utils/interfaces';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { z } from 'zod';
@@ -15,14 +16,7 @@ const userSchema = z.object({
 interface Params {
     setInfo: React.Dispatch<false | [FormEducationStructure]> | null;
     infoQuery: FormEducationStructure | null;
-    setRefreshTrigger: Dispatch<
-        SetStateAction<{
-            experience: boolean;
-            education: boolean;
-            skill: boolean;
-            project: boolean;
-        }>
-    >;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 export default function EducationInfoForm({
     infoQuery,

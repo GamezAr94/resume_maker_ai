@@ -1,20 +1,13 @@
 import { Dispatch, SetStateAction } from 'react';
 import EducationInfoForm from './forms/educationInfoForm';
-import { FormEducationStructure } from '@/utils/interfaces';
+import { FormEducationStructure, RefreshSections } from '@/utils/interfaces';
 
 interface Params {
     setEducationInfo: Dispatch<
         SetStateAction<false | [FormEducationStructure]>
     >;
     educationInfo: [FormEducationStructure] | [];
-    setRefreshTrigger: Dispatch<
-        SetStateAction<{
-            experience: boolean;
-            education: boolean;
-            skill: boolean;
-            project: boolean;
-        }>
-    >;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 
 export default function EducationContainerForm({

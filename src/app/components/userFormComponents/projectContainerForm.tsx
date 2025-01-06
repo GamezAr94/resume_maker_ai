@@ -2,6 +2,7 @@ import {
     FormEducationStructure,
     FormExperienceStructure,
     FormProjectStructure,
+    RefreshSections,
 } from '@/utils/interfaces';
 import { Dispatch, SetStateAction } from 'react';
 import ProjectsInfoForm from './forms/projectsInfoForm';
@@ -9,14 +10,7 @@ import ProjectsInfoForm from './forms/projectsInfoForm';
 interface Params {
     setProjectInfo: Dispatch<SetStateAction<false | [FormProjectStructure]>>;
     projectInfo: [FormProjectStructure] | [];
-    setRefreshTrigger: Dispatch<
-        SetStateAction<{
-            experience: boolean;
-            education: boolean;
-            skill: boolean;
-            project: boolean;
-        }>
-    >;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     educationInfo: [FormEducationStructure] | [];
     experienceInfo: [FormExperienceStructure] | [];
 }

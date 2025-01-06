@@ -2,21 +2,18 @@
 
 import { deleteRecord, getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
-import { emptyStateSkill, FormSkillStructure } from '@/utils/interfaces';
+import {
+    emptyStateSkill,
+    FormSkillStructure,
+    RefreshSections,
+} from '@/utils/interfaces';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { z } from 'zod';
 
 interface Params {
     setInfo: React.Dispatch<false | [FormSkillStructure]> | null;
     infoQuery: FormSkillStructure | null;
-    setRefreshTrigger: Dispatch<
-        SetStateAction<{
-            experience: boolean;
-            education: boolean;
-            skill: boolean;
-            project: boolean;
-        }>
-    >;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 const userSchema = z.object({
     skill_name: z.string().min(1, 'Skill Name is required'),

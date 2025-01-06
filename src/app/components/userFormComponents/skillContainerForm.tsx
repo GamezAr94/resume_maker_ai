@@ -1,18 +1,11 @@
-import { FormSkillStructure } from '@/utils/interfaces';
+import { FormSkillStructure, RefreshSections } from '@/utils/interfaces';
 import { Dispatch, SetStateAction } from 'react';
 import SkillsInfoForm from './forms/skillsInfoForm';
 
 interface Params {
     setSkillInfo: Dispatch<SetStateAction<false | [FormSkillStructure]>>;
     skillInfo: [FormSkillStructure] | [];
-    setRefreshTrigger: Dispatch<
-        SetStateAction<{
-            experience: boolean;
-            education: boolean;
-            skill: boolean;
-            project: boolean;
-        }>
-    >;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 export default function SkillContainerForm({
     setSkillInfo,

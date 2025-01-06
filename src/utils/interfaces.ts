@@ -153,3 +153,14 @@ interface Project {
     description: string;
     relevance: string;
 }
+
+// ==============================
+
+// Trigger refresh
+export interface RefreshSections {
+    experience: boolean;
+    education: boolean;
+    skill: boolean;
+    project: boolean;
+    personal: boolean;
+}

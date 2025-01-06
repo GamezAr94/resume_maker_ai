@@ -1,8 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { SectionTypes } from '@/utils/enums';
-import { emptyStatePersonal, FormPersonalStructure } from '@/utils/interfaces';
+import {
+    emptyStatePersonal,
+    FormPersonalStructure,
+    RefreshSections,
+} from '@/utils/interfaces';
 import { getDBTableInfo } from '@/app/db/user_queries';
 
 // creating the zod schema to validate the user data
@@ -10,28 +14,16 @@ const userSchema = z.object({
     first_name: z.string().min(2, 'First Name is required'),
     last_name: z.string().min(2, 'Last Name is required'),
 });
-export default function PersonalInfoForm() {
+interface Params {
+    infoQuery: FormPersonalStructure;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
+}
+export default function PersonalInfoForm({
+    infoQuery,
+    setRefreshTrigger,
+}: Params) {
     const [formErrors, setFormErrors] =
         useState<FormPersonalStructure>(emptyStatePersonal);
-    const [userInfo, setUserInfo] = useState<FormPersonalStructure | false>(
-        false,
-    );
-
-    // Fetch the user data when the component mounts
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            const userInfoResp = await getDBTableInfo('');
-            // If the user doesn't exist, return
-            if (!userInfoResp.status) {
-                // TODO ART: show an error message to the user
-                console.error(userInfoResp.message);
-                return;
-            }
-            // Set the user info in the state
-            setUserInfo(userInfoResp.data);
-        };
-        fetchUserInfo();
-    }, []);
 
     // Function to validate the user data and save it
     async function validatingAndSaving(
@@ -83,6 +75,12 @@ export default function PersonalInfoForm() {
         console.log(res.ok);
         console.log(response.message);
         console.log('=====>');
+
+        // required to refresh the UI
+        setRefreshTrigger((prevTrigger) => ({
+            ...prevTrigger,
+            personal: !prevTrigger.personal,
+        }));
     }
 
     return (
@@ -91,14 +89,14 @@ export default function PersonalInfoForm() {
                 type="text"
                 name="first_name"
                 placeholder="First Name"
-                defaultValue={userInfo ? userInfo?.first_name : ''}
+                defaultValue={infoQuery.first_name}
             />
             {formErrors.first_name && <p>{formErrors.first_name}</p>}
             <input
                 type="text"
                 name="last_name"
                 placeholder="Last Name"
-                defaultValue={userInfo ? userInfo?.last_name : ''}
+                defaultValue={infoQuery.last_name}
             />
             {formErrors.last_name && <p>{formErrors.last_name}</p>}
             {/*

@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { FormExperienceStructure } from '@/utils/interfaces';
+import { FormExperienceStructure, RefreshSections } from '@/utils/interfaces';
 import ExperienceForm from './forms/experienceForm';
 
 interface Params {
@@ -7,14 +7,7 @@ interface Params {
         SetStateAction<false | [FormExperienceStructure]>
     >;
     experienceInfo: [FormExperienceStructure] | [];
-    setRefreshTrigger: Dispatch<
-        SetStateAction<{
-            experience: boolean;
-            education: boolean;
-            skill: boolean;
-            project: boolean;
-        }>
-    >;
+    setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 
 export default function ExperienceContainerForm({
