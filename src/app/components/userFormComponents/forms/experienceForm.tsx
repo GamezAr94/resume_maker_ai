@@ -128,46 +128,50 @@ export default function ExperienceForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            {infoQuery ? (
+            {infoQuery && (
                 <>
                     <input
+                        hidden
+                        readOnly
                         type="text"
                         name="id"
                         defaultValue={infoQuery.id}
-                        readOnly
                     />
+                    <p>Company Name: {infoQuery.company_name}</p>
+                    <p>Job Title: {infoQuery.job_title}</p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            submitDeleteRecord(
+                                SectionTypes.Experience,
+                                'id',
+                                infoQuery.id,
+                            );
+                        }}
+                    >
+                        Delete
+                    </button>
                 </>
-            ) : (
-                <p>Add New Record</p>
             )}
-            <input
-                type="text"
-                name="company_name"
-                placeholder="Company"
-                defaultValue={infoQuery ? infoQuery.company_name : ''}
-            />
-            {formErrors.company_name && <p>{formErrors.company_name}</p>}
-            <input
-                type="text"
-                name="job_title"
-                placeholder="Job Title"
-                defaultValue={infoQuery ? infoQuery.job_title : ''}
-            />
-            {formErrors.job_title && <p>{formErrors.job_title}</p>}
-            <button type="submit">Save</button>
-            {infoQuery && (
-                <button
-                    type="button"
-                    onClick={() => {
-                        submitDeleteRecord(
-                            SectionTypes.Experience,
-                            'id',
-                            infoQuery.id,
-                        );
-                    }}
-                >
-                    Delete
-                </button>
+            {!infoQuery && (
+                <>
+                    <p>Add New Record</p>
+                    <input
+                        type="text"
+                        name="company_name"
+                        placeholder="Company"
+                    />
+                    {formErrors.company_name && (
+                        <p>{formErrors.company_name}</p>
+                    )}
+                    <input
+                        type="text"
+                        name="job_title"
+                        placeholder="Job Title"
+                    />
+                    {formErrors.job_title && <p>{formErrors.job_title}</p>}
+                    <button type="submit">Save</button>
+                </>
             )}
         </form>
     );

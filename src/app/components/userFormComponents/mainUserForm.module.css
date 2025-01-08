@@ -1,8 +1,12 @@
+.forms_section {
+    width: 98%;
+    margin: 0 auto;
+}
+
 .section_container {
     display: flex;
     gap: 30px;
 }
-
 .section_container > * {
     display: flex;
     flex-direction: column;

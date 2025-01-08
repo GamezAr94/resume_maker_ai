@@ -160,11 +160,108 @@ export default function ProjectsInfoForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            {infoQuery ? (
-                <input type="text" name="id" defaultValue={infoQuery.id} />
-            ) : (
-                <p>Add New Record</p>
+            {infoQuery && (
+                <>
+                    <input
+                        readOnly
+                        hidden
+                        type="text"
+                        name="id"
+                        defaultValue={infoQuery.id}
+                    />
+                    <p>Project Name: {infoQuery.project_name}</p>
+                    <p>
+                        Project Type:{' '}
+                        {infoQuery.education_id
+                            ? 'School'
+                            : infoQuery.experience_id
+                            ? 'Job'
+                            : 'Personal'}
+                    </p>
+                    <p>Project Description: {infoQuery.project_description}</p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            submitDeleteRecord(
+                                SectionTypes.Project,
+                                'id',
+                                infoQuery.id,
+                            );
+                        }}
+                    >
+                        Delete
+                    </button>
+                </>
             )}
+            {!infoQuery && (
+                <>
+                    <p>Add New Record</p>
+                    <input
+                        type="text"
+                        name="project_name"
+                        placeholder="Project Name"
+                    />
+                    {formErrors.project_name && (
+                        <p>{formErrors.project_name}</p>
+                    )}
+
+                    <label>Proyect Type:</label>
+                    <select onChange={setType}>
+                        <option value="personal_type">Personal</option>
+                        <option
+                            disabled={experienceInfo.length <= 0}
+                            hidden={experienceInfo.length <= 0}
+                            value="experience_type"
+                        >
+                            Experience
+                        </option>
+                        <option
+                            disabled={educationInfo.length <= 0}
+                            hidden={educationInfo.length <= 0}
+                            value="education_type"
+                        >
+                            Education
+                        </option>
+                    </select>
+
+                    {getCategory.experience_type && (
+                        <select name="experience_id">
+                            {experienceInfo.map((item, index) => (
+                                <option key={index} value={item.id}>
+                                    {item.company_name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                    {getCategory.education_type && (
+                        <select name="education_id">
+                            {educationInfo.map((item, index) => (
+                                <option key={index} value={item.id}>
+                                    {item.school_name} {item.degree}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+
+                    <input
+                        type="text"
+                        name="project_description"
+                        placeholder="Project Description"
+                    />
+                    {formErrors.project_description && (
+                        <p>{formErrors.project_description}</p>
+                    )}
+                    <button type="submit">Save</button>
+                </>
+            )}
+        </form>
+    );
+}
+/*
+
+// TODO this is the old implementation where the select is selected based on the record data
+                <>
+            <p>Add New Record</p>
             <input
                 type="text"
                 name="project_name"
@@ -236,20 +333,4 @@ export default function ProjectsInfoForm({
                 <p>{formErrors.project_description}</p>
             )}
             <button type="submit">Save</button>
-            {infoQuery && (
-                <button
-                    type="button"
-                    onClick={() => {
-                        submitDeleteRecord(
-                            SectionTypes.Project,
-                            'id',
-                            infoQuery.id,
-                        );
-                    }}
-                >
-                    Delete
-                </button>
-            )}
-        </form>
-    );
-}
+*/

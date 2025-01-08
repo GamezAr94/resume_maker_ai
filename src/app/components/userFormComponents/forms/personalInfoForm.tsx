@@ -84,7 +84,10 @@ export default function PersonalInfoForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            <p>Add New Record</p>
+            <p>
+                Remember to keep up to date all your information for best
+                results
+            </p>
             <input
                 type="text"
                 name="first_name"

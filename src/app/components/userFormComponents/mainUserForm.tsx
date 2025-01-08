@@ -161,7 +161,7 @@ export default function MainUserForm({ className }: Props) {
                 />
             </div>
 
-            <div>
+            <div className={styles.forms_section}>
                 {sectionDisplayed == 'personal' && (
                     <PersonalContainerForm
                         className={styles.section_container}

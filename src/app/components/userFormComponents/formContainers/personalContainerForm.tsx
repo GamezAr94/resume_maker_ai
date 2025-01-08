@@ -1,7 +1,6 @@
 import { FormPersonalStructure, RefreshSections } from '@/utils/interfaces';
 import { Dispatch, SetStateAction } from 'react';
 import PersonalInfoForm from '../forms/personalInfoForm';
-import ShowUserDataSection from '../showUserDataSection';
 
 interface Params {
     personalInfo: FormPersonalStructure;
@@ -23,12 +22,6 @@ export default function PersonalContainerForm({
                     infoQuery={personalInfo}
                     setRefreshTrigger={setRefreshTrigger}
                 />
-                <ShowUserDataSection isPersonal={true}>
-                    <p>
-                        Remember to keep up to date all your information for
-                        best results
-                    </p>
-                </ShowUserDataSection>
             </div>
         </>
     );

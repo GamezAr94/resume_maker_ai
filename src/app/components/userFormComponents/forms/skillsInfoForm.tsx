@@ -114,40 +114,49 @@ export default function SkillsInfoForm({
     }
     return (
         <form onSubmit={validatingAndSaving}>
-            {infoQuery ? (
-                <input type="text" name="id" defaultValue={infoQuery.id} />
-            ) : (
-                <p>Add New Record</p>
-            )}
-            <input
-                type="text"
-                name="skill_name"
-                placeholder="Skill Name"
-                defaultValue={infoQuery ? infoQuery.skill_name : ''}
-            />
-            {formErrors.skill_name && <p>{formErrors.skill_name}</p>}
-            <input
-                type="number"
-                min="0"
-                max="10"
-                name="skill_level"
-                placeholder="Skill Level"
-                defaultValue={infoQuery ? infoQuery.skill_level : ''}
-            />
-            <button type="submit">Save</button>
             {infoQuery && (
-                <button
-                    type="button"
-                    onClick={() => {
-                        submitDeleteRecord(
-                            SectionTypes.Skill,
-                            'id',
-                            infoQuery.id,
-                        );
-                    }}
-                >
-                    Delete
-                </button>
+                <>
+                    <input
+                        hidden
+                        readOnly
+                        type="text"
+                        name="id"
+                        defaultValue={infoQuery.id}
+                    />
+                    <p>Skill Name: {infoQuery.skill_name}</p>
+                    <p>Skill Level: {infoQuery.skill_level}</p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            submitDeleteRecord(
+                                SectionTypes.Skill,
+                                'id',
+                                infoQuery.id,
+                            );
+                        }}
+                    >
+                        Delete
+                    </button>
+                </>
+            )}
+            {!infoQuery && (
+                <>
+                    <p>Add New Record</p>
+                    <input
+                        type="text"
+                        name="skill_name"
+                        placeholder="Skill Name"
+                    />
+                    {formErrors.skill_name && <p>{formErrors.skill_name}</p>}
+                    <input
+                        type="number"
+                        min="0"
+                        max="10"
+                        name="skill_level"
+                        placeholder="Skill Level"
+                    />
+                    <button type="submit">Save</button>
+                </>
             )}
         </form>
     );

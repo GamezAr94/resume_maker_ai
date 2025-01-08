@@ -116,39 +116,50 @@ export default function EducationInfoForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            {infoQuery ? (
-                <input type="text" name="id" defaultValue={infoQuery.id} />
-            ) : (
-                <p>Add New Record</p>
-            )}
-            <input
-                type="text"
-                name="school_name"
-                placeholder="School Name"
-                defaultValue={infoQuery ? infoQuery.school_name : ''}
-            />
-            {formErrors.school_name && <p>{formErrors.school_name}</p>}
-            <input
-                type="text"
-                name="field_of_study"
-                placeholder="Field of Study"
-                defaultValue={infoQuery ? infoQuery.field_of_study : ''}
-            />
-            {formErrors.field_of_study && <p>{formErrors.field_of_study}</p>}
-            <button type="submit">Save</button>
             {infoQuery && (
-                <button
-                    type="button"
-                    onClick={() => {
-                        submitDeleteRecord(
-                            SectionTypes.Education,
-                            'id',
-                            infoQuery.id,
-                        );
-                    }}
-                >
-                    Delete {infoQuery.id}
-                </button>
+                <>
+                    <input
+                        hidden
+                        readOnly
+                        type="text"
+                        name="id"
+                        defaultValue={infoQuery.id}
+                    />
+                    <p>School Name: {infoQuery.school_name}</p>
+                    <p>Field of Study: {infoQuery.field_of_study}</p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            submitDeleteRecord(
+                                SectionTypes.Education,
+                                'id',
+                                infoQuery.id,
+                            );
+                        }}
+                    >
+                        Delete {infoQuery.id}
+                    </button>
+                </>
+            )}
+            {!infoQuery && (
+                <>
+                    <p>Add New Record</p>
+                    <input
+                        type="text"
+                        name="school_name"
+                        placeholder="School Name"
+                    />
+                    {formErrors.school_name && <p>{formErrors.school_name}</p>}
+                    <input
+                        type="text"
+                        name="field_of_study"
+                        placeholder="Field of Study"
+                    />
+                    {formErrors.field_of_study && (
+                        <p>{formErrors.field_of_study}</p>
+                    )}
+                    <button type="submit">Save</button>
+                </>
             )}
         </form>
     );
