@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 
 import styles from './resumeBuilderForm.module.css';
+import { useRouter } from 'next/navigation';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
@@ -14,6 +15,7 @@ const userSchema = z.object({
 });
 
 export default function ResumeBuilderForm() {
+    const router = useRouter();
     const [formErrors, setFormErrors] =
         useState<FormJobOfferStructure>(emptyStateJobOffer);
 
@@ -91,6 +93,9 @@ export default function ResumeBuilderForm() {
         //console.log(JSON.parse(responseGemini.message));
         console.log(responseGemini.message);
         console.log('=====>');
+
+        // Redirect to Resume with data
+        router.push(`/resume/3`);
     }
     return (
         <div className={styles.resume_maker_container}>

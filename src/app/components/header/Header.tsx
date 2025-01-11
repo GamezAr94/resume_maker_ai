@@ -3,6 +3,7 @@
 import { Button, Menu, useMantineColorScheme } from '@mantine/core';
 import styles from './header.module.css';
 import { signOutAction } from '@/app/actions';
+import Link from 'next/link';
 
 export default function Header() {
     const { setColorScheme, colorScheme } = useMantineColorScheme();
@@ -21,7 +22,9 @@ export default function Header() {
                         <p>Menu</p>
                     </Menu.Target>
                     <Menu.Dropdown>
-                        <Menu.Item>Home</Menu.Item>
+                        <Menu.Item>
+                            <Link href="/">Home</Link>
+                        </Menu.Item>
                         <Menu.Item>Buy Tokens</Menu.Item>
                         <Menu.Item>Info</Menu.Item>
                         <Menu.Item onClick={toggleTheme}>
