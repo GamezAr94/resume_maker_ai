@@ -7,7 +7,7 @@ import {
     FormSkillStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 
 interface Params {
@@ -28,6 +28,9 @@ export default function SkillsInfoForm({
     setEditRecord,
     getEditRecord,
 }: Params) {
+    // whit this we will erase all the data in the form after saving it
+    const formRef = useRef<HTMLFormElement>(null);
+
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormSkillStructure>(emptyStateSkill);
@@ -95,6 +98,8 @@ export default function SkillsInfoForm({
             ...prevTrigger,
             skill: !prevTrigger.skill,
         }));
+        setEditRecord(null);
+        formRef.current?.reset();
     }
 
     // Function to delete the record and refresh the UI
@@ -121,7 +126,7 @@ export default function SkillsInfoForm({
         setEditRecord(value);
     }
     return (
-        <form onSubmit={validatingAndSaving}>
+        <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <>
                     <input

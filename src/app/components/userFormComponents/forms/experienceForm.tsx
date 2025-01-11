@@ -6,7 +6,7 @@ import {
     FormExperienceStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 
 const userSchema = z.object({
@@ -39,6 +39,9 @@ export default function ExperienceForm({
     setEditRecord,
     getEditRecord,
 }: Params) {
+    // whit this we will erase all the data in the form after saving it
+    const formRef = useRef<HTMLFormElement>(null);
+
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormExperienceStructure>(emptyStateExperience);
@@ -109,6 +112,7 @@ export default function ExperienceForm({
             experience: !prevTrigger.experience,
         }));
         setEditRecord(null);
+        formRef.current?.reset();
     }
 
     // Function to delete the record and refresh the UI
@@ -137,7 +141,7 @@ export default function ExperienceForm({
     }
 
     return (
-        <form onSubmit={validatingAndSaving}>
+        <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <>
                     <input

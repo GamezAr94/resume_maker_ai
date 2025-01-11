@@ -9,7 +9,7 @@ import {
     FormProjectStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 
 interface Params {
@@ -36,6 +36,9 @@ export default function ProjectsInfoForm({
     setEditRecord,
     getEditRecord,
 }: Params) {
+    // whit this we will erase all the data in the form after saving it
+    const formRef = useRef<HTMLFormElement>(null);
+
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormProjectStructure>(emptyStateProject);
@@ -124,6 +127,8 @@ export default function ProjectsInfoForm({
             ...prevTrigger,
             project: !prevTrigger.project,
         }));
+        setEditRecord(null);
+        formRef.current?.reset();
     }
 
     // Function to delete the record and refresh the UI
@@ -168,7 +173,7 @@ export default function ProjectsInfoForm({
     }
 
     return (
-        <form onSubmit={validatingAndSaving}>
+        <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <>
                     <input
@@ -222,7 +227,7 @@ export default function ProjectsInfoForm({
 
                     <label>Proyect Type:</label>
                     <select
-                        value={
+                        defaultValue={
                             getEditRecord?.education_id
                                 ? 'education_type'
                                 : getEditRecord?.experience_id
@@ -311,80 +316,3 @@ export default function ProjectsInfoForm({
         </form>
     );
 }
-/*
-
-// TODO this is the old implementation where the select is selected based on the record data
-                <>
-            <p>Add New Record</p>
-            <input
-                type="text"
-                name="project_name"
-                placeholder="Project Name"
-                defaultValue={infoQuery ? infoQuery.project_name : ''}
-            />
-            {formErrors.project_name && <p>{formErrors.project_name}</p>}
-
-            <label>Proyect Type:</label>
-            <select
-                defaultValue={
-                    infoQuery?.education_id
-                        ? 'education_type'
-                        : infoQuery?.experience_id
-                        ? 'experience_type'
-                        : 'personal_type'
-                }
-                onChange={setType}
-            >
-                <option value="personal_type">Personal</option>
-                <option
-                    disabled={experienceInfo.length <= 0}
-                    hidden={experienceInfo.length <= 0}
-                    value="experience_type"
-                >
-                    Experience
-                </option>
-                <option
-                    disabled={educationInfo.length <= 0}
-                    hidden={educationInfo.length <= 0}
-                    value="education_type"
-                >
-                    Education
-                </option>
-            </select>
-
-            {getCategory.experience_type && (
-                <select
-                    defaultValue={infoQuery?.experience_id ?? ''}
-                    name="experience_id"
-                >
-                    {experienceInfo.map((item, index) => (
-                        <option key={index} value={item.id}>
-                            {item.company_name}
-                        </option>
-                    ))}
-                </select>
-            )}
-            {getCategory.education_type && (
-                <select
-                    defaultValue={infoQuery?.education_id ?? ''}
-                    name="education_id"
-                >
-                    {educationInfo.map((item, index) => (
-                        <option key={index} value={item.id}>
-                            {item.school_name} {item.degree}
-                        </option>
-                    ))}
-                </select>
-            )}
-
-            <input
-                type="text"
-                name="project_description"
-                placeholder="Project Description"
-                defaultValue={infoQuery ? infoQuery.project_description : ''}
-            />
-            {formErrors.project_description && (
-                <p>{formErrors.project_description}</p>
-            )}
-            <button type="submit">Save</button>
-*/
