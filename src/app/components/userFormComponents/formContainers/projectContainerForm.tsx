@@ -1,10 +1,11 @@
+'user client';
 import {
     FormEducationStructure,
     FormExperienceStructure,
     FormProjectStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import ProjectsInfoForm from '../forms/projectsInfoForm';
 import ShowUserDataSection from '../showUserDataSection';
 
@@ -24,6 +25,8 @@ export default function ProjectContainerForm({
     experienceInfo,
     className,
 }: Params) {
+    const [getEditRecord, setEditRecord] =
+        useState<FormProjectStructure | null>(null);
     return (
         <>
             <div>
@@ -36,6 +39,8 @@ export default function ProjectContainerForm({
                     setRefreshTrigger={setRefreshTrigger}
                     educationInfo={educationInfo}
                     experienceInfo={experienceInfo}
+                    getEditRecord={getEditRecord}
+                    setEditRecord={setEditRecord}
                 />
                 <ShowUserDataSection>
                     {projectInfo.length > 0
@@ -47,6 +52,7 @@ export default function ProjectContainerForm({
                                   setRefreshTrigger={setRefreshTrigger}
                                   educationInfo={educationInfo}
                                   experienceInfo={experienceInfo}
+                                  setEditRecord={setEditRecord}
                               />
                           ))
                         : null}

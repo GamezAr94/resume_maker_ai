@@ -1,5 +1,6 @@
+'use client';
 import { FormSkillStructure, RefreshSections } from '@/utils/interfaces';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import SkillsInfoForm from '../forms/skillsInfoForm';
 import ShowUserDataSection from '../showUserDataSection';
 
@@ -15,6 +16,9 @@ export default function SkillContainerForm({
     setRefreshTrigger,
     className,
 }: Params) {
+    const [getEditRecord, setEditRecord] = useState<FormSkillStructure | null>(
+        null,
+    );
     return (
         <>
             <div>
@@ -25,6 +29,8 @@ export default function SkillContainerForm({
                     infoQuery={null}
                     setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
+                    getEditRecord={getEditRecord}
+                    setEditRecord={setEditRecord}
                 />
                 <ShowUserDataSection>
                     {skillInfo.length > 0
@@ -34,6 +40,7 @@ export default function SkillContainerForm({
                                   infoQuery={item}
                                   setInfo={setSkillInfo}
                                   setRefreshTrigger={setRefreshTrigger}
+                                  setEditRecord={setEditRecord}
                               />
                           ))
                         : null}

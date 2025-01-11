@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction } from 'react';
+'user client';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { FormExperienceStructure, RefreshSections } from '@/utils/interfaces';
 import ExperienceForm from '../forms/experienceForm';
 import ShowUserDataSection from '../showUserDataSection';
@@ -18,6 +19,8 @@ export default function ExperienceContainerForm({
     setRefreshTrigger,
     className,
 }: Params) {
+    const [getEditRecord, setEditRecord] =
+        useState<FormExperienceStructure | null>(null);
     return (
         <>
             <div>
@@ -28,6 +31,8 @@ export default function ExperienceContainerForm({
                     infoQuery={null}
                     setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
+                    getEditRecord={getEditRecord}
+                    setEditRecord={setEditRecord}
                 />
                 <ShowUserDataSection>
                     {experienceInfo.length > 0
@@ -37,6 +42,7 @@ export default function ExperienceContainerForm({
                                   infoQuery={item}
                                   setInfo={setExperienceInfo}
                                   setRefreshTrigger={setRefreshTrigger}
+                                  setEditRecord={setEditRecord}
                               />
                           ))
                         : null}

@@ -14,6 +14,8 @@ interface Params {
     setInfo: React.Dispatch<false | [FormSkillStructure]> | null;
     infoQuery: FormSkillStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
+    setEditRecord: Dispatch<SetStateAction<FormSkillStructure | null>>;
+    getEditRecord?: FormSkillStructure | null;
 }
 const userSchema = z.object({
     skill_name: z.string().min(1, 'Skill Name is required'),
@@ -23,6 +25,8 @@ export default function SkillsInfoForm({
     setInfo,
     infoQuery,
     setRefreshTrigger,
+    setEditRecord,
+    getEditRecord,
 }: Params) {
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
@@ -111,6 +115,10 @@ export default function SkillsInfoForm({
             ...prevTrigger,
             skill: !prevTrigger.skill,
         }));
+        setEditRecord(null);
+    }
+    function editRecord(value: FormSkillStructure | null) {
+        setEditRecord(value);
     }
     return (
         <form onSubmit={validatingAndSaving}>
@@ -137,6 +145,9 @@ export default function SkillsInfoForm({
                     >
                         Delete
                     </button>
+                    <button onClick={() => editRecord(infoQuery)} type="button">
+                        Edit
+                    </button>
                 </>
             )}
             {!infoQuery && (
@@ -146,6 +157,9 @@ export default function SkillsInfoForm({
                         type="text"
                         name="skill_name"
                         placeholder="Skill Name"
+                        defaultValue={
+                            getEditRecord ? getEditRecord.skill_name : ''
+                        }
                     />
                     {formErrors.skill_name && <p>{formErrors.skill_name}</p>}
                     <input
@@ -154,8 +168,28 @@ export default function SkillsInfoForm({
                         max="10"
                         name="skill_level"
                         placeholder="Skill Level"
+                        defaultValue={
+                            getEditRecord ? getEditRecord.skill_level : ''
+                        }
                     />
                     <button type="submit">Save</button>
+                    {getEditRecord && (
+                        <>
+                            <input
+                                readOnly
+                                hidden
+                                type="text"
+                                name="id"
+                                defaultValue={getEditRecord.id}
+                            />
+                            <button
+                                onClick={() => editRecord(null)}
+                                type="button"
+                            >
+                                Cancel
+                            </button>
+                        </>
+                    )}
                 </>
             )}
         </form>

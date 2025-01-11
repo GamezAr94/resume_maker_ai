@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction } from 'react';
+'user client';
+import { Dispatch, SetStateAction, useState } from 'react';
 import EducationInfoForm from '../forms/educationInfoForm';
 import { FormEducationStructure, RefreshSections } from '@/utils/interfaces';
 import ShowUserDataSection from '../showUserDataSection';
@@ -18,6 +19,8 @@ export default function EducationContainerForm({
     setRefreshTrigger,
     className,
 }: Params) {
+    const [getEditRecord, setEditRecord] =
+        useState<FormEducationStructure | null>(null);
     return (
         <>
             <div>
@@ -28,6 +31,8 @@ export default function EducationContainerForm({
                     infoQuery={null}
                     setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
+                    getEditRecord={getEditRecord}
+                    setEditRecord={setEditRecord}
                 />
                 <ShowUserDataSection>
                     {educationInfo.length > 0
@@ -37,6 +42,7 @@ export default function EducationContainerForm({
                                   infoQuery={item}
                                   setInfo={setEducationInfo}
                                   setRefreshTrigger={setRefreshTrigger}
+                                  setEditRecord={setEditRecord}
                               />
                           ))
                         : null}

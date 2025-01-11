@@ -29,11 +29,15 @@ interface Params {
     setInfo: React.Dispatch<false | [FormExperienceStructure]> | null;
     infoQuery: FormExperienceStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
+    setEditRecord: Dispatch<SetStateAction<FormExperienceStructure | null>>;
+    getEditRecord?: FormExperienceStructure | null;
 }
 export default function ExperienceForm({
     infoQuery,
     setInfo,
     setRefreshTrigger,
+    setEditRecord,
+    getEditRecord,
 }: Params) {
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
@@ -104,6 +108,7 @@ export default function ExperienceForm({
             ...prevTrigger,
             experience: !prevTrigger.experience,
         }));
+        setEditRecord(null);
     }
 
     // Function to delete the record and refresh the UI
@@ -123,7 +128,12 @@ export default function ExperienceForm({
         setRefreshTrigger((prevTrigger) => ({
             ...prevTrigger,
             experience: !prevTrigger.experience,
+            project: !prevTrigger.project,
         }));
+        setEditRecord(null);
+    }
+    function editRecord(value: FormExperienceStructure | null) {
+        setEditRecord(value);
     }
 
     return (
@@ -151,6 +161,9 @@ export default function ExperienceForm({
                     >
                         Delete
                     </button>
+                    <button onClick={() => editRecord(infoQuery)} type="button">
+                        Edit
+                    </button>
                 </>
             )}
             {!infoQuery && (
@@ -160,6 +173,9 @@ export default function ExperienceForm({
                         type="text"
                         name="company_name"
                         placeholder="Company"
+                        defaultValue={
+                            getEditRecord ? getEditRecord.company_name : ''
+                        }
                     />
                     {formErrors.company_name && (
                         <p>{formErrors.company_name}</p>
@@ -168,9 +184,29 @@ export default function ExperienceForm({
                         type="text"
                         name="job_title"
                         placeholder="Job Title"
+                        defaultValue={
+                            getEditRecord ? getEditRecord.job_title : ''
+                        }
                     />
                     {formErrors.job_title && <p>{formErrors.job_title}</p>}
                     <button type="submit">Save</button>
+                    {getEditRecord && (
+                        <>
+                            <input
+                                readOnly
+                                hidden
+                                type="text"
+                                name="id"
+                                defaultValue={getEditRecord.id}
+                            />
+                            <button
+                                onClick={() => editRecord(null)}
+                                type="button"
+                            >
+                                Cancel
+                            </button>
+                        </>
+                    )}
                 </>
             )}
         </form>

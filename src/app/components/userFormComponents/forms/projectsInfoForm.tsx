@@ -18,6 +18,8 @@ interface Params {
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     educationInfo: [FormEducationStructure] | [];
     experienceInfo: [FormExperienceStructure] | [];
+    setEditRecord: Dispatch<SetStateAction<FormProjectStructure | null>>;
+    getEditRecord?: FormProjectStructure | null;
 }
 const userSchema = z.object({
     project_name: z.string().min(1, 'Project Name is required'),
@@ -31,6 +33,8 @@ export default function ProjectsInfoForm({
     setRefreshTrigger,
     educationInfo,
     experienceInfo,
+    setEditRecord,
+    getEditRecord,
 }: Params) {
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
@@ -140,11 +144,16 @@ export default function ProjectsInfoForm({
             ...prevTrigger,
             project: !prevTrigger.project,
         }));
+        setEditRecord(null);
+    }
+    function editRecord(value: FormProjectStructure | null) {
+        setEditRecord(value);
     }
 
     // Function to set the project type experience or education
     function setType(event: React.ChangeEvent<HTMLSelectElement>) {
         const key = event.target.value;
+
         // Create a new object with all values set to false initially
         const newGetCategory = {
             personal_type: false,
@@ -191,6 +200,9 @@ export default function ProjectsInfoForm({
                     >
                         Delete
                     </button>
+                    <button onClick={() => editRecord(infoQuery)} type="button">
+                        Edit
+                    </button>
                 </>
             )}
             {!infoQuery && (
@@ -200,13 +212,25 @@ export default function ProjectsInfoForm({
                         type="text"
                         name="project_name"
                         placeholder="Project Name"
+                        defaultValue={
+                            getEditRecord ? getEditRecord.project_name : ''
+                        }
                     />
                     {formErrors.project_name && (
                         <p>{formErrors.project_name}</p>
                     )}
 
                     <label>Proyect Type:</label>
-                    <select onChange={setType}>
+                    <select
+                        value={
+                            getEditRecord?.education_id
+                                ? 'education_type'
+                                : getEditRecord?.experience_id
+                                ? 'experience_type'
+                                : 'personal_type'
+                        }
+                        onChange={setType}
+                    >
                         <option value="personal_type">Personal</option>
                         <option
                             disabled={experienceInfo.length <= 0}
@@ -224,8 +248,12 @@ export default function ProjectsInfoForm({
                         </option>
                     </select>
 
-                    {getCategory.experience_type && (
-                        <select name="experience_id">
+                    {(getCategory.experience_type ||
+                        getEditRecord?.experience_id) && (
+                        <select
+                            defaultValue={getEditRecord?.experience_id ?? ''}
+                            name="experience_id"
+                        >
                             {experienceInfo.map((item, index) => (
                                 <option key={index} value={item.id}>
                                     {item.company_name}
@@ -233,8 +261,12 @@ export default function ProjectsInfoForm({
                             ))}
                         </select>
                     )}
-                    {getCategory.education_type && (
-                        <select name="education_id">
+                    {(getCategory.education_type ||
+                        getEditRecord?.education_id) && (
+                        <select
+                            defaultValue={getEditRecord?.education_id ?? ''}
+                            name="education_id"
+                        >
                             {educationInfo.map((item, index) => (
                                 <option key={index} value={item.id}>
                                     {item.school_name} {item.degree}
@@ -247,11 +279,33 @@ export default function ProjectsInfoForm({
                         type="text"
                         name="project_description"
                         placeholder="Project Description"
+                        defaultValue={
+                            getEditRecord
+                                ? getEditRecord.project_description
+                                : ''
+                        }
                     />
                     {formErrors.project_description && (
                         <p>{formErrors.project_description}</p>
                     )}
                     <button type="submit">Save</button>
+                    {getEditRecord && (
+                        <>
+                            <input
+                                readOnly
+                                hidden
+                                type="text"
+                                name="id"
+                                defaultValue={getEditRecord.id}
+                            />
+                            <button
+                                onClick={() => editRecord(null)}
+                                type="button"
+                            >
+                                Cancel
+                            </button>
+                        </>
+                    )}
                 </>
             )}
         </form>

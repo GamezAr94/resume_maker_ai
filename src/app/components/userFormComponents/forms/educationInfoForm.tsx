@@ -17,11 +17,15 @@ interface Params {
     setInfo: React.Dispatch<false | [FormEducationStructure]> | null;
     infoQuery: FormEducationStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
+    setEditRecord: Dispatch<SetStateAction<FormEducationStructure | null>>;
+    getEditRecord?: FormEducationStructure | null;
 }
 export default function EducationInfoForm({
     infoQuery,
     setInfo,
     setRefreshTrigger,
+    setEditRecord,
+    getEditRecord,
 }: Params) {
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
@@ -111,7 +115,12 @@ export default function EducationInfoForm({
         setRefreshTrigger((prevTrigger) => ({
             ...prevTrigger,
             education: !prevTrigger.education,
+            project: !prevTrigger.project,
         }));
+        setEditRecord(null);
+    }
+    function editRecord(value: FormEducationStructure | null) {
+        setEditRecord(value);
     }
 
     return (
@@ -139,6 +148,9 @@ export default function EducationInfoForm({
                     >
                         Delete {infoQuery.id}
                     </button>
+                    <button onClick={() => editRecord(infoQuery)} type="button">
+                        Edit
+                    </button>
                 </>
             )}
             {!infoQuery && (
@@ -148,17 +160,40 @@ export default function EducationInfoForm({
                         type="text"
                         name="school_name"
                         placeholder="School Name"
+                        defaultValue={
+                            getEditRecord ? getEditRecord.school_name : ''
+                        }
                     />
                     {formErrors.school_name && <p>{formErrors.school_name}</p>}
                     <input
                         type="text"
                         name="field_of_study"
                         placeholder="Field of Study"
+                        defaultValue={
+                            getEditRecord ? getEditRecord.field_of_study : ''
+                        }
                     />
                     {formErrors.field_of_study && (
                         <p>{formErrors.field_of_study}</p>
                     )}
                     <button type="submit">Save</button>
+                    {getEditRecord && (
+                        <>
+                            <input
+                                readOnly
+                                hidden
+                                type="text"
+                                name="id"
+                                defaultValue={getEditRecord.id}
+                            />
+                            <button
+                                onClick={() => editRecord(null)}
+                                type="button"
+                            >
+                                Cancel
+                            </button>
+                        </>
+                    )}
                 </>
             )}
         </form>
