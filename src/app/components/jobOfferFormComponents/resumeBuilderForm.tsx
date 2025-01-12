@@ -95,7 +95,6 @@ export default function ResumeBuilderForm() {
             console.log(resGemini.ok);
             console.log(resSaving.ok);
             console.log(responseSaving.id);
-            //console.log(JSON.parse(responseGemini.message));
             //console.log(responseGemini.message);
             console.log('=====>');
 

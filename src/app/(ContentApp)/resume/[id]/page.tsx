@@ -1,13 +1,22 @@
 'use client';
+import ResumeViewer from '@/app/components/resumeViewer/resumeViewer';
 import { getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
+import { GeminiResponse } from '@/utils/interfaces';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Resume() {
     const router = useRouter();
     const params = useParams();
-    const [dataResume, setDataResume] = useState({
+    const [dataResume, setDataResume] = useState<{
+        company_name: string;
+        created_at: string;
+        id: string;
+        job_description: string;
+        job_position: string;
+        resume_generated: GeminiResponse;
+    }>({
         company_name: '',
         created_at: '',
         id: '',
@@ -15,13 +24,14 @@ export default function Resume() {
         job_position: '',
         resume_generated: {
             // I need to set the interface for this
-            education: [{ degree: '', school: '', start_end_date: '' }],
+            contact_info: { name: '', email: '', phone: '', linkedin: '' },
+            education: [{ degree: '', school: '', start_end_dates: '' }],
             experience: [
                 {
                     company: '',
                     description: '',
                     relevance: '',
-                    start_end_date: '',
+                    start_end_dates: '',
                     title: '',
                 },
             ],
@@ -35,8 +45,9 @@ export default function Resume() {
                 },
             ],
             recommendations: '',
-            skills: [],
+            explanation: '',
             summary: '',
+            skills: [],
         },
     });
     const id = params.id;
@@ -62,24 +73,41 @@ export default function Resume() {
                     // Redirect to the dashboard if there is NO resume
                     router.push(`/`);
                 }
-                console.log(data.data[0].resume_generated);
+                // TODO I need to fetch the user info as well so that I can populate the contact info in the object
+                // TODO I need to make sure the json is correct because if the section 'recommendations' has this symbol "" it will break the entire json object
+                // console.log(data.data[0].resume_generated);
                 /*
-                data.data[0].resume_generated = JSON.parse(
-                    data.data[0].resume_generated,
-                );
-                console.log(data.data[0].resume_generated);
+                data.data[0].contact_info.name = 'Arturo';
+                data.data[0].contact_info.email = 'Arturo';
+                data.data[0].contact_info.phone = 'Arturo';
+                data.data[0].contact_info.linkedin = 'Arturo';
                 */
-                setDataResume(data.data[0]);
+
+                // TODO validate the response of this request
+                const userInfo = await getDBTableInfo('');
+                setDataResume({
+                    ...data.data[0],
+                    resume_generated: {
+                        ...data.data[0].resume_generated,
+                        contact_info: {
+                            name:
+                                userInfo.data.first_name +
+                                ' ' +
+                                userInfo.data.last_name,
+                            email: userInfo.data.email,
+                            phone: 'PHONE',
+                            linkedin: 'LINKEDIN',
+                        },
+                    },
+                });
             };
             fetchData();
         }
     }, [id]);
     return (
-        <>
-            <div>Resume</div>
-            <p>Company Name: {dataResume.company_name}</p>
-            <p>Job Offer Id: {dataResume.id}</p>
-            <p>{dataResume.resume_generated.summary}</p>
-        </>
+        <div>
+            <ResumeViewer resumeData={dataResume} />
+            <div>Resume Editor</div>
+        </div>
     );
 }
