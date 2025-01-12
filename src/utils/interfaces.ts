@@ -105,12 +105,14 @@ export const emptyStateJobOffer: FormJobOfferStructure = {
     company_name: '',
     job_position: '',
     job_description: '',
+    resume_generated: '',
 };
 // Interface for the form job offer structure
 export interface FormJobOfferStructure {
     company_name: string;
     job_position: string;
     job_description: string;
+    resume_generated: string;
 }
 
 // ==============================

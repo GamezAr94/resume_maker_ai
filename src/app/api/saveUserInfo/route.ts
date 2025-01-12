@@ -33,7 +33,7 @@ export async function POST(req: Request, res: Response) {
     }
 
     // Save the user data in the supabase database
-    const { message, status } = await updatePerType(
+    const { id, message, status } = await updatePerType(
         requestBody.type,
         requestBody.data,
         supabase,
@@ -41,7 +41,7 @@ export async function POST(req: Request, res: Response) {
     );
 
     // Return a response with the message and status: (either success or error)
-    return new Response(JSON.stringify({ message: message }), {
+    return new Response(JSON.stringify({ message: message, id: id }), {
         status: status,
         headers: { 'Content-Type': 'application/json' },
     });
@@ -58,8 +58,9 @@ async function updatePerType(
         | FormProjectStructure,
     supabase: any,
     user_id: string,
-): Promise<{ message: string; status: number }> {
+): Promise<{ id: string | null; message: string; status: number }> {
     let error: string | null = null;
+    let data: any = null;
 
     // Get the user id from the database
     const { data: userData, error: userError } = await supabase
@@ -71,36 +72,45 @@ async function updatePerType(
         switch (type) {
             case SectionTypes.Personal:
                 // Save the user data in the supabase database
-                const { error: personalError } = await supabase
-                    .from('user')
-                    .update({
-                        //email: user?.email,
-                        ...requestBodyData,
-                    })
-                    .eq('supabase_id', user_id);
+                const { data: savedPersonalData, error: personalError } =
+                    await supabase
+                        .from('user')
+                        .update({
+                            //email: user?.email,
+                            ...requestBodyData,
+                        })
+                        .eq('supabase_id', user_id)
+                        .select();
 
+                data = savedPersonalData;
                 error = personalError ? personalError.message : null;
                 break;
             case SectionTypes.Experience:
                 // Save the user experience data in the supabase database
-                const { error: experienceError } = await supabase
-                    .from(type)
-                    .upsert({
-                        user_id: userData[0].id,
-                        ...requestBodyData,
-                    });
+                const { data: savedExperienceData, error: experienceError } =
+                    await supabase
+                        .from(type)
+                        .upsert({
+                            user_id: userData[0].id,
+                            ...requestBodyData,
+                        })
+                        .select();
 
+                data = savedExperienceData;
                 error = experienceError ? experienceError.message : null;
                 break;
             case SectionTypes.Education:
                 // Save the user experience data in the supabase database
-                const { error: educationError } = await supabase
-                    .from(type)
-                    .upsert({
-                        user_id: userData[0].id,
-                        ...requestBodyData,
-                    });
+                const { data: savedEducationData, error: educationError } =
+                    await supabase
+                        .from(type)
+                        .upsert({
+                            user_id: userData[0].id,
+                            ...requestBodyData,
+                        })
+                        .select();
 
+                data = savedEducationData;
                 error = educationError ? educationError.message : null;
                 break;
             case SectionTypes.Skill:
@@ -109,15 +119,20 @@ async function updatePerType(
                     error = 'Invalid data for skill section';
                     break;
                 }
-                const { error: skillError } = await supabase.from(type).upsert({
-                    user_id: userData[0].id,
-                    ...requestBodyData,
-                    skill_level:
-                        requestBodyData.skill_level == ''
-                            ? null
-                            : requestBodyData.skill_level,
-                });
+                const { data: savedSkillData, error: skillError } =
+                    await supabase
+                        .from(type)
+                        .upsert({
+                            user_id: userData[0].id,
+                            ...requestBodyData,
+                            skill_level:
+                                requestBodyData.skill_level == ''
+                                    ? null
+                                    : requestBodyData.skill_level,
+                        })
+                        .select();
 
+                data = savedSkillData;
                 error = skillError ? skillError.message : null;
                 break;
             case SectionTypes.Project:
@@ -134,25 +149,32 @@ async function updatePerType(
                         education_id: null,
                     };
                 }
-                const { error: projectError } = await supabase
-                    .from(type)
-                    .upsert({
-                        user_id: userData[0].id,
-                        ...requestBodyData,
-                    });
+                const { data: savedProjectData, error: projectError } =
+                    await supabase
+                        .from(type)
+                        .upsert({
+                            user_id: userData[0].id,
+                            ...requestBodyData,
+                        })
+                        .select();
 
+                data = savedProjectData;
                 error = projectError ? projectError.message : null;
                 break;
             case SectionTypes.JobOffer:
-                const { error: jobOfferError } = await supabase
-                    .from(type)
-                    .upsert({
-                        user_id: userData[0].id,
-                        ...requestBodyData,
-                    });
+                const { data: dataResumeSaved, error: jobOfferError } =
+                    await supabase
+                        .from(type)
+                        .upsert({
+                            user_id: userData[0].id,
+                            ...requestBodyData,
+                        })
+                        .select();
+                data = dataResumeSaved;
                 error = jobOfferError ? jobOfferError.message : null;
                 break;
             default:
+                data = null;
                 error = 'Invalid section type';
                 break;
         }
@@ -160,6 +182,7 @@ async function updatePerType(
         // If there is an error, return an error response:
         if (error) {
             return {
+                id: null,
                 message:
                     'Data was not stored, please make sure the data is correct and try again: ' +
                     error,
@@ -169,12 +192,14 @@ async function updatePerType(
 
         // Return a success response
         return {
+            id: data && data[0] ? data[0].id : null,
             message: `${type} section was stored successfully`,
             status: 200,
         };
     } catch (error) {
         // Return an error response:
         return {
+            id: null,
             message: 'Failed to process data: ' + (error as Error).message,
             status: 500,
         };

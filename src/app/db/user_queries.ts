@@ -1,9 +1,12 @@
 import { SectionTypes } from '@/utils/enums';
 import { createClient } from '@/utils/supabase/client';
 
-// Function to get the user data from the database, return false if the user is not authenticated or error
+// Function to get a Job Offer data by ID
+//export async function getJobOfferInfoByID(
 export async function getDBTableInfo(
     tableName: SectionTypes | '',
+    order: 'asc' | 'desc' | null = 'asc',
+    id?: number,
 ): Promise<{ status: boolean; message: string; data: any }> {
     // Get the supabase client and the user data
     const { supabase, user } = await setSupabaseClient();
@@ -15,13 +18,22 @@ export async function getDBTableInfo(
         };
     }
     try {
-        const { data, error } = await supabase
-            .from('user')
-            .select(`${tableName} (*)`)
-            .eq('supabase_id', user.id)
-            .order(`id`, { foreignTable: `${tableName}` }, { ascending: true });
+        let query = supabase.from('user').select(`${tableName} (*)`);
 
-        // If there is an error, return an error response:
+        if (id) {
+            query = query.eq(tableName + '.id', id);
+        }
+
+        if (order) {
+            query = query.order(
+                `id`,
+                { foreignTable: `${tableName}` },
+                { ascending: order === 'asc' ? true : false },
+            );
+        }
+
+        const { data, error } = await query;
+
         if (error) {
             return {
                 status: false,
@@ -43,7 +55,7 @@ export async function getDBTableInfo(
     } catch (error) {
         return {
             status: false,
-            message: `Error saving the ${
+            message: `Error getting the ${
                 tableName || 'personal information'
             } data: ${(error as any).message}`,
             data: null,
