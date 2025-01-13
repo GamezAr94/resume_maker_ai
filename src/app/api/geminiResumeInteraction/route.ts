@@ -9,18 +9,8 @@ import {
 } from '@google/generative-ai';
 
 export async function POST(req: Request, res: Response) {
-    return new Response(
-        JSON.stringify({
-            message: `{"education": [{"degree": "Computer Science", "school": "University of California, Berkeley", "start_end_dates": "2016-2020"}, {"degree": "Electrical Engineering and Computer Science", "school": "Massachusetts Institute of Technology (MIT)", "start_end_dates": "2012-2016"}, {"degree": "Computer Information Systems", "school": "BCIT", "start_end_dates": "2010-2012"}, {"degree": "Data Science", "school": "Stanford University", "start_end_dates": "2020-2022"}], "experience": [{"company": "Google", "description": "Built and optimized user interfaces for Google's search engine results page. Implemented responsive design and improved page load times by 20%.", "start_end_dates": "2020-2022", "title": "Frontend Engineer", "relevance": "Directly relevant; highlights experience in UI development, responsive design, and performance optimization, all key skills for a Frontend Engineer role."}, {"company": "Amazon", "description": "Developed and maintained features for Amazon's retail website. Worked on improving the performance of the product recommendation engine and implemented A/B testing frameworks.", "start_end_dates": "2018-2020", "title": "Software Developer", "relevance": "Relevant; showcases experience in software development and A/B testing, which can be transferable skills."}, {"company": "Netflix", "description": "Worked on the development of Netflix's streaming platform. Built RESTful APIs using Node.js and developed user interfaces using React.", "start_end_dates": "2022-Present", "title": "Full Stack Developer", "relevance": "Relevant; demonstrates experience with React, a key technology mentioned in the job description. Also highlights full-stack experience."}, {"company": "Facebook", "description": "Developed machine learning models to improve ad targeting and content recommendation algorithms. Conducted data analysis to identify key user engagement metrics.", "start_end_dates": "2016-2018", "title": "Data Scientist", "relevance": "Somewhat relevant; data analysis skills are valuable, but the focus on machine learning might not be as directly relevant to the frontend role."}], "explanation": "The selected projects and experiences showcase a strong background in frontend development, responsive design, and relevant technologies like React. The education highlights a solid foundation in computer science and related fields. The recommendations suggest ways to further strengthen the resume by adding more details about specific accomplishments and quantifiable results.", "keywords": ["Frontend Engineer", "React", "Redux", "GraphQL", "Responsive Design", "Accessibility", "UI Development", "Performance Optimization", "A/B Testing", "Software Development", "Data Analysis", "Node.js"], "projects": [{"description": "Developed a full-stack e-commerce website using React, Node.js, and MongoDB, including user authentication, product browsing, shopping cart, and payment integration.", "name": "E-commerce Website", "relevance": "Highly relevant; demonstrates experience with React, a key technology for the target role.  Also showcases full-stack capabilities.", "start_end_dates": "2021-2022"}, {"description": "Created a responsive personal portfolio website using HTML, CSS, and JavaScript to showcase my projects and skills.", "name": "Portfolio Website", "relevance": "Relevant; demonstrates skills in HTML, CSS, and JavaScript, foundational web technologies.", "start_end_dates": "2020-2021"}, {"description": "Developed a real-time chat application using Socket.IO, Node.js, and React, allowing users to communicate instantly in different chat rooms.", "name": "Real-time Chat Application", "relevance": "Relevant; showcases experience with React and building dynamic user interfaces.", "start_end_dates": "2019-2020"}, {"description": "Built a machine learning model using TensorFlow and Keras to classify images into different categories with high accuracy.", "name": "Machine Learning Model for Image Recognition", "relevance": "Less relevant; demonstrates technical skills but is less directly related to frontend engineering.", "start_end_dates": "2018-2019"}], "recommendations": "To further strengthen your resume, consider adding quantifiable results to your bullet points. For example, instead of saying \"Improved page load times,\" you could say \"Improved page load times by 20%, resulting in a 15% increase in user engagement.\"  Also, highlight any specific projects or contributions related to accessibility best practices.  Consider including a portfolio link showcasing your work.", "skills": ["React", "Redux", "GraphQL", "HTML", "CSS", "JavaScript", "Responsive Design", "A/B Testing", "Node.js", "MongoDB", "Performance Optimization", "Software Development", "Data Analysis"], "summary": "Highly skilled and motivated Frontend Engineer with a proven track record of building high-performing and engaging user interfaces. Expertise in React, Redux, GraphQL, and responsive design. Proven ability to improve website performance and user experience. Seeking a challenging role where I can leverage my skills to contribute to the development of innovative social networking platforms."}`,
-        }),
-        {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        },
-    );
-
     const supabase = await createClient();
-    const requestBody = await req.json();
+    const requestJobDescBody = await req.json();
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -39,10 +29,10 @@ export async function POST(req: Request, res: Response) {
     }
 
     // Get ALL the user data
-    const { data, error } = await supabase.rpc('get_user_data');
+    const { data: userData, error } = await supabase.rpc('get_user_data');
 
     // If we cannot access the data or there is an error that means that the user is not authenticated, return an error response:
-    if (error || !data) {
+    if (error || !userData) {
         return new Response(
             JSON.stringify({
                 message:
@@ -210,11 +200,24 @@ export async function POST(req: Request, res: Response) {
         },
     };
 
-    //console.log(data);
+    /*
+    // NOTE this debug will test the real data passed by the user
+    console.log('USER DATA: ');
+    console.log(userData);
+    console.log('JOB OFFER: ');
+    console.log(requestJobDescBody);
+    */
 
     const userInfo = userDummyData();
     const jobOffer = jobOfferDummyData()[2];
 
+    /* 
+    // NOTE REAL DATA PASSED BY THE USER
+    const prompt = `User Information: 
+    ${JSON.stringify(userData)}
+    Job Offer: 
+    ${JSON.stringify(requestJobDescBody)}`;
+    */
     const prompt = `User Information: 
     ${JSON.stringify(userInfo)}
     Job Offer: 

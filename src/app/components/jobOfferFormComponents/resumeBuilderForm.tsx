@@ -94,8 +94,10 @@ export default function ResumeBuilderForm() {
             console.log('=====> RESPONSE GEMINI job offer');
             console.log(resGemini.ok);
             console.log(resSaving.ok);
+            /*
             console.log(responseSaving.id);
-            //console.log(responseGemini.message);
+            console.log(responseGemini.message);
+            */
             console.log('=====>');
 
             let idResume = +responseSaving.id;

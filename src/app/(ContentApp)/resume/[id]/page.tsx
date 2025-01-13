@@ -83,12 +83,17 @@ export default function Resume() {
                 data.data[0].contact_info.linkedin = 'Arturo';
                 */
 
+                let resumeData = data.data[0].resume_generated;
+                // make sure we are sending a JSON object
+                if (typeof resumeData != 'object') {
+                    resumeData = JSON.parse(resumeData);
+                }
                 // TODO validate the response of this request
                 const userInfo = await getDBTableInfo('');
                 setDataResume({
                     ...data.data[0],
                     resume_generated: {
-                        ...data.data[0].resume_generated,
+                        ...resumeData,
                         contact_info: {
                             name:
                                 userInfo.data.first_name +
