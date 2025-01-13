@@ -1,5 +1,5 @@
 'use client';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { z } from 'zod';
 import { SectionTypes } from '@/utils/enums';
 import {
@@ -7,6 +7,7 @@ import {
     FormPersonalStructure,
     RefreshSections,
 } from '@/utils/interfaces';
+import { Button, Input } from '@mantine/core';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
@@ -16,10 +17,12 @@ const userSchema = z.object({
 interface Params {
     infoQuery: FormPersonalStructure;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
+    setUserInfo: Dispatch<SetStateAction<false | FormPersonalStructure>>;
 }
 export default function PersonalInfoForm({
     infoQuery,
     setRefreshTrigger,
+    setUserInfo,
 }: Params) {
     const [formErrors, setFormErrors] =
         useState<FormPersonalStructure>(emptyStatePersonal);
@@ -82,26 +85,34 @@ export default function PersonalInfoForm({
         }));
     }
 
+    interface HandleInputChangeEvent {
+        target: {
+            value: string;
+        };
+    }
+    // Function to handle the input change and also to rever the form errors
+    function handleUserInputChange(
+        event: HandleInputChangeEvent,
+        type: keyof FormPersonalStructure,
+        setter: Dispatch<SetStateAction<false | FormPersonalStructure>>,
+        prevState: FormPersonalStructure,
+    ) {
+        setter({
+            ...prevState,
+            [type]: event.target.value,
+        });
+        setFormErrors((prev) => ({
+            ...prev,
+            [type]: null,
+        }));
+    }
+
     return (
         <form onSubmit={validatingAndSaving}>
             <p>
                 Remember to keep up to date all your information for best
                 results
             </p>
-            <input
-                type="text"
-                name="first_name"
-                placeholder="First Name"
-                defaultValue={infoQuery.first_name}
-            />
-            {formErrors.first_name && <p>{formErrors.first_name}</p>}
-            <input
-                type="text"
-                name="last_name"
-                placeholder="Last Name"
-                defaultValue={infoQuery.last_name}
-            />
-            {formErrors.last_name && <p>{formErrors.last_name}</p>}
             {/*
             <input type="tel" name="phone" placeholder="Phone" />
             <input type="text" name="address" placeholder="Address" />
@@ -110,7 +121,45 @@ export default function PersonalInfoForm({
             <input type="url" name="portfolio" placeholder="Portfolio" />
             <input type="url" name="link" placeholder="Link" />
                 */}
-            <button type="submit">Save</button>
+            <Input.Wrapper
+                error={formErrors.first_name ? formErrors.first_name : ''}
+            >
+                <Input
+                    error={!!formErrors.first_name}
+                    placeholder="First Name"
+                    name="first_name"
+                    onChange={(event) => {
+                        handleUserInputChange(
+                            event,
+                            'first_name',
+                            setUserInfo,
+                            infoQuery,
+                        );
+                    }}
+                    value={infoQuery.first_name}
+                />
+            </Input.Wrapper>
+            <Input.Wrapper
+                error={formErrors.last_name ? formErrors.last_name : ''}
+            >
+                <Input
+                    error={!!formErrors.last_name}
+                    placeholder="Last Name"
+                    name="last_name"
+                    onChange={(event) => {
+                        handleUserInputChange(
+                            event,
+                            'last_name',
+                            setUserInfo,
+                            infoQuery,
+                        );
+                    }}
+                    value={infoQuery.last_name}
+                />
+            </Input.Wrapper>
+            <Button size="md" type="submit">
+                Update
+            </Button>
         </form>
     );
 }

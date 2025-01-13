@@ -12,9 +12,9 @@ export default function Header() {
     }
     return (
         <header className={styles.header_container}>
-            <div className={styles.logo_area}>
+            <Link className={styles.logo_area} href="/">
                 Logo<p>App Name</p>
-            </div>
+            </Link>
             <div className={styles.menu_section}>
                 <div>T 1</div>
                 <Menu position="bottom-end" offset={0}>

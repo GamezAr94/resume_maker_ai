@@ -5,11 +5,13 @@ import PersonalInfoForm from '../forms/personalInfoForm';
 interface Params {
     personalInfo: FormPersonalStructure;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
+    setUserInfo: Dispatch<SetStateAction<false | FormPersonalStructure>>;
     className: string;
 }
 export default function PersonalContainerForm({
     personalInfo,
     setRefreshTrigger,
+    setUserInfo,
     className,
 }: Params) {
     return (
@@ -21,6 +23,7 @@ export default function PersonalContainerForm({
                 <PersonalInfoForm
                     infoQuery={personalInfo}
                     setRefreshTrigger={setRefreshTrigger}
+                    setUserInfo={setUserInfo}
                 />
             </div>
         </>

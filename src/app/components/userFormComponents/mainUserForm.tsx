@@ -168,6 +168,7 @@ export default function MainUserForm({ className }: Props) {
                         personalInfo={
                             userInfo === false ? emptyStatePersonal : userInfo
                         }
+                        setUserInfo={setUserInfo}
                         setRefreshTrigger={setRefreshTrigger}
                     />
                 )}

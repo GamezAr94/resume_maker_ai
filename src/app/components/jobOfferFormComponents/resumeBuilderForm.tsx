@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import styles from './resumeBuilderForm.module.css';
 import { useRouter } from 'next/navigation';
+import { Button, Input } from '@mantine/core';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
@@ -129,28 +130,58 @@ export default function ResumeBuilderForm() {
                 onSubmit={validatingAndSaving}
                 className={styles.form_container}
             >
-                <input
-                    type="text"
-                    name="company_name"
-                    placeholder="Company Name"
-                />
-                {formErrors.company_name && <p>{formErrors.company_name}</p>}
-                <input
-                    type="text"
-                    name="job_position"
-                    placeholder="Job Position"
-                />
-                {formErrors.job_position && <p>{formErrors.job_position}</p>}
-                <input
-                    type="text"
-                    name="job_description"
-                    placeholder="Job Description"
-                />
-                {formErrors.job_description && (
-                    <p>{formErrors.job_description}</p>
-                )}
-                <button type="submit">Generate Resume</button>
+                <Input.Wrapper
+                    error={
+                        formErrors.company_name ? formErrors.company_name : ''
+                    }
+                >
+                    <Input
+                        error={!!formErrors.company_name}
+                        placeholder="Company Name"
+                        name="company_name"
+                    />
+                </Input.Wrapper>
+                <Input.Wrapper
+                    error={
+                        formErrors.job_position ? formErrors.job_position : ''
+                    }
+                >
+                    <Input
+                        error={!!formErrors.job_position}
+                        placeholder="Job Position"
+                        name="job_position"
+                    />
+                </Input.Wrapper>
+                <Input.Wrapper
+                    error={
+                        formErrors.job_description
+                            ? formErrors.job_description
+                            : ''
+                    }
+                >
+                    <Input
+                        error={!!formErrors.job_description}
+                        placeholder="Job Description"
+                        name="job_description"
+                    />
+                </Input.Wrapper>
+                <Button size="md" fullWidth type="submit">
+                    Generate Resume
+                </Button>
             </form>
         </div>
     );
 }
+/*
+// TODO you can set the loading status like this and YOU can set an icon too
+
+                <Button
+                    size="md"
+                    loading
+                    loaderProps={{ type: 'dots' }}
+                    fullWidth
+                    type="submit"
+                >
+                    Generate Resume
+                </Button>
+*/
