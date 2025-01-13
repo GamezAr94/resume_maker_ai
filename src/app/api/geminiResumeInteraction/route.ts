@@ -209,7 +209,7 @@ export async function POST(req: Request, res: Response) {
     */
 
     const userInfo = userDummyData();
-    const jobOffer = jobOfferDummyData()[2];
+    const jobOffer = jobOfferDummyData()[Math.floor(Math.random() * 12)];
 
     /* 
     // NOTE REAL DATA PASSED BY THE USER

@@ -37,29 +37,44 @@ export default function ResumeViewer({ resumeData }: Propos) {
             <p>
                 <strong>Experience:</strong>
             </p>
-            <p>{resumeData.resume_generated.experience[0].company}</p>
-            <p>{resumeData.resume_generated.experience[0].start_end_dates}</p>
-            <p>{resumeData.resume_generated.experience[0].title}</p>
-            <p>{resumeData.resume_generated.experience[0].description}</p>
-            <p>{resumeData.resume_generated.experience[0].relevance}</p>
+            {resumeData.resume_generated.experience.map((exp, id) => (
+                <div key={id}>
+                    <p>{exp.company}</p>
+                    <p>{exp.start_end_dates}</p>
+                    <p>{exp.title}</p>
+                    <p>{exp.description}</p>
+                    <p>{exp.relevance}</p>
+                </div>
+            ))}
             <p>
                 <strong>Education:</strong>
             </p>
-            <p>{resumeData.resume_generated.education[0].school}</p>
-            <p>{resumeData.resume_generated.education[0].start_end_dates}</p>
-            <p>{resumeData.resume_generated.education[0].degree}</p>
+            {resumeData.resume_generated.education.map((edu, id) => (
+                <div key={id}>
+                    <p>{edu.school}</p>
+                    <p>{edu.start_end_dates}</p>
+                    <p>{edu.degree}</p>
+                </div>
+            ))}
             <p>
                 <strong>Projects:</strong>
             </p>
-            <p>{resumeData.resume_generated.projects[0].name}</p>
-            <p>{resumeData.resume_generated.projects[0].start_end_dates}</p>
-            <p>{resumeData.resume_generated.projects[0].description}</p>
-            <p>{resumeData.resume_generated.projects[0].relevance}</p>
+            {resumeData.resume_generated.projects.map((pro, id) => (
+                <div key={id}>
+                    <p>{pro.name}</p>
+                    <p>{pro.start_end_dates}</p>
+                    <p>{pro.description}</p>
+                    <p>{pro.relevance}</p>
+                </div>
+            ))}
             <p>
                 <strong>Skills:</strong>
             </p>
-            <p>{resumeData.resume_generated.skills[0]}</p>
-            <p>{resumeData.resume_generated.skills[1]}</p>
+            {resumeData.resume_generated.skills.map((skill, id) => (
+                <div key={id}>
+                    <p>{skill}</p>
+                </div>
+            ))}
         </div>
     );
 }
