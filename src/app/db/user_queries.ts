@@ -87,11 +87,10 @@ export async function deleteRecord(
         return false;
     }
     try {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from(tableName)
             .delete()
-            .eq(column_name, id_value)
-            .select();
+            .eq(column_name, id_value);
 
         // return false if there is an error
         if (error) {
@@ -101,6 +100,7 @@ export async function deleteRecord(
         // Return the user data
         return true;
     } catch (error) {
+        console.error('unnexpected error deleting the record ' + error);
         return false;
     }
 }

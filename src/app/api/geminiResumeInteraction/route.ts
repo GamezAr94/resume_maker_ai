@@ -12,8 +12,8 @@ import {
 
 export async function POST(req: Request) {
     const supabase = await createClient();
-    // TODO remove the comment when we are ready to get the user data
-    //const requestJobDescBody = await req.json();
+    const requestJobDescBody = await req.json();
+    console.log(requestJobDescBody);
 
     const apiKey = process.env.GEMINI_API_KEY;
 

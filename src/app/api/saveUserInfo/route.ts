@@ -68,6 +68,14 @@ async function updatePerType(
         .select(`id`)
         .eq('supabase_id', user_id);
 
+    if (userError) {
+        return {
+            id: null,
+            message: 'Failed to process data: ' + (userError as Error).message,
+            status: 500,
+        };
+    }
+
     try {
         switch (type) {
             case SectionTypes.Personal:
