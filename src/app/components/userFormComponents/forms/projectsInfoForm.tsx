@@ -63,7 +63,7 @@ export default function ProjectsInfoForm({
                 education_type: true,
             });
         }
-    }, []);
+    }, [infoQuery?.education_id, infoQuery?.experience_id]);
     // Function to validate the user data and save it
     async function validatingAndSaving(
         event: React.FormEvent<HTMLFormElement>,

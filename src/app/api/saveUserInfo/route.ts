@@ -10,7 +10,7 @@ import {
 } from '@/utils/interfaces';
 import { createClient } from '@/utils/supabase/server';
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
     const supabase = await createClient();
     const requestBody = await req.json();
 

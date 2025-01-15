@@ -101,7 +101,7 @@ export default function ResumeBuilderForm() {
             */
             console.log('=====>');
 
-            let idResume = +responseSaving.id;
+            const idResume = +responseSaving.id;
             if (
                 idResume == null ||
                 typeof idResume == 'string' ||

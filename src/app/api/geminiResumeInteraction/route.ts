@@ -3,14 +3,17 @@
 import { createClient } from '@/utils/supabase/server';
 import {
     GoogleGenerativeAI,
+    /*
     HarmBlockThreshold,
     HarmCategory,
+    */
     SchemaType,
 } from '@google/generative-ai';
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
     const supabase = await createClient();
-    const requestJobDescBody = await req.json();
+    // TODO remove the comment when we are ready to get the user data
+    //const requestJobDescBody = await req.json();
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -245,7 +248,7 @@ export async function POST(req: Request, res: Response) {
     } catch (error) {
         return new Response(
             JSON.stringify({
-                message: `Critical Error during resume generation`,
+                message: `Critical Error during resume generation ` + error,
             }),
             {
                 status: 500,
