@@ -18,7 +18,7 @@ interface Params {
     infoQuery: FormEducationStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     setEditRecord: Dispatch<SetStateAction<FormEducationStructure | null>>;
-    getEditRecord?: FormEducationStructure | null;
+    getEditRecord: FormEducationStructure | null;
 }
 export default function EducationInfoForm({
     infoQuery,
@@ -40,8 +40,10 @@ export default function EducationInfoForm({
     ) {
         // prevent the default form submission and fetch the data
         event.preventDefault();
+
         // get the form data
         const formData = new FormData(event.currentTarget);
+
         // parse the user data with the zod schema
         const parseUser = userSchema.safeParse(Object.fromEntries(formData));
 
@@ -128,6 +130,31 @@ export default function EducationInfoForm({
         setEditRecord(value);
     }
 
+    interface HandleInputChangeEvent {
+        target: {
+            value: string;
+        };
+    }
+    // Function to handle the input change and also to rever the form errors
+    function handleInputChange(
+        event: HandleInputChangeEvent,
+        type: keyof FormEducationStructure,
+        setter: Dispatch<SetStateAction<FormEducationStructure | null>>,
+        prevState: FormEducationStructure | null,
+    ) {
+        if (!prevState) {
+            prevState = emptyStateEducation;
+        }
+        setter({
+            ...prevState,
+            [type]: event.target.value,
+        });
+        setFormErrors((prev) => ({
+            ...prev,
+            [type]: null,
+        }));
+    }
+
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
@@ -137,7 +164,7 @@ export default function EducationInfoForm({
                         readOnly
                         type="text"
                         name="id"
-                        defaultValue={infoQuery.id}
+                        value={infoQuery.id}
                     />
                     <p>School Name: {infoQuery.school_name}</p>
                     <p>Field of Study: {infoQuery.field_of_study}</p>
@@ -165,24 +192,38 @@ export default function EducationInfoForm({
                         type="text"
                         name="school_name"
                         placeholder="School Name"
-                        defaultValue={
-                            getEditRecord ? getEditRecord.school_name : ''
-                        }
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'school_name',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
+                        value={getEditRecord ? getEditRecord.school_name : ''}
                     />
                     {formErrors.school_name && <p>{formErrors.school_name}</p>}
                     <input
                         type="text"
                         name="field_of_study"
                         placeholder="Field of Study"
-                        defaultValue={
+                        value={
                             getEditRecord ? getEditRecord.field_of_study : ''
                         }
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'field_of_study',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
                     />
                     {formErrors.field_of_study && (
                         <p>{formErrors.field_of_study}</p>
                     )}
                     <button type="submit">Save</button>
-                    {getEditRecord && (
+                    {getEditRecord && getEditRecord.id && (
                         <>
                             <input
                                 readOnly

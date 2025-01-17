@@ -43,6 +43,7 @@ export default function EducationContainerForm({
                                   setInfo={setEducationInfo}
                                   setRefreshTrigger={setRefreshTrigger}
                                   setEditRecord={setEditRecord}
+                                  getEditRecord={getEditRecord}
                               />
                           ))
                         : null}
