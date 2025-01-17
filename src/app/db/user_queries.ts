@@ -1,13 +1,17 @@
 import { SectionTypes } from '@/utils/enums';
 import { createClient } from '@/utils/supabase/client';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 
-// Function to get a Job Offer data by ID
-//export async function getJobOfferInfoByID(
+// Function to get data by from the DB by table or by ID in an specific order
 export async function getDBTableInfo(
     tableName: SectionTypes | '',
     order: 'asc' | 'desc' | null = 'asc',
     id?: number,
-): Promise<{ status: boolean; message: string; data: any }> {
+): Promise<{
+    status: boolean;
+    message: string;
+    data: null | any;
+}> {
     // Get the supabase client and the user data
     const { supabase, user } = await setSupabaseClient();
     if (!supabase || !user) {
@@ -25,11 +29,10 @@ export async function getDBTableInfo(
         }
 
         if (order) {
-            query = query.order(
-                `id`,
-                { foreignTable: `${tableName}` },
-                { ascending: order === 'asc' ? true : false },
-            );
+            query = query.order(`id`, {
+                referencedTable: `${tableName}`,
+                ascending: order === 'asc' ? true : false,
+            });
         }
 
         const { data, error } = await query;
@@ -50,7 +53,8 @@ export async function getDBTableInfo(
             message: `Success fetching the ${
                 tableName || 'personal information'
             } data`,
-            data: tableName == '' ? data[0] : data[0][tableName],
+            //data: tableName == '' ? data[0] : data[0][tableName],
+            data: tableName == '' ? data[0] : (data[0] as any)[tableName],
         };
     } catch (error) {
         return {
@@ -64,7 +68,11 @@ export async function getDBTableInfo(
 }
 
 // Function to set up the supabase client and get the user data
-async function setSupabaseClient(): Promise<{ supabase: any; user: any }> {
+async function setSupabaseClient(): Promise<{
+    //supabase: SupabaseClient<any, 'public', any> | null;
+    supabase: null | SupabaseClient<any, 'public', any>;
+    user: User | null;
+}> {
     const supabase = await createClient();
     const {
         data: { user },

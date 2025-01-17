@@ -9,6 +9,7 @@ import {
     FormProjectStructure,
 } from '@/utils/interfaces';
 import { createClient } from '@/utils/supabase/server';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export async function POST(req: Request) {
     const supabase = await createClient();
@@ -56,11 +57,11 @@ async function updatePerType(
         | FormPersonalStructure
         | FormSkillStructure
         | FormProjectStructure,
-    supabase: any,
+    supabase: SupabaseClient<any, 'public', any>,
     user_id: string,
 ): Promise<{ id: string | null; message: string; status: number }> {
     let error: string | null = null;
-    let data: any = null;
+    let data: { id: string }[] | null = null;
 
     // Get the user id from the database
     const { data: userData, error: userError } = await supabase
