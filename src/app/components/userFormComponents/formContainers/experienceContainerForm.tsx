@@ -43,6 +43,7 @@ export default function ExperienceContainerForm({
                                   setInfo={setExperienceInfo}
                                   setRefreshTrigger={setRefreshTrigger}
                                   setEditRecord={setEditRecord}
+                                  getEditRecord={getEditRecord}
                               />
                           ))
                         : null}

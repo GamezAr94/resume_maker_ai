@@ -30,7 +30,7 @@ interface Params {
     infoQuery: FormExperienceStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     setEditRecord: Dispatch<SetStateAction<FormExperienceStructure | null>>;
-    getEditRecord?: FormExperienceStructure | null;
+    getEditRecord: FormExperienceStructure | null;
 }
 export default function ExperienceForm({
     infoQuery,
@@ -140,6 +140,31 @@ export default function ExperienceForm({
         setEditRecord(value);
     }
 
+    interface HandleInputChangeEvent {
+        target: {
+            value: string;
+        };
+    }
+    // Function to handle the input change and also to rever the form errors
+    function handleInputChange(
+        event: HandleInputChangeEvent,
+        type: keyof FormExperienceStructure,
+        setter: Dispatch<SetStateAction<FormExperienceStructure | null>>,
+        prevState: FormExperienceStructure | null,
+    ) {
+        if (!prevState) {
+            prevState = emptyStateExperience;
+        }
+        setter({
+            ...prevState,
+            [type]: event.target.value,
+        });
+        setFormErrors((prev) => ({
+            ...prev,
+            [type]: null,
+        }));
+    }
+
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
@@ -177,9 +202,15 @@ export default function ExperienceForm({
                         type="text"
                         name="company_name"
                         placeholder="Company"
-                        defaultValue={
-                            getEditRecord ? getEditRecord.company_name : ''
-                        }
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'company_name',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
+                        value={getEditRecord ? getEditRecord.company_name : ''}
                     />
                     {formErrors.company_name && (
                         <p>{formErrors.company_name}</p>
@@ -188,13 +219,19 @@ export default function ExperienceForm({
                         type="text"
                         name="job_title"
                         placeholder="Job Title"
-                        defaultValue={
-                            getEditRecord ? getEditRecord.job_title : ''
-                        }
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'job_title',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
+                        value={getEditRecord ? getEditRecord.job_title : ''}
                     />
                     {formErrors.job_title && <p>{formErrors.job_title}</p>}
                     <button type="submit">Save</button>
-                    {getEditRecord && (
+                    {getEditRecord && getEditRecord.id && (
                         <>
                             <input
                                 readOnly
