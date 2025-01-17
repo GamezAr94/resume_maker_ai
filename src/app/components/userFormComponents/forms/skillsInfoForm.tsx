@@ -15,7 +15,7 @@ interface Params {
     infoQuery: FormSkillStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     setEditRecord: Dispatch<SetStateAction<FormSkillStructure | null>>;
-    getEditRecord?: FormSkillStructure | null;
+    getEditRecord: FormSkillStructure | null;
 }
 const userSchema = z.object({
     skill_name: z.string().min(1, 'Skill Name is required'),
@@ -125,6 +125,32 @@ export default function SkillsInfoForm({
     function editRecord(value: FormSkillStructure | null) {
         setEditRecord(value);
     }
+
+    interface HandleInputChangeEvent {
+        target: {
+            value: string;
+        };
+    }
+    // Function to handle the input change and also to rever the form errors
+    function handleInputChange(
+        event: HandleInputChangeEvent,
+        type: keyof FormSkillStructure,
+        setter: Dispatch<SetStateAction<FormSkillStructure | null>>,
+        prevState: FormSkillStructure | null,
+    ) {
+        if (!prevState) {
+            prevState = emptyStateSkill;
+        }
+        setter({
+            ...prevState,
+            [type]: event.target.value,
+        });
+        setFormErrors((prev) => ({
+            ...prev,
+            [type]: null,
+        }));
+    }
+
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
@@ -162,9 +188,15 @@ export default function SkillsInfoForm({
                         type="text"
                         name="skill_name"
                         placeholder="Skill Name"
-                        defaultValue={
-                            getEditRecord ? getEditRecord.skill_name : ''
-                        }
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'skill_name',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
+                        value={getEditRecord ? getEditRecord.skill_name : ''}
                     />
                     {formErrors.skill_name && <p>{formErrors.skill_name}</p>}
                     <input
@@ -173,12 +205,22 @@ export default function SkillsInfoForm({
                         max="10"
                         name="skill_level"
                         placeholder="Skill Level"
-                        defaultValue={
-                            getEditRecord ? getEditRecord.skill_level : ''
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'skill_level',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
+                        value={
+                            getEditRecord && getEditRecord.skill_level
+                                ? getEditRecord.skill_level
+                                : ''
                         }
                     />
                     <button type="submit">Save</button>
-                    {getEditRecord && (
+                    {getEditRecord && getEditRecord.id && (
                         <>
                             <input
                                 readOnly

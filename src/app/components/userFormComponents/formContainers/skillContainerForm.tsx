@@ -41,6 +41,7 @@ export default function SkillContainerForm({
                                   setInfo={setSkillInfo}
                                   setRefreshTrigger={setRefreshTrigger}
                                   setEditRecord={setEditRecord}
+                                  getEditRecord={getEditRecord}
                               />
                           ))
                         : null}
