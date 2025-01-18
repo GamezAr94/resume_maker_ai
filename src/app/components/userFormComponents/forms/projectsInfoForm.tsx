@@ -9,6 +9,8 @@ import {
     FormProjectStructure,
     RefreshSections,
 } from '@/utils/interfaces';
+import { Button, Input, Select } from '@mantine/core';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 
@@ -243,8 +245,11 @@ export default function ProjectsInfoForm({
                             ? infoQuery.experience_id
                             : 'personal'}
                     </p>
-                    <button
+                    <Button
+                        size="compact-md"
                         type="button"
+                        variant="default"
+                        leftSection={<IconTrash size={18} />}
                         onClick={() => {
                             submitDeleteRecord(
                                 SectionTypes.Project,
@@ -254,32 +259,46 @@ export default function ProjectsInfoForm({
                         }}
                     >
                         Delete
-                    </button>
-                    <button onClick={() => editRecord(infoQuery)} type="button">
+                    </Button>
+                    <Button
+                        size="compact-md"
+                        variant="default"
+                        leftSection={<IconPencil size={18} />}
+                        onClick={() => editRecord(infoQuery)}
+                        type="button"
+                    >
                         Edit
-                    </button>
+                    </Button>
                 </>
             )}
             {!infoQuery && (
                 <>
                     <p>Add New Record</p>
-                    <input
-                        type="text"
-                        name="project_name"
-                        placeholder="Project Name"
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'project_name',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                        value={getEditRecord ? getEditRecord.project_name : ''}
-                    />
-                    {formErrors.project_name && (
-                        <p>{formErrors.project_name}</p>
-                    )}
+                    <Input.Wrapper
+                        error={
+                            formErrors.project_name
+                                ? formErrors.project_name
+                                : ''
+                        }
+                    >
+                        <Input
+                            error={!!formErrors.project_name}
+                            type="text"
+                            name="project_name"
+                            placeholder="Project Name"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'project_name',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={
+                                getEditRecord ? getEditRecord.project_name : ''
+                            }
+                        />
+                    </Input.Wrapper>
                     <label>Proyect Type:</label>
                     <select value={selectedType} onChange={setType}>
                         <option value="personal_type">Personal</option>
@@ -338,28 +357,36 @@ export default function ProjectsInfoForm({
                             ))}
                         </select>
                     )}
-                    <input
-                        type="text"
-                        name="project_description"
-                        placeholder="Project Description"
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'project_description',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                        value={
-                            getEditRecord
-                                ? getEditRecord.project_description
+                    <Input.Wrapper
+                        error={
+                            formErrors.project_description
+                                ? formErrors.project_description
                                 : ''
                         }
-                    />
-                    {formErrors.project_description && (
-                        <p>{formErrors.project_description}</p>
-                    )}
-                    <button type="submit">Save</button>
+                    >
+                        <Input
+                            error={!!formErrors.project_description}
+                            type="text"
+                            name="project_description"
+                            placeholder="Project Description"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'project_description',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={
+                                getEditRecord
+                                    ? getEditRecord.project_description
+                                    : ''
+                            }
+                        />
+                    </Input.Wrapper>
+                    <Button size="md" type="submit">
+                        Save
+                    </Button>
                     {getEditRecord && getEditRecord.id && (
                         <>
                             <input
@@ -369,12 +396,14 @@ export default function ProjectsInfoForm({
                                 name="id"
                                 defaultValue={getEditRecord.id}
                             />
-                            <button
+                            <Button
+                                size="md"
+                                variant="default"
                                 onClick={() => editRecord(null)}
                                 type="button"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </>
                     )}
                 </>
