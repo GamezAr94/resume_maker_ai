@@ -78,10 +78,22 @@ export default function ProjectsInfoForm({
     ) {
         // prevent the default form submission and fetch the data
         event.preventDefault();
+        console.log(getEditRecord);
+
         // get the form data
-        const formData = new FormData(event.currentTarget);
+        //const formData = new FormData(event.currentTarget);
+        const formData = new FormData();
+        if (getEditRecord) {
+            Object.entries(getEditRecord).forEach(([key, value]) => {
+                if (value !== null && value !== undefined && value != '') {
+                    formData.append(key, String(value));
+                }
+            });
+        }
+
         // parse the user data with the zod schema
         const parseUser = userSchema.safeParse(Object.fromEntries(formData));
+        console.log(formData);
 
         // reset the errors in the state
         setFormErrors(emptyStateProject);
@@ -163,9 +175,7 @@ export default function ProjectsInfoForm({
 
     // with this function we can edit an element and we can also cancel the edition
     function editRecord(value: FormProjectStructure | null) {
-        if (value == null) {
-            setSelectedType('personal_type');
-        }
+        setSelectedType('personal_type');
         if (value?.experience_id != null) {
             setSelectedType('experience_type');
         }
@@ -176,13 +186,24 @@ export default function ProjectsInfoForm({
     }
 
     // Function to set the project type experience or education
-    function setType(event: React.ChangeEvent<HTMLSelectElement>) {
-        setSelectedType(
-            event.target.value as
-                | 'personal_type'
-                | 'experience_type'
-                | 'education_type',
-        );
+    //function setType(event: React.ChangeEvent<HTMLSelectElement>) {
+    function setType(event: string | null) {
+        setEditRecord((prev) => ({
+            ...emptyStateProject,
+            ...prev,
+            education_id: null,
+            experience_id: null,
+        }));
+        if (event == null) {
+            setSelectedType('personal_type');
+        }
+        if (event == 'Experience') {
+            setSelectedType('experience_type');
+        } else if (event == 'Education') {
+            setSelectedType('education_type');
+        } else {
+            setSelectedType('personal_type');
+        }
     }
 
     interface HandleInputChangeEvent {
@@ -203,6 +224,24 @@ export default function ProjectsInfoForm({
         setter({
             ...prevState,
             [type]: event.target.value,
+        });
+        setFormErrors((prev) => ({
+            ...prev,
+            [type]: null,
+        }));
+    }
+    function handleSelectChange(
+        id: string | null,
+        type: keyof FormProjectStructure,
+        setter: Dispatch<SetStateAction<FormProjectStructure | null>>,
+        prevState: FormProjectStructure | null,
+    ) {
+        if (!prevState) {
+            prevState = emptyStateProject;
+        }
+        setter({
+            ...prevState,
+            [type]: id,
         });
         setFormErrors((prev) => ({
             ...prev,
@@ -299,63 +338,62 @@ export default function ProjectsInfoForm({
                             }
                         />
                     </Input.Wrapper>
-                    <label>Proyect Type:</label>
-                    <select value={selectedType} onChange={setType}>
-                        <option value="personal_type">Personal</option>
-                        <option
-                            disabled={experienceInfo.length <= 0}
-                            hidden={experienceInfo.length <= 0}
-                            value="experience_type"
-                        >
-                            Experience
-                        </option>
-                        <option
-                            disabled={educationInfo.length <= 0}
-                            hidden={educationInfo.length <= 0}
-                            value="education_type"
-                        >
-                            Education
-                        </option>
-                    </select>
+                    <Select
+                        onChange={setType}
+                        label="Project Type: "
+                        placeholder="Project Type: "
+                        value={
+                            selectedType == 'experience_type'
+                                ? 'Experience'
+                                : selectedType == 'education_type'
+                                ? 'Education'
+                                : 'Personal'
+                        }
+                        data={['Personal', 'Experience', 'Education']}
+                    />
                     {selectedType == 'experience_type' && (
-                        <select
-                            value={getEditRecord?.experience_id ?? ''}
-                            name="experience_id"
+                        <Select
+                            placeholder="Project Type: "
+                            defaultValue={
+                                getEditRecord?.experience_id
+                                    ? String(getEditRecord.experience_id)
+                                    : ''
+                            }
+                            data={experienceInfo.map((item) => ({
+                                label: item.company_name,
+                                value: String(item.id),
+                            }))}
                             onChange={(event) => {
-                                handleInputChange(
+                                handleSelectChange(
                                     event,
                                     'experience_id',
                                     setEditRecord,
                                     getEditRecord,
                                 );
                             }}
-                        >
-                            {experienceInfo.map((item, index) => (
-                                <option key={index} value={item.id}>
-                                    {item.company_name}
-                                </option>
-                            ))}
-                        </select>
+                        />
                     )}
                     {selectedType == 'education_type' && (
-                        <select
-                            value={getEditRecord?.education_id ?? ''}
-                            name="education_id"
+                        <Select
+                            placeholder="Education Type"
+                            defaultValue={
+                                getEditRecord?.education_id
+                                    ? String(getEditRecord.education_id)
+                                    : ''
+                            }
+                            data={educationInfo.map((item) => ({
+                                label: item.school_name,
+                                value: String(item.id),
+                            }))}
                             onChange={(event) => {
-                                handleInputChange(
+                                handleSelectChange(
                                     event,
                                     'education_id',
                                     setEditRecord,
                                     getEditRecord,
                                 );
                             }}
-                        >
-                            {educationInfo.map((item, index) => (
-                                <option key={index} value={item.id}>
-                                    {item.school_name} {item.degree}
-                                </option>
-                            ))}
-                        </select>
+                        />
                     )}
                     <Input.Wrapper
                         error={
