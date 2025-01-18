@@ -6,6 +6,8 @@ import {
     FormExperienceStructure,
     RefreshSections,
 } from '@/utils/interfaces';
+import { Button, Input } from '@mantine/core';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 
@@ -178,8 +180,11 @@ export default function ExperienceForm({
                     />
                     <p>Company Name: {infoQuery.company_name}</p>
                     <p>Job Title: {infoQuery.job_title}</p>
-                    <button
+                    <Button
+                        size="compact-md"
                         type="button"
+                        variant="default"
+                        leftSection={<IconTrash size={18} />}
                         onClick={() => {
                             submitDeleteRecord(
                                 SectionTypes.Experience,
@@ -189,48 +194,66 @@ export default function ExperienceForm({
                         }}
                     >
                         Delete
-                    </button>
-                    <button onClick={() => editRecord(infoQuery)} type="button">
+                    </Button>
+                    <Button
+                        size="compact-md"
+                        type="button"
+                        variant="default"
+                        leftSection={<IconPencil size={18} />}
+                        onClick={() => editRecord(infoQuery)}
+                    >
                         Edit
-                    </button>
+                    </Button>
                 </>
             )}
             {!infoQuery && (
                 <>
                     <p>Add New Record</p>
-                    <input
-                        type="text"
-                        name="company_name"
-                        placeholder="Company"
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'company_name',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                        value={getEditRecord ? getEditRecord.company_name : ''}
-                    />
-                    {formErrors.company_name && (
-                        <p>{formErrors.company_name}</p>
-                    )}
-                    <input
-                        type="text"
-                        name="job_title"
-                        placeholder="Job Title"
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'job_title',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                        value={getEditRecord ? getEditRecord.job_title : ''}
-                    />
-                    {formErrors.job_title && <p>{formErrors.job_title}</p>}
-                    <button type="submit">Save</button>
+                    <Input.Wrapper
+                        error={
+                            formErrors.company_name
+                                ? formErrors.company_name
+                                : ''
+                        }
+                    >
+                        <Input
+                            error={!!formErrors.company_name}
+                            name="company_name"
+                            placeholder="Company"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'company_name',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={
+                                getEditRecord ? getEditRecord.company_name : ''
+                            }
+                        />
+                    </Input.Wrapper>
+                    <Input.Wrapper
+                        error={formErrors.job_title ? formErrors.job_title : ''}
+                    >
+                        <Input
+                            error={!!formErrors.job_title}
+                            name="job_title"
+                            placeholder="Job Title"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'job_title',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={getEditRecord ? getEditRecord.job_title : ''}
+                        />
+                    </Input.Wrapper>
+                    <Button size="md" type="submit">
+                        Save
+                    </Button>
                     {getEditRecord && getEditRecord.id && (
                         <>
                             <input
@@ -240,12 +263,14 @@ export default function ExperienceForm({
                                 name="id"
                                 defaultValue={getEditRecord.id}
                             />
-                            <button
+                            <Button
                                 onClick={() => editRecord(null)}
                                 type="button"
+                                size="md"
+                                variant="default"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </>
                     )}
                 </>

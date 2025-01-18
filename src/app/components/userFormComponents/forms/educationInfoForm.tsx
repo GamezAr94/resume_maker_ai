@@ -262,7 +262,7 @@ export default function EducationInfoForm({
                             <Button
                                 size="md"
                                 onClick={() => editRecord(null)}
-                                type="submit"
+                                type="button"
                                 variant="default"
                             >
                                 Cancel
