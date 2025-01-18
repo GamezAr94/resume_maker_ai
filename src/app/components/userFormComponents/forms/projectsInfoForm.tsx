@@ -78,10 +78,8 @@ export default function ProjectsInfoForm({
     ) {
         // prevent the default form submission and fetch the data
         event.preventDefault();
-        console.log(getEditRecord);
 
         // get the form data
-        //const formData = new FormData(event.currentTarget);
         const formData = new FormData();
         if (getEditRecord) {
             Object.entries(getEditRecord).forEach(([key, value]) => {
@@ -93,7 +91,6 @@ export default function ProjectsInfoForm({
 
         // parse the user data with the zod schema
         const parseUser = userSchema.safeParse(Object.fromEntries(formData));
-        console.log(formData);
 
         // reset the errors in the state
         setFormErrors(emptyStateProject);
@@ -175,6 +172,10 @@ export default function ProjectsInfoForm({
 
     // with this function we can edit an element and we can also cancel the edition
     function editRecord(value: FormProjectStructure | null) {
+        // we need to remove the existing errors if any
+        // TODO this method it is ONLY working when you click the button cancel, if we want to make it work when pressing the edit button then we need to move the useState to the container component of this component so that we can share it accross that one and this one
+        setFormErrors(emptyStateProject);
+        // elect by default the personal_type just in case
         setSelectedType('personal_type');
         if (value?.experience_id != null) {
             setSelectedType('experience_type');
@@ -182,6 +183,7 @@ export default function ProjectsInfoForm({
         if (value?.education_id != null) {
             setSelectedType('education_type');
         }
+        // set the value that we want to edit
         setEditRecord(value);
     }
 

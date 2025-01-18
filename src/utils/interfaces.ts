@@ -72,13 +72,13 @@ export interface FormEducationStructure {
 export const emptyStateSkill: FormSkillStructure = {
     id: '',
     skill_name: '',
-    skill_level: '',
+    skill_level: null,
 };
 // Interface for the form skills structure
 export interface FormSkillStructure {
     id: string;
     skill_name: string;
-    skill_level: string;
+    skill_level: string | null;
 }
 
 // PROJECT FORM

@@ -43,8 +43,17 @@ export default function SkillsInfoForm({
     ) {
         // prevent the default form submission and fetch the data
         event.preventDefault();
+
         // get the form data
-        const formData = new FormData(event.currentTarget);
+        const formData = new FormData();
+        if (getEditRecord) {
+            Object.entries(getEditRecord).forEach(([key, value]) => {
+                if (value !== null && value !== undefined && value != '') {
+                    formData.append(key, String(value));
+                }
+            });
+        }
+
         // parse the user data with the zod schema
         const parseUser = userSchema.safeParse(Object.fromEntries(formData));
 
@@ -125,6 +134,8 @@ export default function SkillsInfoForm({
         setEditRecord(null);
     }
     function editRecord(value: FormSkillStructure | null) {
+        // TODO this method it is ONLY working when you click the button cancel, if we want to make it work when pressing the edit button then we need to move the useState to the container component of this component so that we can share it accross that one and this one
+        setFormErrors(emptyStateSkill);
         setEditRecord(value);
     }
 

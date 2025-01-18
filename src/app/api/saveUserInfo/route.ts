@@ -124,10 +124,6 @@ async function updatePerType(
                 break;
             case SectionTypes.Skill:
                 // Save the user experience data in the supabase database
-                if (!('skill_level' in requestBodyData)) {
-                    error = 'Invalid data for skill section';
-                    break;
-                }
                 const { data: savedSkillData, error: skillError } =
                     await supabase
                         .from(type)
@@ -135,6 +131,7 @@ async function updatePerType(
                             user_id: userData[0].id,
                             ...requestBodyData,
                             skill_level:
+                                !('skill_level' in requestBodyData) ||
                                 requestBodyData.skill_level == ''
                                     ? null
                                     : requestBodyData.skill_level,
