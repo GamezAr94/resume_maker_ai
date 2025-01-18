@@ -6,6 +6,8 @@ import {
     FormEducationStructure,
     RefreshSections,
 } from '@/utils/interfaces';
+import { Button, Input } from '@mantine/core';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 
@@ -168,8 +170,11 @@ export default function EducationInfoForm({
                     />
                     <p>School Name: {infoQuery.school_name}</p>
                     <p>Field of Study: {infoQuery.field_of_study}</p>
-                    <button
+                    <Button
+                        size="compact-md"
                         type="button"
+                        variant="default"
+                        leftSection={<IconTrash size={18} />}
                         onClick={() => {
                             submitDeleteRecord(
                                 SectionTypes.Education,
@@ -178,51 +183,73 @@ export default function EducationInfoForm({
                             );
                         }}
                     >
-                        Delete {infoQuery.id}
-                    </button>
-                    <button onClick={() => editRecord(infoQuery)} type="button">
+                        Delete
+                    </Button>
+                    <Button
+                        size="compact-md"
+                        type="button"
+                        variant="default"
+                        leftSection={<IconPencil size={18} />}
+                        onClick={() => editRecord(infoQuery)}
+                    >
                         Edit
-                    </button>
+                    </Button>
                 </>
             )}
             {!infoQuery && (
                 <>
                     <p>Add New Record</p>
-                    <input
-                        type="text"
-                        name="school_name"
-                        placeholder="School Name"
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'school_name',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                        value={getEditRecord ? getEditRecord.school_name : ''}
-                    />
-                    {formErrors.school_name && <p>{formErrors.school_name}</p>}
-                    <input
-                        type="text"
-                        name="field_of_study"
-                        placeholder="Field of Study"
-                        value={
-                            getEditRecord ? getEditRecord.field_of_study : ''
+                    <Input.Wrapper
+                        error={
+                            formErrors.school_name ? formErrors.school_name : ''
                         }
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'field_of_study',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                    />
-                    {formErrors.field_of_study && (
-                        <p>{formErrors.field_of_study}</p>
-                    )}
-                    <button type="submit">Save</button>
+                    >
+                        <Input
+                            error={!!formErrors.school_name}
+                            placeholder="School Name"
+                            name="school_name"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'school_name',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={
+                                getEditRecord ? getEditRecord.school_name : ''
+                            }
+                        />
+                    </Input.Wrapper>
+                    <Input.Wrapper
+                        error={
+                            formErrors.field_of_study
+                                ? formErrors.field_of_study
+                                : ''
+                        }
+                    >
+                        <Input
+                            error={!!formErrors.field_of_study}
+                            placeholder="Field of Study"
+                            name="field_of_study"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'field_of_study',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={
+                                getEditRecord
+                                    ? getEditRecord.field_of_study
+                                    : ''
+                            }
+                        />
+                    </Input.Wrapper>
+                    <Button size="md" type="submit">
+                        Save
+                    </Button>
                     {getEditRecord && getEditRecord.id && (
                         <>
                             <input
@@ -232,12 +259,14 @@ export default function EducationInfoForm({
                                 name="id"
                                 defaultValue={getEditRecord.id}
                             />
-                            <button
+                            <Button
+                                size="md"
                                 onClick={() => editRecord(null)}
-                                type="button"
+                                type="submit"
+                                variant="default"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </>
                     )}
                 </>
