@@ -7,6 +7,8 @@ import {
     FormSkillStructure,
     RefreshSections,
 } from '@/utils/interfaces';
+import { Button, Input } from '@mantine/core';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 
@@ -164,8 +166,11 @@ export default function SkillsInfoForm({
                     />
                     <p>Skill Name: {infoQuery.skill_name}</p>
                     <p>Skill Level: {infoQuery.skill_level}</p>
-                    <button
+                    <Button
+                        size="compact-md"
                         type="button"
+                        variant="default"
+                        leftSection={<IconTrash size={18} />}
                         onClick={() => {
                             submitDeleteRecord(
                                 SectionTypes.Skill,
@@ -175,51 +180,74 @@ export default function SkillsInfoForm({
                         }}
                     >
                         Delete
-                    </button>
-                    <button onClick={() => editRecord(infoQuery)} type="button">
+                    </Button>
+                    <Button
+                        size="compact-md"
+                        type="button"
+                        variant="default"
+                        leftSection={<IconPencil size={18} />}
+                        onClick={() => editRecord(infoQuery)}
+                    >
                         Edit
-                    </button>
+                    </Button>
                 </>
             )}
             {!infoQuery && (
                 <>
                     <p>Add New Record</p>
-                    <input
-                        type="text"
-                        name="skill_name"
-                        placeholder="Skill Name"
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'skill_name',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                        value={getEditRecord ? getEditRecord.skill_name : ''}
-                    />
-                    {formErrors.skill_name && <p>{formErrors.skill_name}</p>}
-                    <input
-                        type="number"
-                        min="0"
-                        max="10"
-                        name="skill_level"
-                        placeholder="Skill Level"
-                        onChange={(event) => {
-                            handleInputChange(
-                                event,
-                                'skill_level',
-                                setEditRecord,
-                                getEditRecord,
-                            );
-                        }}
-                        value={
-                            getEditRecord && getEditRecord.skill_level
-                                ? getEditRecord.skill_level
-                                : ''
+                    <Input.Wrapper
+                        error={
+                            formErrors.skill_name ? formErrors.skill_name : ''
                         }
-                    />
-                    <button type="submit">Save</button>
+                    >
+                        <Input
+                            error={!!formErrors.skill_name}
+                            type="text"
+                            name="skill_name"
+                            placeholder="Skill Name"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'skill_name',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={
+                                getEditRecord ? getEditRecord.skill_name : ''
+                            }
+                        />
+                    </Input.Wrapper>
+                    <Input.Wrapper
+                        error={
+                            formErrors.skill_level ? formErrors.skill_level : ''
+                        }
+                    >
+                        <Input
+                            error={!!formErrors.skill_level}
+                            type="number"
+                            min="0"
+                            max="10"
+                            name="skill_level"
+                            placeholder="Skill Level"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'skill_level',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={
+                                getEditRecord && getEditRecord.skill_level
+                                    ? getEditRecord.skill_level
+                                    : ''
+                            }
+                        />
+                    </Input.Wrapper>
+                    <Button size="md" type="submit">
+                        Save
+                    </Button>
                     {getEditRecord && getEditRecord.id && (
                         <>
                             <input
@@ -229,12 +257,14 @@ export default function SkillsInfoForm({
                                 name="id"
                                 defaultValue={getEditRecord.id}
                             />
-                            <button
+                            <Button
+                                size="md"
+                                variant="default"
                                 onClick={() => editRecord(null)}
                                 type="button"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </>
                     )}
                 </>
