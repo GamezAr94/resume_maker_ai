@@ -19,7 +19,11 @@ interface Params {
     educationInfo: [FormEducationStructure] | [];
     experienceInfo: [FormExperienceStructure] | [];
     setEditRecord: Dispatch<SetStateAction<FormProjectStructure | null>>;
-    getEditRecord?: FormProjectStructure | null;
+    getEditRecord: FormProjectStructure | null;
+    setSelectedType: Dispatch<
+        SetStateAction<'personal_type' | 'experience_type' | 'education_type'>
+    >;
+    selectedType: 'personal_type' | 'experience_type' | 'education_type';
 }
 const userSchema = z.object({
     project_name: z.string().min(1, 'Project Name is required'),
@@ -35,6 +39,8 @@ export default function ProjectsInfoForm({
     experienceInfo,
     setEditRecord,
     getEditRecord,
+    setSelectedType,
+    selectedType,
 }: Params) {
     // whit this we will erase all the data in the form after saving it
     const formRef = useRef<HTMLFormElement>(null);
@@ -128,6 +134,7 @@ export default function ProjectsInfoForm({
             project: !prevTrigger.project,
         }));
         setEditRecord(null);
+        setSelectedType('personal_type');
         formRef.current?.reset();
     }
 
@@ -151,25 +158,54 @@ export default function ProjectsInfoForm({
         }));
         setEditRecord(null);
     }
+
+    // with this function we can edit an element and we can also cancel the edition
     function editRecord(value: FormProjectStructure | null) {
+        if (value == null) {
+            setSelectedType('personal_type');
+        }
+        if (value?.experience_id != null) {
+            setSelectedType('experience_type');
+        }
+        if (value?.education_id != null) {
+            setSelectedType('education_type');
+        }
         setEditRecord(value);
     }
 
     // Function to set the project type experience or education
     function setType(event: React.ChangeEvent<HTMLSelectElement>) {
-        const key = event.target.value;
+        setSelectedType(
+            event.target.value as
+                | 'personal_type'
+                | 'experience_type'
+                | 'education_type',
+        );
+    }
 
-        // Create a new object with all values set to false initially
-        const newGetCategory = {
-            personal_type: false,
-            experience_type: false,
-            education_type: false,
+    interface HandleInputChangeEvent {
+        target: {
+            value: string;
         };
-
-        // Set the selected key to true
-        newGetCategory[key as keyof typeof newGetCategory] = true;
-
-        setGetCategory(newGetCategory);
+    }
+    // Function to handle the input change and also to rever the form errors
+    function handleInputChange(
+        event: HandleInputChangeEvent,
+        type: keyof FormProjectStructure,
+        setter: Dispatch<SetStateAction<FormProjectStructure | null>>,
+        prevState: FormProjectStructure | null,
+    ) {
+        if (!prevState) {
+            prevState = emptyStateProject;
+        }
+        setter({
+            ...prevState,
+            [type]: event.target.value,
+        });
+        setFormErrors((prev) => ({
+            ...prev,
+            [type]: null,
+        }));
     }
 
     return (
@@ -193,6 +229,20 @@ export default function ProjectsInfoForm({
                             : 'Personal'}
                     </p>
                     <p>Project Description: {infoQuery.project_description}</p>
+                    <p>
+                        project{' '}
+                        {infoQuery.education_id
+                            ? 'edu'
+                            : infoQuery.experience_id
+                            ? 'exp'
+                            : 'personal'}
+                        :{' '}
+                        {infoQuery.education_id
+                            ? infoQuery.education_id
+                            : infoQuery.experience_id
+                            ? infoQuery.experience_id
+                            : 'personal'}
+                    </p>
                     <button
                         type="button"
                         onClick={() => {
@@ -217,25 +267,21 @@ export default function ProjectsInfoForm({
                         type="text"
                         name="project_name"
                         placeholder="Project Name"
-                        defaultValue={
-                            getEditRecord ? getEditRecord.project_name : ''
-                        }
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'project_name',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
+                        value={getEditRecord ? getEditRecord.project_name : ''}
                     />
                     {formErrors.project_name && (
                         <p>{formErrors.project_name}</p>
                     )}
-
                     <label>Proyect Type:</label>
-                    <select
-                        defaultValue={
-                            getEditRecord?.education_id
-                                ? 'education_type'
-                                : getEditRecord?.experience_id
-                                ? 'experience_type'
-                                : 'personal_type'
-                        }
-                        onChange={setType}
-                    >
+                    <select value={selectedType} onChange={setType}>
                         <option value="personal_type">Personal</option>
                         <option
                             disabled={experienceInfo.length <= 0}
@@ -252,12 +298,18 @@ export default function ProjectsInfoForm({
                             Education
                         </option>
                     </select>
-
-                    {(getCategory.experience_type ||
-                        getEditRecord?.experience_id) && (
+                    {selectedType == 'experience_type' && (
                         <select
-                            defaultValue={getEditRecord?.experience_id ?? ''}
+                            value={getEditRecord?.experience_id ?? ''}
                             name="experience_id"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'experience_id',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
                         >
                             {experienceInfo.map((item, index) => (
                                 <option key={index} value={item.id}>
@@ -266,11 +318,18 @@ export default function ProjectsInfoForm({
                             ))}
                         </select>
                     )}
-                    {(getCategory.education_type ||
-                        getEditRecord?.education_id) && (
+                    {selectedType == 'education_type' && (
                         <select
-                            defaultValue={getEditRecord?.education_id ?? ''}
+                            value={getEditRecord?.education_id ?? ''}
                             name="education_id"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'education_id',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
                         >
                             {educationInfo.map((item, index) => (
                                 <option key={index} value={item.id}>
@@ -279,12 +338,19 @@ export default function ProjectsInfoForm({
                             ))}
                         </select>
                     )}
-
                     <input
                         type="text"
                         name="project_description"
                         placeholder="Project Description"
-                        defaultValue={
+                        onChange={(event) => {
+                            handleInputChange(
+                                event,
+                                'project_description',
+                                setEditRecord,
+                                getEditRecord,
+                            );
+                        }}
+                        value={
                             getEditRecord
                                 ? getEditRecord.project_description
                                 : ''
@@ -294,7 +360,7 @@ export default function ProjectsInfoForm({
                         <p>{formErrors.project_description}</p>
                     )}
                     <button type="submit">Save</button>
-                    {getEditRecord && (
+                    {getEditRecord && getEditRecord.id && (
                         <>
                             <input
                                 readOnly

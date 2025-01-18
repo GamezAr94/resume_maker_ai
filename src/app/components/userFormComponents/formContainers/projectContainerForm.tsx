@@ -27,6 +27,9 @@ export default function ProjectContainerForm({
 }: Params) {
     const [getEditRecord, setEditRecord] =
         useState<FormProjectStructure | null>(null);
+    const [selectedType, setSelectedType] = useState<
+        'personal_type' | 'experience_type' | 'education_type'
+    >('personal_type');
     return (
         <>
             <div>
@@ -41,6 +44,8 @@ export default function ProjectContainerForm({
                     experienceInfo={experienceInfo}
                     getEditRecord={getEditRecord}
                     setEditRecord={setEditRecord}
+                    setSelectedType={setSelectedType}
+                    selectedType={selectedType}
                 />
                 <ShowUserDataSection>
                     {projectInfo.length > 0
@@ -53,6 +58,9 @@ export default function ProjectContainerForm({
                                   educationInfo={educationInfo}
                                   experienceInfo={experienceInfo}
                                   setEditRecord={setEditRecord}
+                                  getEditRecord={getEditRecord}
+                                  setSelectedType={setSelectedType}
+                                  selectedType={selectedType}
                               />
                           ))
                         : null}
