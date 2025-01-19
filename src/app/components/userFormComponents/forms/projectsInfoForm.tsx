@@ -11,7 +11,7 @@ import {
 } from '@/utils/interfaces';
 import { Button, Input, Select } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 
 interface Params {

@@ -58,6 +58,7 @@ export async function getDBTableInfo(
             } data`,
             // TODO do I need to use any type ?
             //supabase: SupabaseClient<any, 'public', any> | null;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             data: tableName == '' ? data[0] : (data[0] as any)[tableName],
         };
     } catch (error) {
