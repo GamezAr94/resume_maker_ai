@@ -10,6 +10,7 @@ export async function getDBTableInfo(
 ): Promise<{
     status: boolean;
     message: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: null | any;
 }> {
     // Get the supabase client and the user data
@@ -47,13 +48,16 @@ export async function getDBTableInfo(
             };
         }
 
+        // TODO remove this comment
+        console.log(data[0]);
         // Return the user data
         return {
             status: true,
             message: `Success fetching the ${
                 tableName || 'personal information'
             } data`,
-            //data: tableName == '' ? data[0] : data[0][tableName],
+            // TODO do I need to use any type ?
+            //supabase: SupabaseClient<any, 'public', any> | null;
             data: tableName == '' ? data[0] : (data[0] as any)[tableName],
         };
     } catch (error) {
@@ -61,7 +65,7 @@ export async function getDBTableInfo(
             status: false,
             message: `Error getting the ${
                 tableName || 'personal information'
-            } data: ${(error as any).message}`,
+            } data: ${(error as Error).message}`,
             data: null,
         };
     }
@@ -69,7 +73,7 @@ export async function getDBTableInfo(
 
 // Function to set up the supabase client and get the user data
 async function setSupabaseClient(): Promise<{
-    //supabase: SupabaseClient<any, 'public', any> | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     supabase: null | SupabaseClient<any, 'public', any>;
     user: User | null;
 }> {

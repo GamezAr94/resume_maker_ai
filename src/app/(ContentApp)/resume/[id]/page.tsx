@@ -108,7 +108,7 @@ export default function Resume() {
             };
             fetchData();
         }
-    }, [id]);
+    }, [router, id]);
     return (
         <div>
             <ResumeViewer resumeData={dataResume} />

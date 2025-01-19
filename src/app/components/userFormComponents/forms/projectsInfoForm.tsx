@@ -51,27 +51,6 @@ export default function ProjectsInfoForm({
     const [formErrors, setFormErrors] =
         useState<FormProjectStructure>(emptyStateProject);
 
-    const [getCategory, setGetCategory] = useState<{
-        personal_type: boolean;
-        experience_type: boolean;
-        education_type: boolean;
-    }>({ personal_type: true, experience_type: false, education_type: false });
-
-    useEffect(() => {
-        if (infoQuery?.experience_id) {
-            setGetCategory({
-                personal_type: false,
-                experience_type: true,
-                education_type: false,
-            });
-        } else if (infoQuery?.education_id) {
-            setGetCategory({
-                personal_type: false,
-                experience_type: false,
-                education_type: true,
-            });
-        }
-    }, [infoQuery?.education_id, infoQuery?.experience_id]);
     // Function to validate the user data and save it
     async function validatingAndSaving(
         event: React.FormEvent<HTMLFormElement>,

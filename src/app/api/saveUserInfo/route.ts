@@ -57,6 +57,7 @@ async function updatePerType(
         | FormPersonalStructure
         | FormSkillStructure
         | FormProjectStructure,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     supabase: SupabaseClient<any, 'public', any>,
     user_id: string,
 ): Promise<{ id: string | null; message: string; status: number }> {
