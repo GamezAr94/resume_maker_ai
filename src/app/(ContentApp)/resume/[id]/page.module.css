@@ -1,0 +1,22 @@
+.main_container {
+    display: flex;
+    width: 100%;
+    width: 100vw;
+    height: 90vh;
+    height: 90dvh;
+    background-color: gray;
+    overflow: hidden;
+    justify-content: space-evenly;
+}
+.main_container > div {
+    border: 1px solid red;
+}
+.main_container > div:nth-child(2) {
+    display: flex;
+    width: 37%;
+    min-width: 712px;
+}
+.editor_container {
+    background-color: #fff;
+    width: 57%;
+}

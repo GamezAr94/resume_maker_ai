@@ -2,54 +2,23 @@
 import ResumeViewer from '@/app/components/resumeViewer/resumeViewer';
 import { getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
-import { GeminiResponse } from '@/utils/interfaces';
+import {
+    emptyStateJobDataOffer,
+    FormJobOfferDataStructure,
+} from '@/utils/interfaces';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import styles from './page.module.css';
+import ResumeEditor from '@/app/components/resumeViewer/resumeEditor';
 
 export default function Resume() {
+    const [getPDF, setPDF] = useState<string>('');
+    const [dataResume, setDataResume] = useState<FormJobOfferDataStructure>(
+        emptyStateJobDataOffer,
+    );
+
     const router = useRouter();
     const params = useParams();
-    const [dataResume, setDataResume] = useState<{
-        company_name: string;
-        created_at: string;
-        id: string;
-        job_description: string;
-        job_position: string;
-        resume_generated: GeminiResponse;
-    }>({
-        company_name: '',
-        created_at: '',
-        id: '',
-        job_description: '',
-        job_position: '',
-        resume_generated: {
-            // I need to set the interface for this
-            contact_info: { name: '', email: '', phone: '', linkedin: '' },
-            education: [{ degree: '', school: '', start_end_dates: '' }],
-            experience: [
-                {
-                    company: '',
-                    description: '',
-                    relevance: '',
-                    start_end_dates: '',
-                    title: '',
-                },
-            ],
-            keywords: [],
-            projects: [
-                {
-                    name: '',
-                    relevance: '',
-                    description: '',
-                    start_end_dates: '',
-                },
-            ],
-            recommendations: '',
-            explanation: '',
-            summary: '',
-            skills: [],
-        },
-    });
     const id = params.id;
     useEffect(() => {
         // Verify the id is a valid number
@@ -90,6 +59,9 @@ export default function Resume() {
                 }
                 // TODO validate the response of this request
                 const userInfo = await getDBTableInfo('');
+                setPDF(
+                    userInfo.data.first_name + ' ' + userInfo.data.last_name,
+                );
                 setDataResume({
                     ...data.data[0],
                     resume_generated: {
@@ -109,10 +81,25 @@ export default function Resume() {
             fetchData();
         }
     }, [router, id]);
+
     return (
-        <div>
-            <ResumeViewer resumeData={dataResume} />
-            <div>Resume Editor</div>
+        <div className={styles.main_container}>
+            <div className={styles.editor_container}>
+                <ResumeEditor
+                    setDataResume={setDataResume}
+                    dataResume={dataResume}
+                />
+                <div>Resume Editor</div>
+            </div>
+            <ResumeViewer dataResume={dataResume} />
         </div>
     );
 }
+
+/*
+                <Test2
+                    onSubmit={handleFormSubmit}
+                    setPDF={setPDF}
+                    getPDF={getPDF}
+                />
+*/

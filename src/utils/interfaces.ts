@@ -99,22 +99,6 @@ export interface FormProjectStructure {
     education_id: string | null;
 }
 
-// JOB OFFER FORM
-// Initial state for the job offer form errors
-export const emptyStateJobOffer: FormJobOfferStructure = {
-    company_name: '',
-    job_position: '',
-    job_description: '',
-    resume_generated: '',
-};
-// Interface for the form job offer structure
-export interface FormJobOfferStructure {
-    company_name: string;
-    job_position: string;
-    job_description: string;
-    resume_generated: string;
-}
-
 // ==============================
 
 // GEMINI RESUME RESPONSE
@@ -156,6 +140,22 @@ interface Project {
     relevance: string;
     start_end_dates: string;
 }
+export const emptyStateGeminiReponse: GeminiResponse = {
+    contact_info: {
+        name: '',
+        email: '',
+        phone: '',
+        linkedin: '',
+    },
+    summary: '',
+    experience: [],
+    education: [],
+    skills: [],
+    projects: [],
+    keywords: [],
+    recommendations: '',
+    explanation: '',
+};
 
 // ==============================
 
@@ -166,4 +166,26 @@ export interface RefreshSections {
     skill: boolean;
     project: boolean;
     personal: boolean;
+}
+
+// ==============================
+
+// JOB OFFER FORM
+// Initial state for the job offer form errors
+export const emptyStateJobDataOffer: FormJobOfferDataStructure = {
+    company_name: '',
+    created_at: '',
+    id: '',
+    job_position: '',
+    job_description: '',
+    resume_generated: emptyStateGeminiReponse,
+};
+// Interface for the form job offer structure
+export interface FormJobOfferDataStructure {
+    company_name: string;
+    id: string | number | null;
+    created_at: string | null;
+    job_position: string;
+    job_description: string;
+    resume_generated: GeminiResponse;
 }

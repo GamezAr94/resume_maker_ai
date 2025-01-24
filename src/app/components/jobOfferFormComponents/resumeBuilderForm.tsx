@@ -1,6 +1,9 @@
 'use client';
 import { SectionTypes } from '@/utils/enums';
-import { emptyStateJobOffer, FormJobOfferStructure } from '@/utils/interfaces';
+import {
+    emptyStateJobDataOffer,
+    FormJobOfferDataStructure,
+} from '@/utils/interfaces';
 import { useState } from 'react';
 import { z } from 'zod';
 
@@ -17,8 +20,9 @@ const userSchema = z.object({
 
 export default function ResumeBuilderForm() {
     const router = useRouter();
-    const [formErrors, setFormErrors] =
-        useState<FormJobOfferStructure>(emptyStateJobOffer);
+    const [formErrors, setFormErrors] = useState<FormJobOfferDataStructure>(
+        emptyStateJobDataOffer,
+    );
 
     // Function to validate the JOB OFFER data save it and GENERATE the resume
     async function validatingAndSaving(
@@ -34,12 +38,12 @@ export default function ResumeBuilderForm() {
         );
 
         // reset the errors in the state
-        setFormErrors(emptyStateJobOffer);
+        setFormErrors(emptyStateJobDataOffer);
 
         // if the user data is not valid, store the errors in the state and return
         if (!parseJobOffer.success) {
             const error = parseJobOffer.error;
-            let newErrors = emptyStateJobOffer;
+            let newErrors = emptyStateJobDataOffer;
             for (const issue of error.errors) {
                 newErrors = {
                     ...newErrors,
