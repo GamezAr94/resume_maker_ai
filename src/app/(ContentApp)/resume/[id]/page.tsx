@@ -12,7 +12,6 @@ import styles from './page.module.css';
 import ResumeEditor from '@/app/components/resumeViewer/resumeEditor';
 
 export default function Resume() {
-    const [getPDF, setPDF] = useState<string>('');
     const [dataResume, setDataResume] = useState<FormJobOfferDataStructure>(
         emptyStateJobDataOffer,
     );
@@ -59,9 +58,7 @@ export default function Resume() {
                 }
                 // TODO validate the response of this request
                 const userInfo = await getDBTableInfo('');
-                setPDF(
-                    userInfo.data.first_name + ' ' + userInfo.data.last_name,
-                );
+                // set the data returned from the database to the state
                 setDataResume({
                     ...data.data[0],
                     resume_generated: {
@@ -95,11 +92,3 @@ export default function Resume() {
         </div>
     );
 }
-
-/*
-                <Test2
-                    onSubmit={handleFormSubmit}
-                    setPDF={setPDF}
-                    getPDF={getPDF}
-                />
-*/

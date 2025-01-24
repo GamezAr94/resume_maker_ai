@@ -1,4 +1,4 @@
-import { FormJobOfferDataStructure, GeminiResponse } from '@/utils/interfaces';
+import { FormJobOfferDataStructure } from '@/utils/interfaces';
 import { ChangeEvent, Dispatch, SetStateAction } from 'react';
 
 interface Propos {
