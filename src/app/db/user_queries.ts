@@ -48,8 +48,6 @@ export async function getDBTableInfo(
             };
         }
 
-        // TODO remove this comment
-        console.log(data[0]);
         // Return the user data
         return {
             status: true,

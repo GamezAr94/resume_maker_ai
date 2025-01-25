@@ -9,63 +9,171 @@ interface Propos {
 export default function ResumeEditor({ setDataResume, dataResume }: Propos) {
     // funciton to handle the change of the input
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setDataResume({
-            ...dataResume,
-            resume_generated: {
-                ...dataResume.resume_generated,
-                contact_info: {
-                    ...dataResume.resume_generated.contact_info,
-                    name: e.target.value,
-                },
-            },
-        });
+        const [value, name] = [e.target.value, e.target.name];
+
+        switch (name) {
+            case 'name':
+            case 'email':
+            case 'linkedin':
+            case 'phone':
+                setDataResume({
+                    ...dataResume,
+                    resume_generated: {
+                        ...dataResume.resume_generated,
+                        contact_info: {
+                            ...dataResume.resume_generated.contact_info,
+                            [name]: value,
+                        },
+                    },
+                });
+                break;
+            case 'summary':
+                setDataResume({
+                    ...dataResume,
+                    resume_generated: {
+                        ...dataResume.resume_generated,
+                        summary: value,
+                    },
+                });
+                break;
+            case 'job_position':
+                setDataResume({
+                    ...dataResume,
+                    job_position: value,
+                });
+                break;
+            case 'company':
+            case 'start_end_dates':
+            case 'title':
+            case 'description':
+            case 'relevance':
+                const iterator = e.target.getAttribute('data-iterator');
+                if (iterator !== null) {
+                    const index = parseInt(iterator, 10);
+                    const updatedExperience = [
+                        ...dataResume.resume_generated.experience,
+                    ];
+                    updatedExperience[index] = {
+                        ...updatedExperience[index],
+                        [name]: value,
+                    };
+                    setDataResume({
+                        ...dataResume,
+                        resume_generated: {
+                            ...dataResume.resume_generated,
+                            experience: updatedExperience,
+                        },
+                    });
+                }
+                break;
+            default:
+                return;
+        }
     };
 
     return (
         <div>
+            <p>Resume Visualizer</p>
             <p>
                 <strong>Name: </strong>
             </p>
             <input
                 onChange={handleChange}
+                name="name"
                 value={dataResume.resume_generated.contact_info.name}
             />
+
             <p>
                 <strong>Position: </strong>
             </p>
-            <input onChange={handleChange} value={dataResume.job_position} />
-            <p>Resume Visualizer</p>
+            <input
+                onChange={handleChange}
+                name="job_position"
+                value={dataResume.job_position}
+            />
+
             <p>
-                <strong>Name: </strong>
-                {dataResume.resume_generated.contact_info.name}
+                <strong>Email: </strong>
             </p>
+            <input
+                onChange={handleChange}
+                name="email"
+                value={dataResume.resume_generated.contact_info.email}
+            />
             <p>
-                <strong>Position: </strong> {dataResume.job_position}
+                <strong>Linkedin: </strong>
             </p>
+            <input
+                onChange={handleChange}
+                name="linkedin"
+                value={dataResume.resume_generated.contact_info.linkedin}
+            />
             <p>
-                <strong>Contact: </strong>{' '}
-                {dataResume.resume_generated.contact_info.email}
+                <strong>Phone: </strong>
             </p>
-            <p>
-                <strong>Contact: </strong>{' '}
-                {dataResume.resume_generated.contact_info.linkedin}
-            </p>
+            <input
+                onChange={handleChange}
+                name="phone"
+                value={dataResume.resume_generated.contact_info.phone}
+            />
+
             <p>
                 <strong>Summary: </strong>
             </p>
-            <p>{dataResume.resume_generated.summary}</p>
+            <input
+                onChange={handleChange}
+                name="summary"
+                value={dataResume.resume_generated.summary}
+            />
+
             <p>
                 <strong>Experience:</strong>
             </p>
             {dataResume.resume_generated.experience.map((exp, id) => (
                 <div key={id}>
-                    <p>{exp.company}</p>
-                    <p>{exp.start_end_dates}</p>
-                    <p>{exp.title}</p>
-                    <p>{exp.description}</p>
-                    <p>{exp.relevance}</p>
+                    <input
+                        onChange={handleChange}
+                        name="company"
+                        value={
+                            dataResume.resume_generated.experience[id].company
+                        }
+                        data-iterator={id}
+                    />
+                    <input
+                        onChange={handleChange}
+                        name="start_end_dates"
+                        value={
+                            dataResume.resume_generated.experience[id]
+                                .start_end_dates
+                        }
+                        data-iterator={id}
+                    />
+                    <input
+                        onChange={handleChange}
+                        name="title"
+                        value={dataResume.resume_generated.experience[id].title}
+                        data-iterator={id}
+                    />
+                    <input
+                        onChange={handleChange}
+                        name="description"
+                        value={
+                            dataResume.resume_generated.experience[id]
+                                .description
+                        }
+                        data-iterator={id}
+                    />
+                    <input
+                        onChange={handleChange}
+                        name="relevance"
+                        value={
+                            dataResume.resume_generated.experience[id].relevance
+                        }
+                        data-iterator={id}
+                    />
                 </div>
             ))}
+
             <p>
                 <strong>Education:</strong>
             </p>
