@@ -66,12 +66,21 @@ export async function POST(req: Request) {
             Select the most relevant information: 
              From the user's profile, choose the most impactful experiences (at least 4 if available), education (at least 4 if available), 
             and projects that align with the job description (at least 4 if available), ranking from the most relevant to the lesser relevant.
+            For the experience section, prioritize recent roles and those that match the job requirements and generate a list of responsabilities in a list format
+            i.e. (Conducted financial analysis using X, increasing revenue for a commercial real estate portfolio by 21%)
+            - responsability
+            - responsability
+            - responsability
             Structure the resume content: 
              Generate the response with clear summary/objective, experience, education, skills, and projects. The experience should be detailed.
              summary always must include the name of the company or the position so that this resume will be tailored specifically for this company
+            Display property:
+             there is a display property for each experience and project, if it is false, it should not be displayed in the resume, by default
+             you need to display at least 3 items on projects and 3 items on experience
             Tailor the content: 
              Craft concise and impactful bullet points for each experience and project, emphasizing 
-            accomplishments and quantifiable results. Use keywords strategically throughout the resume.
+            accomplishments and quantifiable results, generate an impactful and descriptive description of the role and relevance of the activities performed. 
+            Use keywords strategically throughout the resume.
             Provide explanations: 
              For each selected project and experience, generate a brief description explaining why it is 
             relevant to the target job, this data will be used to provide feedback to the user, not for the resume itself.
@@ -99,6 +108,9 @@ export async function POST(req: Request) {
                 summary: {
                     type: SchemaType.STRING,
                 },
+                career_objective: {
+                    type: SchemaType.STRING,
+                },
                 experience: {
                     type: SchemaType.ARRAY,
                     items: {
@@ -107,24 +119,29 @@ export async function POST(req: Request) {
                             title: {
                                 type: SchemaType.STRING,
                             },
+                            location: {
+                                type: SchemaType.STRING,
+                            },
                             company: {
                                 type: SchemaType.STRING,
                             },
                             start_end_dates: {
                                 type: SchemaType.STRING,
                             },
-                            description: {
-                                type: SchemaType.STRING,
+                            display: {
+                                type: SchemaType.BOOLEAN,
                             },
-                            relevance: {
+                            responsabilities: {
                                 type: SchemaType.STRING,
                             },
                         },
                         required: [
                             'title',
+                            'location',
                             'company',
                             'start_end_dates',
-                            'description',
+                            'display',
+                            'responsabilities',
                         ],
                     },
                 },
@@ -136,11 +153,29 @@ export async function POST(req: Request) {
                             degree: {
                                 type: SchemaType.STRING,
                             },
+                            major: {
+                                type: SchemaType.STRING,
+                            },
+                            minor: {
+                                type: SchemaType.STRING,
+                            },
+                            location: {
+                                type: SchemaType.STRING,
+                            },
+                            gpa: {
+                                type: SchemaType.STRING,
+                            },
                             school: {
                                 type: SchemaType.STRING,
                             },
                             start_end_dates: {
                                 type: SchemaType.STRING,
+                            },
+                            honor_awards: {
+                                type: SchemaType.ARRAY,
+                                items: {
+                                    type: SchemaType.STRING,
+                                },
                             },
                         },
                         required: ['degree', 'school', 'start_end_dates'],
@@ -169,12 +204,16 @@ export async function POST(req: Request) {
                             start_end_dates: {
                                 type: SchemaType.STRING,
                             },
+                            display: {
+                                type: SchemaType.BOOLEAN,
+                            },
                         },
                         required: [
                             'name',
                             'description',
                             'relevance',
                             'start_end_dates',
+                            'display',
                         ],
                     },
                 },
@@ -190,9 +229,50 @@ export async function POST(req: Request) {
                 explanation: {
                     type: SchemaType.STRING,
                 },
+                languages: {
+                    type: SchemaType.ARRAY,
+                    items: {
+                        type: SchemaType.OBJECT,
+                        properties: {
+                            language: {
+                                type: SchemaType.STRING,
+                            },
+                            proficiency: {
+                                type: SchemaType.STRING,
+                            },
+                        },
+                        required: ['language'],
+                    },
+                },
+                certifications: {
+                    type: SchemaType.ARRAY,
+                    items: {
+                        type: SchemaType.OBJECT,
+                        properties: {
+                            name: {
+                                type: SchemaType.STRING,
+                            },
+                            issuing_organization: {
+                                type: SchemaType.STRING,
+                            },
+                            issue_date: {
+                                type: SchemaType.STRING,
+                            },
+                            expiration_date: {
+                                type: SchemaType.STRING,
+                            },
+                        },
+                        required: [
+                            'name',
+                            'issuing_organization',
+                            'issue_date',
+                        ],
+                    },
+                },
             },
             required: [
                 'summary',
+                'career_objective',
                 'experience',
                 'education',
                 'skills',

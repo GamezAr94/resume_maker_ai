@@ -86,7 +86,6 @@ export default function Resume() {
                     setDataResume={setDataResume}
                     dataResume={dataResume}
                 />
-                <div>Resume Editor</div>
             </div>
             <ResumeViewer dataResume={dataResume} />
         </div>

@@ -1,7 +1,8 @@
 .main_container {
+    margin: auto;
     display: flex;
-    width: 100%;
-    width: 100vw;
+    width: 99%;
+    width: 99vw;
     height: 90vh;
     height: 90dvh;
     background-color: gray;
@@ -19,4 +20,5 @@
 .editor_container {
     background-color: #fff;
     width: 57%;
+    overflow-y: scroll;
 }

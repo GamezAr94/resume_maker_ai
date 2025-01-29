@@ -105,6 +105,7 @@ export interface FormProjectStructure {
 export interface GeminiResponse {
     contact_info: ContactInfo;
     summary: string;
+    career_objective: string;
     experience: Experience[];
     education: Education[];
     skills: string[];
@@ -122,14 +123,20 @@ interface ContactInfo {
 
 interface Experience {
     company: string;
-    description: string;
-    relevance: string;
+    display: boolean;
     start_end_dates: string;
     title: string;
+    location: string;
+    responsabilities: string;
 }
 
 interface Education {
     degree: string;
+    major: string | null;
+    minor: string | null;
+    location: string | null;
+    gpa: string | null;
+    honor_awards: string[] | null;
     school: string; // Note: I've changed this to 'university'
     start_end_dates: string;
 }
@@ -137,6 +144,7 @@ interface Education {
 interface Project {
     name: string;
     description: string;
+    display: boolean;
     relevance: string;
     start_end_dates: string;
 }
@@ -148,6 +156,7 @@ export const emptyStateGeminiReponse: GeminiResponse = {
         linkedin: '',
     },
     summary: '',
+    career_objective: '',
     experience: [],
     education: [],
     skills: [],
