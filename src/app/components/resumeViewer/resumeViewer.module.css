@@ -1,0 +1,9 @@
+.resume_viewer_container {
+    display: flex;
+    flex-direction: column;
+}
+.resume_viewer_view {
+    background-color: gray;
+    flex-grow: 1;
+    overflow-y: auto;
+}

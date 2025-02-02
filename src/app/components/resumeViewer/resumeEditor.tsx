@@ -7,6 +7,39 @@ interface Propos {
 }
 
 export default function ResumeEditor({ setDataResume, dataResume }: Propos) {
+    // function to show/hide specific sections in the resume
+    const hideShowSection = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const iterator = e.currentTarget.getAttribute('data-iterator');
+        const section = e.currentTarget.getAttribute('data-section');
+        if (iterator == null) {
+            return;
+        }
+        const index = parseInt(iterator, 10);
+
+        if (section === 'projects' || section === 'experience') {
+            const updatedProjects = [...dataResume.resume_generated[section]];
+            const newUpdatedProjects = updatedProjects.filter(
+                (_, index_in) => index_in !== index,
+            );
+            /*
+            const display = updatedProjects[index].display;
+            console.log(display);
+            updatedProjects[index] = {
+                ...updatedProjects[index],
+                display: !display,
+            };
+            */
+            setDataResume({
+                ...dataResume,
+                resume_generated: {
+                    ...dataResume.resume_generated,
+                    [section]: newUpdatedProjects,
+                    //[section]: updatedProjects,
+                },
+            });
+        }
+    };
+
     // funciton to handle the change of the input
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -202,7 +235,13 @@ export default function ResumeEditor({ setDataResume, dataResume }: Propos) {
             </p>
             {dataResume.resume_generated.projects.map((pro, id) => (
                 <div key={id}>
-                    <button>{pro.display ? 'Hide' : 'Show'}</button>
+                    <button
+                        onClick={hideShowSection}
+                        data-iterator={id}
+                        data-section="projects"
+                    >
+                        {pro.display ? 'Hide' : 'Show'}
+                    </button>
                     <input
                         onChange={handleChange}
                         data-section="projects"
