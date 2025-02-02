@@ -5,8 +5,6 @@ import {
     Document,
     Font,
     Page,
-    PDFDownloadLink,
-    PDFViewer,
     StyleSheet,
     Text,
     View,
@@ -17,6 +15,7 @@ import { NextResponse } from 'next/server';
 interface Props {
     dataResume: FormJobOfferDataStructure;
 }
+
 /*
  NOTE: This is very tricky ... to set up a new font we need to go to this link: 
  https://developers.google.com/fonts/docs/developer_api?apix_params=%7B%22family%22%3A%5B%22Roboto%22%5D%2C%22sort%22%3A%22ALPHA%22%7D
@@ -40,6 +39,8 @@ Font.register({
     fontStyle: 'normal', // or 'italic' if needed
     fontWeight: 900, // or the appropriate weight
 });
+
+// Template for the styles for the PDF Resume
 const styles = StyleSheet.create({
     viewer: {
         aspectRatio: '210/297',
@@ -99,37 +100,206 @@ const styles = StyleSheet.create({
         gap: '20px',
     },
 });
+
+// Template for the PDF Resume
 const MyDocument = ({ dataResume }: Props) => {
     return (
-        <Document pageMode="fullScreen">
-            <Page size="A4" style={styles.page}>
-                <View>
-                    <Text style={styles.user_name}>
-                        {dataResume.resume_generated.contact_info.name}
-                    </Text>
-                </View>
-            </Page>
-        </Document>
-    );
-};
-const Test = () => {
-    return (
         <Document>
-            <Page>
-                <View>
-                    <Text>Success</Text>
+            <Page size="A4" style={styles.page}>
+                <View style={styles.section}>
+                    <View>
+                        <Text style={styles.user_name}>
+                            {dataResume.resume_generated.contact_info.name}
+                        </Text>
+                        <Text
+                            style={{
+                                ...styles.position,
+                                ...styles.highlight,
+                            }}
+                        >
+                            {dataResume.job_position}
+                        </Text>
+                        <View style={styles.contact_section}>
+                            <Text>
+                                {dataResume.resume_generated.contact_info.email}
+                            </Text>
+                            <Text>
+                                {
+                                    dataResume.resume_generated.contact_info
+                                        .linkedin
+                                }
+                            </Text>
+                            <Text>
+                                {dataResume.resume_generated.contact_info.phone}
+                            </Text>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.section_title}>
+                            Career Objective
+                        </Text>
+                        <Text>
+                            {dataResume.resume_generated.career_objective}
+                        </Text>
+                    </View>
+                    <View>
+                        <Text style={styles.section_title}>Summary</Text>
+                        <Text>{dataResume.resume_generated.summary}</Text>
+                    </View>
+
+                    <View style={styles.content_resume}>
+                        <View style={{ width: '70%' }}>
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Experience
+                                </Text>
+                                {dataResume.resume_generated.experience.map(
+                                    (exp, id) => {
+                                        return (
+                                            <View key={id}>
+                                                <Text
+                                                    style={
+                                                        styles.section_subtitle
+                                                    }
+                                                >
+                                                    {exp.title}
+                                                </Text>
+                                                <Text
+                                                    style={{
+                                                        ...styles.subtitle_higlighted,
+                                                        ...styles.highlight,
+                                                    }}
+                                                >
+                                                    {exp.company}
+                                                </Text>
+                                                <Text>
+                                                    {exp.start_end_dates}
+                                                </Text>
+                                                <Text>
+                                                    {exp.responsabilities}
+                                                </Text>
+                                            </View>
+                                        );
+                                    },
+                                )}
+                            </View>
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Projects
+                                </Text>
+                                {dataResume.resume_generated.projects.map(
+                                    (pro, id) => {
+                                        return (
+                                            <View key={id}>
+                                                <Text
+                                                    style={{
+                                                        ...styles.section_subtitle,
+                                                    }}
+                                                >
+                                                    {pro.name}
+                                                </Text>
+                                                <Text>
+                                                    {pro.start_end_dates}
+                                                </Text>
+                                                <Text>{pro.relevance}</Text>
+                                                <Text>{pro.description}</Text>
+                                            </View>
+                                        );
+                                    },
+                                )}
+                            </View>
+                        </View>
+                        <View
+                            style={{
+                                width: '30%',
+                            }}
+                        >
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Education
+                                </Text>
+                                {dataResume.resume_generated.education.map(
+                                    (edu, id) => {
+                                        return (
+                                            <View key={id}>
+                                                <Text>{edu.degree}</Text>
+                                                <Text
+                                                    style={{
+                                                        ...styles.subtitle_higlighted,
+                                                        ...styles.highlight,
+                                                    }}
+                                                >
+                                                    {edu.school}
+                                                </Text>
+                                                <Text>{edu.minor}</Text>
+                                                <Text>
+                                                    {edu.start_end_dates}
+                                                </Text>
+                                            </View>
+                                        );
+                                    },
+                                )}
+                            </View>
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Skills
+                                </Text>
+                                {dataResume.resume_generated.skills.map(
+                                    (skill, id) => {
+                                        return (
+                                            <View key={id}>
+                                                <Text>- {skill}</Text>
+                                            </View>
+                                        );
+                                    },
+                                )}
+                            </View>
+                        </View>
+                    </View>
                 </View>
             </Page>
         </Document>
     );
 };
+
 export async function POST(req: Request) {
-    console.log('hola');
-    //const requestBody = await req.json();
-    //console.log(requestBody);
+    const requestBody = await req.json();
+    const pdfData = requestBody.data;
+
+    // verify that the data is not empty
+    if (!pdfData) {
+        return NextResponse.json(
+            {
+                message: 'PDF Resume Handler POST',
+            },
+            { status: 500 },
+        );
+    }
 
     try {
-        const stream = await ReactPDF.renderToStream(<Test />);
+        const stream = await ReactPDF.renderToStream(
+            <MyDocument dataResume={pdfData} />,
+        );
 
         return new NextResponse(stream as unknown as ReadableStream, {
             headers: {
@@ -144,238 +314,4 @@ export async function POST(req: Request) {
             { status: 500 },
         );
     }
-    const stream = await ReactPDF.renderToStream(<Test />);
-    return new NextResponse(stream as unknown as ReadableStream);
-    //return NextResponse.json({ message: 'PDF Resume Handler POST' });
-    try {
-        //const stream = await ReactPDF.renderToStream(<MyDocument />);
-        const stream = await ReactPDF.renderToStream(<Test />);
-        return new NextResponse(stream as unknown as ReadableStream);
-
-        // Set headers for PDF download
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader(
-            'Content-Disposition',
-            'attachment; filename=example.pdf',
-        );
-
-        // Pipe the PDF stream to the response
-        stream.pipe(res);
-        stream.on('end', () => console.log('PDF stream ended.'));
-    } catch (error) {
-        console.error(error);
-        res.status(500).end('Error generating PDF');
-    }
 }
-
-/*
-    return (
-        <>
-            <PDFDownloadLink
-                style={{
-                    backgroundColor: 'white',
-                    width: '100%',
-                    minHeight: '50px',
-                }}
-                document={<MyDocument dataResume={dataResume} />}
-                fileName="somename.pdf"
-            >
-                Download
-            </PDFDownloadLink>
-            <div>
-                <PDFViewer showToolbar={false} style={styles.viewer}>
-                    <MyDocument dataResume={dataResume} />
-                </PDFViewer>
-            </div>
-        </>
-    );
-    */
-/*
-    const MyDocument = ({ dataResume }: Props) => {
-        return (
-            <Document pageMode="fullScreen">
-                <Page size="A4" style={styles.page}>
-                    <View style={styles.section}>
-                        <View>
-                            <Text style={styles.user_name}>
-                                {dataResume.resume_generated.contact_info.name}
-                            </Text>
-                            <Text
-                                style={{
-                                    ...styles.position,
-                                    ...styles.highlight,
-                                }}
-                            >
-                                {dataResume.job_position}
-                            </Text>
-                            <View style={styles.contact_section}>
-                                <Text>
-                                    {
-                                        dataResume.resume_generated.contact_info
-                                            .email
-                                    }
-                                </Text>
-                                <Text>
-                                    {
-                                        dataResume.resume_generated.contact_info
-                                            .linkedin
-                                    }
-                                </Text>
-                                <Text>
-                                    {
-                                        dataResume.resume_generated.contact_info
-                                            .phone
-                                    }
-                                </Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text style={styles.section_title}>
-                                Career Objective
-                            </Text>
-                            <Text>
-                                {dataResume.resume_generated.career_objective}
-                            </Text>
-                        </View>
-                        <View>
-                            <Text style={styles.section_title}>Summary</Text>
-                            <Text>{dataResume.resume_generated.summary}</Text>
-                        </View>
-
-                        <View style={styles.content_resume}>
-                            <View style={{ width: '70%' }}>
-                                <View>
-                                    <Text
-                                        style={{
-                                            ...styles.section_title,
-                                            ...styles.divider,
-                                        }}
-                                    >
-                                        Experience
-                                    </Text>
-                                    {dataResume.resume_generated.experience.map(
-                                        (exp, id) => {
-                                            return (
-                                                <View key={id}>
-                                                    <Text
-                                                        style={
-                                                            styles.section_subtitle
-                                                        }
-                                                    >
-                                                        {exp.title}
-                                                    </Text>
-                                                    <Text
-                                                        style={{
-                                                            ...styles.subtitle_higlighted,
-                                                            ...styles.highlight,
-                                                        }}
-                                                    >
-                                                        {exp.company}
-                                                    </Text>
-                                                    <Text>
-                                                        {exp.start_end_dates}
-                                                    </Text>
-                                                    <Text>
-                                                        {exp.responsabilities}
-                                                    </Text>
-                                                </View>
-                                            );
-                                        },
-                                    )}
-                                </View>
-                                <View>
-                                    <Text
-                                        style={{
-                                            ...styles.section_title,
-                                            ...styles.divider,
-                                        }}
-                                    >
-                                        Projects
-                                    </Text>
-                                    {dataResume.resume_generated.projects.map(
-                                        (pro, id) => {
-                                            return (
-                                                <View key={id}>
-                                                    <Text
-                                                        style={{
-                                                            ...styles.section_subtitle,
-                                                        }}
-                                                    >
-                                                        {pro.name}
-                                                    </Text>
-                                                    <Text>
-                                                        {pro.start_end_dates}
-                                                    </Text>
-                                                    <Text>{pro.relevance}</Text>
-                                                    <Text>
-                                                        {pro.description}
-                                                    </Text>
-                                                </View>
-                                            );
-                                        },
-                                    )}
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    width: '30%',
-                                }}
-                            >
-                                <View>
-                                    <Text
-                                        style={{
-                                            ...styles.section_title,
-                                            ...styles.divider,
-                                        }}
-                                    >
-                                        Education
-                                    </Text>
-                                    {dataResume.resume_generated.education.map(
-                                        (edu, id) => {
-                                            return (
-                                                <View key={id}>
-                                                    <Text>{edu.degree}</Text>
-                                                    <Text
-                                                        style={{
-                                                            ...styles.subtitle_higlighted,
-                                                            ...styles.highlight,
-                                                        }}
-                                                    >
-                                                        {edu.school}
-                                                    </Text>
-                                                    <Text>{edu.minor}</Text>
-                                                    <Text>
-                                                        {edu.start_end_dates}
-                                                    </Text>
-                                                </View>
-                                            );
-                                        },
-                                    )}
-                                </View>
-                                <View>
-                                    <Text
-                                        style={{
-                                            ...styles.section_title,
-                                            ...styles.divider,
-                                        }}
-                                    >
-                                        Skills
-                                    </Text>
-                                    {dataResume.resume_generated.skills.map(
-                                        (skill, id) => {
-                                            return (
-                                                <View key={id}>
-                                                    <Text>- {skill}</Text>
-                                                </View>
-                                            );
-                                        },
-                                    )}
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </Page>
-            </Document>
-        );
-    };
-*/

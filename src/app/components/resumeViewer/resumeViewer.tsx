@@ -14,8 +14,7 @@ export default function ResumeViewer({ dataResume }: Props) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     //data: Object.fromEntries(formData),
-                    //data: dataResume,
-                    data: 'hjola',
+                    data: dataResume,
                 }),
             });
             // verify we get a good response
