@@ -5,17 +5,15 @@
     width: 99vw;
     height: 90vh;
     height: 90dvh;
-    background-color: gray;
     overflow: hidden;
     justify-content: space-evenly;
-}
-.main_container > div {
-    border: 1px solid red;
+    gap: 10px;
 }
 .main_container > div:nth-child(2) {
     display: flex;
-    width: 37%;
-    min-width: 712px;
+    flex-grow: 1;
+    min-width: 500px;
+    max-width: 1000px;
 }
 .editor_container {
     background-color: #fff;

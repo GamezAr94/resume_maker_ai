@@ -1,0 +1,40 @@
+.resume_viewer_view {
+    flex-grow: 1;
+    overflow-y: scroll;
+    padding: 10 10px 20px 10px;
+    height: 100px !important;
+
+    --parent-pdf-width: 0px;
+    --reference-width: 0px;
+
+    --font-size: 12;
+}
+.pdf_viewer_container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    font-size: calc(var(--font-size) * 1pt);
+}
+.page_pdf {
+    background-color: #fff;
+    aspect-ratio: 210/297;
+    width: 100%;
+    -webkit-box-shadow: 0px 0px 7px 3px rgba(222, 222, 222, 1);
+    -moz-box-shadow: 0px 0px 7px 3px rgba(222, 222, 222, 1);
+    box-shadow: 0px 0px 7px 3px rgba(222, 222, 222, 1);
+    /* setting the size of the content with respect to the parent container */
+    zoom: calc(var(--parent-pdf-width) / var(--reference-width));
+}
+
+/* We need this to get the reference width of an real A4 paper */
+.reference_element {
+    left: -210mm;
+    z-index: -1;
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+    width: 210mm !important;
+    min-width: 210mm;
+    max-width: 210mm;
+}

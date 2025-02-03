@@ -1,6 +1,7 @@
 import React from 'react';
 import styles_css from './resumeViewer.module.css';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
+import PDFDocument from './pdfDocument';
 
 interface Props {
     dataResume: FormJobOfferDataStructure;
@@ -44,10 +45,9 @@ export default function ResumeViewer({ dataResume }: Props) {
 
     return (
         <div className={styles_css.resume_viewer_container}>
-            <div className={styles_css.resume_viewer_view}>
-                <p>hola</p>
-            </div>
-            <div>
+            <PDFDocument dataResume={dataResume} />
+            <div className={styles_css.action_buttons_container}>
+                <button>Save</button>
                 <button onClick={gettingPDF}>Download PDF</button>
             </div>
         </div>
