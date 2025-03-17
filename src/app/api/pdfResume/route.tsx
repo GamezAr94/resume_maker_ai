@@ -25,6 +25,7 @@ interface Props {
  and then you can set the fontWeight for each of your fonts you want to use, so when you assign a fontFamily to a component you need to specify the weight to target that specific font
 */
 // Register the font with react-pdf
+/*
 Font.register({
     family: 'Roboto', // The name you'll use in react-pdf
     fonts: [
@@ -39,6 +40,10 @@ Font.register({
     fontStyle: 'normal', // or 'italic' if needed
     fontWeight: 900, // or the appropriate weight
 });
+    */
+
+// this is a hack to avoid the hyphenation of words
+Font.registerHyphenationCallback((word) => [word]);
 
 // Template for the styles for the PDF Resume
 const styles = StyleSheet.create({
@@ -74,7 +79,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '90%',
+        width: '100%',
         flexWrap: 'wrap',
         gap: '5%',
     },
@@ -87,7 +92,8 @@ const styles = StyleSheet.create({
     },
     section_subtitle: {
         fontSize: '17pt',
-        fontFamily: 'Roboto',
+        fontFamily: 'Helvetica-Bold',
+        //fontFamily: 'Roboto',
         fontWeight: 900,
     },
     subtitle_higlighted: {
@@ -221,7 +227,7 @@ const MyDocument = ({ dataResume }: Props) => {
                         </View>
                         <View
                             style={{
-                                width: '30%',
+                                width: '25%',
                             }}
                         >
                             <View>
@@ -237,15 +243,15 @@ const MyDocument = ({ dataResume }: Props) => {
                                     (edu, id) => {
                                         return (
                                             <View key={id}>
-                                                <Text>{edu.degree}</Text>
                                                 <Text
                                                     style={{
                                                         ...styles.subtitle_higlighted,
                                                         ...styles.highlight,
                                                     }}
                                                 >
-                                                    {edu.school}
+                                                    {edu.degree}
                                                 </Text>
+                                                <Text>{edu.school}</Text>
                                                 <Text>{edu.minor}</Text>
                                                 <Text>
                                                     {edu.start_end_dates}

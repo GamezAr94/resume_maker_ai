@@ -1,8 +1,8 @@
 .main_container {
     margin: auto;
     display: flex;
-    width: 99%;
-    width: 99vw;
+    width: 98%;
+    width: 98vw;
     height: 90vh;
     height: 90dvh;
     overflow: hidden;
@@ -11,7 +11,7 @@
 }
 .main_container > div:nth-child(2) {
     display: flex;
-    flex-grow: 1;
+    width: 42%;
     min-width: 500px;
     max-width: 1000px;
 }
