@@ -1,5 +1,4 @@
 'use client';
-import ResumeViewer from '@/app/components/resumeViewer/resumeViewer';
 import { getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
 import {
@@ -10,6 +9,14 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 import ResumeEditor from '@/app/components/resumeViewer/resumeEditor';
+import dynamic from 'next/dynamic';
+const DynamicResumeViewer = dynamic(
+    () => import('@/app/components/resumeViewer/resumeViewer'),
+    {
+        ssr: false, // <-- Deshabilita renderizado en servidor (¡Clave!)
+        loading: () => <p>Loading PDF Viewer...</p>, // Opcional
+    },
+);
 
 export default function Resume() {
     const [dataResume, setDataResume] = useState<FormJobOfferDataStructure>(
@@ -87,7 +94,13 @@ export default function Resume() {
                     dataResume={dataResume}
                 />
             </div>
-            <ResumeViewer dataResume={dataResume} />
+            {dataResume.id ? (
+                <DynamicResumeViewer dataResume={dataResume} />
+            ) : (
+                // Mientras carga los datos o si el ID es inválido, no muestra el viewer
+                // Puedes mostrar un mensaje más específico si quieres
+                <p>Loading resume data...</p>
+            )}
         </div>
     );
 }
