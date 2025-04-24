@@ -173,7 +173,10 @@ const MyDocument = ({ dataResume }: Props) => {
                                                         styles.section_subtitle
                                                     }
                                                 >
-                                                    {exp.title}
+                                                    {exp.display ||
+                                                    exp.display == undefined
+                                                        ? exp.title
+                                                        : ''}
                                                 </Text>
                                                 <Text
                                                     style={{
@@ -181,13 +184,22 @@ const MyDocument = ({ dataResume }: Props) => {
                                                         ...styles.highlight,
                                                     }}
                                                 >
-                                                    {exp.company}
+                                                    {exp.display ||
+                                                    exp.display == undefined
+                                                        ? exp.company
+                                                        : ''}
                                                 </Text>
                                                 <Text>
-                                                    {exp.start_end_dates}
+                                                    {exp.display ||
+                                                    exp.display == undefined
+                                                        ? exp.start_end_dates
+                                                        : ''}
                                                 </Text>
                                                 <Text>
-                                                    {exp.responsabilities}
+                                                    {exp.display ||
+                                                    exp.display == undefined
+                                                        ? exp.responsabilities
+                                                        : ''}
                                                 </Text>
                                             </View>
                                         );
@@ -212,13 +224,29 @@ const MyDocument = ({ dataResume }: Props) => {
                                                         ...styles.section_subtitle,
                                                     }}
                                                 >
-                                                    {pro.name}
+                                                    {pro.display ||
+                                                    pro.display == undefined
+                                                        ? pro.name
+                                                        : ''}
                                                 </Text>
                                                 <Text>
-                                                    {pro.start_end_dates}
+                                                    {pro.display ||
+                                                    pro.display == undefined
+                                                        ? pro.start_end_dates
+                                                        : ''}
                                                 </Text>
-                                                <Text>{pro.relevance}</Text>
-                                                <Text>{pro.description}</Text>
+                                                <Text>
+                                                    {pro.display ||
+                                                    pro.display == undefined
+                                                        ? pro.relevance
+                                                        : ''}
+                                                </Text>
+                                                <Text>
+                                                    {pro.display ||
+                                                    pro.display == undefined
+                                                        ? pro.description
+                                                        : ''}
+                                                </Text>
                                             </View>
                                         );
                                     },

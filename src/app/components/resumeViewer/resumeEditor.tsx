@@ -18,23 +18,22 @@ export default function ResumeEditor({ setDataResume, dataResume }: Propos) {
 
         if (section === 'projects' || section === 'experience') {
             const updatedProjects = [...dataResume.resume_generated[section]];
-            const newUpdatedProjects = updatedProjects.filter(
-                (_, index_in) => index_in !== index,
-            );
-            /*
+
+            // if the display property is undefined, set it to true
+            if (updatedProjects[index].display === undefined) {
+                updatedProjects[index].display = true;
+            }
             const display = updatedProjects[index].display;
             console.log(display);
             updatedProjects[index] = {
                 ...updatedProjects[index],
                 display: !display,
             };
-            */
             setDataResume({
                 ...dataResume,
                 resume_generated: {
                     ...dataResume.resume_generated,
-                    [section]: newUpdatedProjects,
-                    //[section]: updatedProjects,
+                    [section]: updatedProjects,
                 },
             });
         }
@@ -185,8 +184,12 @@ export default function ResumeEditor({ setDataResume, dataResume }: Propos) {
             </p>
             {dataResume.resume_generated.experience.map((exp, id) => (
                 <div key={id}>
-                    <button>
-                        {dataResume.resume_generated.experience[id].display
+                    <button
+                        onClick={hideShowSection}
+                        data-iterator={id}
+                        data-section="experience"
+                    >
+                        {exp.display || exp.display == undefined
                             ? 'Hide'
                             : 'Show'}
                     </button>
@@ -194,36 +197,28 @@ export default function ResumeEditor({ setDataResume, dataResume }: Propos) {
                         onChange={handleChange}
                         name="company"
                         data-section="experience"
-                        value={
-                            dataResume.resume_generated.experience[id].company
-                        }
+                        value={exp.company}
                         data-iterator={id}
                     />
                     <input
                         onChange={handleChange}
                         name="start_end_dates"
                         data-section="experience"
-                        value={
-                            dataResume.resume_generated.experience[id]
-                                .start_end_dates
-                        }
+                        value={exp.start_end_dates}
                         data-iterator={id}
                     />
                     <input
                         onChange={handleChange}
                         name="title"
                         data-section="experience"
-                        value={dataResume.resume_generated.experience[id].title}
+                        value={exp.title}
                         data-iterator={id}
                     />
                     <textarea
                         onChange={handleChange}
                         name="responsabilities"
                         data-section="experience"
-                        value={
-                            dataResume.resume_generated.experience[id]
-                                .responsabilities
-                        }
+                        value={exp.responsabilities}
                         data-iterator={id}
                     ></textarea>
                 </div>
@@ -240,7 +235,9 @@ export default function ResumeEditor({ setDataResume, dataResume }: Propos) {
                         data-iterator={id}
                         data-section="projects"
                     >
-                        {pro.display ? 'Hide' : 'Show'}
+                        {pro.display || pro.display == undefined
+                            ? 'Hide'
+                            : 'Show'}
                     </button>
                     <input
                         onChange={handleChange}
