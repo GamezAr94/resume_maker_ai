@@ -4,12 +4,14 @@ import styles from './pdfDocument.module.css';
 import { useEffect, useRef } from 'react';
 
 import { Roboto, Hahmlet } from 'next/font/google';
+/*
 const hamlet = Hahmlet({
     weight: '900',
     subsets: ['latin'],
     style: 'normal',
     display: 'swap',
 });
+*/
 const robotoBlack = Roboto({
     weight: '500',
     subsets: ['latin'],
@@ -27,7 +29,7 @@ export default function PDFDocument({ dataResume }: Props) {
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver((entries) => {
-            for (let entry of entries) {
+            for (const entry of entries) {
                 // set the custom property with the new width
                 const newWidth = entry.contentRect.width;
                 if (parentRef.current) {
