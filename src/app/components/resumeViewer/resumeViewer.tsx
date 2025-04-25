@@ -298,7 +298,7 @@ const MyDocument = ({ dataResume }: Props) => {
         </Document>
     );
 };
-export default function resumeViewer({ dataResume }: Props) {
+export default function ResumeViewer({ dataResume }: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
     useEffect(() => {
         // This code runs only on the client side after the component mounts
