@@ -3,7 +3,7 @@ import { FormJobOfferDataStructure } from '@/utils/interfaces';
 import styles from './pdfDocument.module.css';
 import { useEffect, useRef } from 'react';
 
-import { Roboto, Hahmlet } from 'next/font/google';
+import { Roboto /*, Hahmlet*/ } from 'next/font/google';
 /*
 const hamlet = Hahmlet({
     weight: '900',
