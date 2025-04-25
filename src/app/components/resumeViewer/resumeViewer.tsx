@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles_css from './resumeViewer.module.css';
 import {
     Document,
@@ -299,6 +299,15 @@ const MyDocument = ({ dataResume }: Props) => {
     );
 };
 export default function resumeViewer({ dataResume }: Props) {
+    const [isFirefox, setIsFirefox] = useState(false);
+    useEffect(() => {
+        // This code runs only on the client side after the component mounts
+        const userAgent = navigator.userAgent;
+        if (userAgent.includes('Firefox')) {
+            setIsFirefox(true);
+        }
+    }, []);
+
     // Function to validate the user data and save it
     async function gettingPDF() {
         try {
@@ -336,6 +345,9 @@ export default function resumeViewer({ dataResume }: Props) {
     }
     return (
         <div className={styles_css.resume_viewer_container}>
+            {isFirefox && (
+                <div className={styles_css.firefox_cover_container}></div>
+            )}
             <PDFViewer showToolbar={false} style={styles.viewer}>
                 <MyDocument dataResume={dataResume} />
             </PDFViewer>
