@@ -235,12 +235,14 @@ const MyDocument = ({ dataResume }: Props) => {
                                                         ? pro.start_end_dates
                                                         : ''}
                                                 </Text>
+                                                {/*
                                                 <Text>
                                                     {pro.display ||
                                                     pro.display == undefined
                                                         ? pro.relevance
                                                         : ''}
                                                 </Text>
+                                                */}
                                                 <Text>
                                                     {pro.display ||
                                                     pro.display == undefined

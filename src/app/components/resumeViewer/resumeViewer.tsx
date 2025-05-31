@@ -181,7 +181,7 @@ const MyDocument = ({ dataResume }: Props) => {
                                                 <Text>
                                                     {exp.display ||
                                                     exp.display == undefined
-                                                        ? exp.responsabilities
+                                                        ? exp.description
                                                         : ''}
                                                 </Text>
                                             </View>
@@ -218,12 +218,13 @@ const MyDocument = ({ dataResume }: Props) => {
                                                         ? pro.start_end_dates
                                                         : ''}
                                                 </Text>
+                                                {/*This is to explain why project is relevant to this job
                                                 <Text>
                                                     {pro.display ||
                                                     pro.display == undefined
                                                         ? pro.relevance
                                                         : ''}
-                                                </Text>
+                                                </Text>*/}
                                                 <Text>
                                                     {pro.display ||
                                                     pro.display == undefined
