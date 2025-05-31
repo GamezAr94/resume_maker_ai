@@ -195,10 +195,17 @@ const MyDocument = ({ dataResume }: Props) => {
                                                         ? exp.start_end_dates
                                                         : ''}
                                                 </Text>
+                                                {/*NOTE: We also have the responsabilities key not sure why though
                                                 <Text>
                                                     {exp.display ||
                                                     exp.display == undefined
                                                         ? exp.responsabilities
+                                                        : ''}
+                                                </Text>*/}
+                                                <Text>
+                                                    {exp.display ||
+                                                    exp.display == undefined
+                                                        ? exp.description
                                                         : ''}
                                                 </Text>
                                             </View>
@@ -279,12 +286,28 @@ const MyDocument = ({ dataResume }: Props) => {
                                                         ...styles.highlight,
                                                     }}
                                                 >
-                                                    {edu.degree}
+                                                    {edu.display ||
+                                                    edu.display == undefined
+                                                        ? edu.degree
+                                                        : ''}
                                                 </Text>
-                                                <Text>{edu.school}</Text>
-                                                <Text>{edu.minor}</Text>
                                                 <Text>
-                                                    {edu.start_end_dates}
+                                                    {edu.display ||
+                                                    edu.display == undefined
+                                                        ? edu.school
+                                                        : ''}
+                                                </Text>
+                                                <Text>
+                                                    {edu.display ||
+                                                    edu.display == undefined
+                                                        ? edu.minor
+                                                        : ''}
+                                                </Text>
+                                                <Text>
+                                                    {edu.display ||
+                                                    edu.display == undefined
+                                                        ? edu.start_end_dates
+                                                        : ''}
                                                 </Text>
                                             </View>
                                         );

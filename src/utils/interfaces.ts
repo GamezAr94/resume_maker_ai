@@ -140,6 +140,7 @@ interface Education {
     honor_awards: string[] | null;
     school: string; // Note: I've changed this to 'university'
     start_end_dates: string;
+    display: boolean;
 }
 
 interface Project {

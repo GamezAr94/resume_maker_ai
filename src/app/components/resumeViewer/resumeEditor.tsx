@@ -342,55 +342,73 @@ export default function ResumeEditor({
 
                         {/*dataResume.resume_generated.projects.map((pro, id) => (*/}
                         {(dataResume.resume_generated?.experience || []).map(
-                            (expItem, index) => (
-                                <Paper
-                                    key={index}
-                                    p="md"
-                                    mt="md"
-                                    className={classes.sectionPaper}
-                                >
-                                    <Stack gap="md">
-                                        <Group justify="space-between">
-                                            <Text fw={500}>
-                                                Experience #{index + 1}
-                                            </Text>
-                                            {/*
-                                            TODO implement the button or remove it 
-                                            <ActionIcon
-                                                color="red"
-                                                variant="subtle"
-                                                onClick={() =>
-                                                    removeItemFromSection(
-                                                        'experience',
-                                                        index,
-                                                    )
-                                                }
-                                            >
-                                                <IconTrash size={18} />
-                                            </ActionIcon>
-                                                */}
-                                        </Group>
-                                        <TextInput
-                                            label="Job Title"
-                                            placeholder="e.g., Software Engineer"
-                                            value={expItem.title || ''}
-                                            onChange={handleChange}
-                                            data-section="experience"
-                                            data-iterator={index.toString()}
-                                            name="title"
-                                            className={classes.inputField}
-                                        />
-                                        <TextInput
-                                            label="Company"
-                                            placeholder="e.g., Tech Solutions Inc."
-                                            value={expItem.company || ''}
-                                            onChange={handleChange}
-                                            data-section="experience"
-                                            data-iterator={index.toString()}
-                                            name="company"
-                                            className={classes.inputField}
-                                        />
-                                        {/* // TODO MAybe later 
+                            (expItem, index) => {
+                                const isVisible =
+                                    expItem.display === undefined
+                                        ? true
+                                        : expItem.display;
+                                return (
+                                    <Paper
+                                        key={index}
+                                        p="md"
+                                        mt="md"
+                                        className={classes.sectionPaper}
+                                    >
+                                        <Stack gap="md">
+                                            <Group justify="space-between">
+                                                <Text fw={500}>
+                                                    Experience #{index + 1}
+                                                </Text>
+                                                <ActionIcon
+                                                    variant="subtle"
+                                                    onClick={hideShowSection}
+                                                    data-section="experience"
+                                                    data-iterator={index.toString()}
+                                                    title={
+                                                        isVisible
+                                                            ? 'Hide this experience'
+                                                            : 'Show this experience'
+                                                    }
+                                                >
+                                                    {isVisible ? (
+                                                        <IconEyeOff size={18} />
+                                                    ) : (
+                                                        <IconEye size={18} />
+                                                    )}
+                                                </ActionIcon>
+                                            </Group>
+                                            {isVisible && (
+                                                <>
+                                                    <TextInput
+                                                        label="Job Title"
+                                                        placeholder="e.g., Software Engineer"
+                                                        value={
+                                                            expItem.title || ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="experience"
+                                                        data-iterator={index.toString()}
+                                                        name="title"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    <TextInput
+                                                        label="Company"
+                                                        placeholder="e.g., Tech Solutions Inc."
+                                                        value={
+                                                            expItem.company ||
+                                                            ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="experience"
+                                                        data-iterator={index.toString()}
+                                                        name="company"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    {/* // TODO MAybe later 
                                         <TextInput
                                             label="Location"
                                             placeholder="e.g., San Francisco, CA"
@@ -402,38 +420,48 @@ export default function ResumeEditor({
                                             className={classes.inputField}
                                         />
                                         // */}
-                                        <TextInput
-                                            label="Start Date"
-                                            placeholder="Enter a date"
-                                            value={
-                                                expItem.start_end_dates || ''
-                                            }
-                                            onChange={handleChange}
-                                            data-section="experience"
-                                            data-iterator={index.toString()}
-                                            name="start_end_dates"
-                                            className={classes.inputField}
-                                        />
-                                        {/* TODO check why I dont have responsabilities here.. in the DB is called Description and it is not empty */}
-                                        <Textarea
-                                            label="Description & Responsibilities"
-                                            placeholder="Describe your role and achievements..."
-                                            value={expItem.description || ''}
-                                            onChange={handleChange}
-                                            data-section="experience"
-                                            data-iterator={index.toString()}
-                                            name="description"
-                                            autosize
-                                            minRows={3}
-                                            className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                        />
-                                        {/* Optional: Hide/Show button if you implement this logic for individual items */}
-                                        {/* <Button onClick={hideShowSection} data-section="experience" data-iterator={index.toString()}>
+                                                    <TextInput
+                                                        label="Start Date"
+                                                        placeholder="Enter a date"
+                                                        value={
+                                                            expItem.start_end_dates ||
+                                                            ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="experience"
+                                                        data-iterator={index.toString()}
+                                                        name="start_end_dates"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    {/* NOTE: we also have the responsabilities tag not sure why though */}
+                                                    {/* TODO check why I dont have responsabilities here.. in the DB is called Description and it is not empty */}
+                                                    <Textarea
+                                                        label="Description & Responsibilities"
+                                                        placeholder="Describe your role and achievements..."
+                                                        value={
+                                                            expItem.description ||
+                                                            ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="experience"
+                                                        data-iterator={index.toString()}
+                                                        name="description"
+                                                        autosize
+                                                        minRows={3}
+                                                        className={`${classes.inputField} ${classes.descriptionTextarea}`}
+                                                    />
+                                                </>
+                                            )}
+                                            {/* Optional: Hide/Show button if you implement this logic for individual items */}
+                                            {/* <Button onClick={hideShowSection} data-section="experience" data-iterator={index.toString()}>
                        {expItem.display !== false ? 'Hide' : 'Show'} in Resume
                    </Button> */}
-                                    </Stack>
-                                </Paper>
-                            ),
+                                        </Stack>
+                                    </Paper>
+                                );
+                            },
                         )}
                         {/* Your Add Button - Styled */}
                         <Button
@@ -468,19 +496,42 @@ export default function ResumeEditor({
                             (Your Education items and mapping logic go here)
                         </Text>
                         {(dataResume.resume_generated?.education || []).map(
-                            (eduItem, index: number) => (
-                                <Paper
-                                    key={index}
-                                    p="md"
-                                    mt="md"
-                                    className={classes.sectionPaper}
-                                >
-                                    <Stack gap="md">
-                                        <Group justify="space-between">
-                                            <Text fw={500}>
-                                                Education #{index + 1}
-                                            </Text>
-                                            {/*
+                            (eduItem, index: number) => {
+                                console.log(eduItem);
+                                const isVisible =
+                                    eduItem.display === undefined
+                                        ? true
+                                        : eduItem.display;
+                                return (
+                                    <Paper
+                                        key={index}
+                                        p="md"
+                                        mt="md"
+                                        className={classes.sectionPaper}
+                                    >
+                                        <Stack gap="md">
+                                            <Group justify="space-between">
+                                                <Text fw={500}>
+                                                    Education #{index + 1}
+                                                </Text>
+                                                <ActionIcon
+                                                    variant="subtle"
+                                                    onClick={hideShowSection}
+                                                    data-section="education"
+                                                    data-iterator={index.toString()}
+                                                    title={
+                                                        isVisible
+                                                            ? 'Hide this education'
+                                                            : 'Show this education'
+                                                    }
+                                                >
+                                                    {isVisible ? (
+                                                        <IconEyeOff size={18} />
+                                                    ) : (
+                                                        <IconEye size={18} />
+                                                    )}
+                                                </ActionIcon>
+                                                {/*
                                             TODO implement the button or remove it 
                                             <ActionIcon
                                                 color="red"
@@ -495,52 +546,70 @@ export default function ResumeEditor({
                                                 <IconTrash size={18} />
                                             </ActionIcon>
                                                 */}
-                                        </Group>
-                                        <TextInput
-                                            label="Degree / Certificate"
-                                            placeholder="e.g., B.S. Computer Science"
-                                            value={eduItem.degree || ''}
-                                            onChange={handleChange}
-                                            data-section="education"
-                                            data-iterator={index.toString()}
-                                            name="degree"
-                                            className={classes.inputField}
-                                        />
-                                        <TextInput
-                                            label="Institution"
-                                            placeholder="e.g., University of Example"
-                                            value={eduItem.school || ''}
-                                            onChange={handleChange}
-                                            data-section="education"
-                                            data-iterator={index.toString()}
-                                            name="school"
-                                            className={classes.inputField}
-                                        />
-                                        <TextInput
-                                            label="Location (Optional)"
-                                            placeholder="e.g., City, State"
-                                            value={eduItem.location || ''}
-                                            onChange={handleChange}
-                                            data-section="education"
-                                            data-iterator={index.toString()}
-                                            name="location"
-                                            className={classes.inputField}
-                                        />
-                                        <Textarea
-                                            label="Graduation Date / Expected"
-                                            placeholder="Specify the date"
-                                            value={
-                                                eduItem.start_end_dates || ''
-                                            }
-                                            onChange={handleChange}
-                                            data-section="education"
-                                            data-iterator={index.toString()}
-                                            name="start_end_dates"
-                                            autosize
-                                            minRows={2}
-                                            className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                        />
-                                        {/*
+                                            </Group>
+                                            {isVisible && (
+                                                <>
+                                                    <TextInput
+                                                        label="Degree / Certificate"
+                                                        placeholder="e.g., B.S. Computer Science"
+                                                        value={
+                                                            eduItem.degree || ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="education"
+                                                        data-iterator={index.toString()}
+                                                        name="degree"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    <TextInput
+                                                        label="Institution"
+                                                        placeholder="e.g., University of Example"
+                                                        value={
+                                                            eduItem.school || ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="education"
+                                                        data-iterator={index.toString()}
+                                                        name="school"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    <TextInput
+                                                        label="Location (Optional)"
+                                                        placeholder="e.g., City, State"
+                                                        value={
+                                                            eduItem.location ||
+                                                            ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="education"
+                                                        data-iterator={index.toString()}
+                                                        name="location"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    <Textarea
+                                                        label="Graduation Date / Expected"
+                                                        placeholder="Specify the date"
+                                                        value={
+                                                            eduItem.start_end_dates ||
+                                                            ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="education"
+                                                        data-iterator={index.toString()}
+                                                        name="start_end_dates"
+                                                        autosize
+                                                        minRows={2}
+                                                        className={`${classes.inputField} ${classes.descriptionTextarea}`}
+                                                    />
+                                                </>
+                                            )}
+                                            {/*
                                         <Textarea
                                             label="Relevant Coursework / Details (Optional)"
                                             placeholder="e.g., Thesis, GPA, Honors..."
@@ -554,9 +623,10 @@ export default function ResumeEditor({
                                             className={`${classes.inputField} ${classes.descriptionTextarea}`}
                                         />
                                         */}
-                                    </Stack>
-                                </Paper>
-                            ),
+                                        </Stack>
+                                    </Paper>
+                                );
+                            },
                         )}
                         <Button
                             leftSection={<IconPlus size={18} />}
@@ -689,23 +759,45 @@ export default function ResumeEditor({
                             (Your Projects items and mapping logic go here)
                         </Text>
                         {(dataResume.resume_generated?.projects || []).map(
-                            (projItem, index: number) => (
-                                <Paper
-                                    key={index}
-                                    p="md"
-                                    mt="md"
-                                    className={classes.sectionPaper}
-                                >
-                                    {/*Maybe show the relevance in a info button so that the user can read if the project is relevant or not*/}
-                                    <Text c="dimmed" ta="center" p="xl">
-                                        ({projItem.relevance || ''})
-                                    </Text>
-                                    <Stack gap="md">
-                                        <Group justify="space-between">
-                                            <Text fw={500}>
-                                                Project #{index + 1}
-                                            </Text>
-                                            {/*
+                            (projItem, index: number) => {
+                                const isVisible =
+                                    projItem.display === undefined
+                                        ? true
+                                        : projItem.display;
+                                return (
+                                    <Paper
+                                        key={index}
+                                        p="md"
+                                        mt="md"
+                                        className={classes.sectionPaper}
+                                    >
+                                        {/*Maybe show the relevance in a info button so that the user can read if the project is relevant or not*/}
+                                        <Text c="dimmed" ta="center" p="xl">
+                                            ({projItem.relevance || ''})
+                                        </Text>
+                                        <Stack gap="md">
+                                            <Group justify="space-between">
+                                                <Text fw={500}>
+                                                    Project #{index + 1}
+                                                </Text>
+                                                <ActionIcon
+                                                    variant="subtle"
+                                                    onClick={hideShowSection}
+                                                    data-section="projects"
+                                                    data-iterator={index.toString()}
+                                                    title={
+                                                        isVisible
+                                                            ? 'Hide this project'
+                                                            : 'Show this project'
+                                                    }
+                                                >
+                                                    {isVisible ? (
+                                                        <IconEyeOff size={18} />
+                                                    ) : (
+                                                        <IconEye size={18} />
+                                                    )}
+                                                </ActionIcon>
+                                                {/*
                                             TODO implement the button or remove it 
                                             <ActionIcon
                                                 color="red"
@@ -720,30 +812,39 @@ export default function ResumeEditor({
                                                 <IconTrash size={18} />
                                             </ActionIcon>
                                             */}
-                                        </Group>
-                                        <TextInput
-                                            label="Project Name"
-                                            placeholder="e.g., Portfolio Website"
-                                            value={projItem.name || ''}
-                                            onChange={handleChange}
-                                            data-section="projects"
-                                            data-iterator={index.toString()}
-                                            name="name"
-                                            className={classes.inputField}
-                                        />
-                                        <TextInput
-                                            label="Project Duration"
-                                            placeholder="Enter a date range"
-                                            value={
-                                                projItem.start_end_dates || ''
-                                            }
-                                            onChange={handleChange}
-                                            data-section="projects"
-                                            data-iterator={index.toString()}
-                                            name="start_end_dates"
-                                            className={classes.inputField}
-                                        />
-                                        {/*
+                                            </Group>
+                                            {isVisible && (
+                                                <>
+                                                    <TextInput
+                                                        label="Project Name"
+                                                        placeholder="e.g., Portfolio Website"
+                                                        value={
+                                                            projItem.name || ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="projects"
+                                                        data-iterator={index.toString()}
+                                                        name="name"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    <TextInput
+                                                        label="Project Duration"
+                                                        placeholder="Enter a date range"
+                                                        value={
+                                                            projItem.start_end_dates ||
+                                                            ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="projects"
+                                                        data-iterator={index.toString()}
+                                                        name="start_end_dates"
+                                                        className={
+                                                            classes.inputField
+                                                        }
+                                                    />
+                                                    {/*
                                         <TextInput
                                             label="Technologies Used"
                                             placeholder="e.g., React, Node.js, Firebase"
@@ -766,25 +867,31 @@ export default function ResumeEditor({
                                             className={classes.inputField}
                                         />
                                         */}
-                                        <Textarea
-                                            label="Description"
-                                            placeholder="Describe your project, its features, and your role..."
-                                            value={projItem.description || ''}
-                                            onChange={handleChange}
-                                            data-section="projects"
-                                            data-iterator={index.toString()}
-                                            name="description"
-                                            autosize
-                                            minRows={3}
-                                            className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                        />
-                                        {/* Optional: Hide/Show button */}
-                                        {/* <Button onClick={hideShowSection} data-section="projects" data-iterator={index.toString()}>
+                                                    <Textarea
+                                                        label="Description"
+                                                        placeholder="Describe your project, its features, and your role..."
+                                                        value={
+                                                            projItem.description ||
+                                                            ''
+                                                        }
+                                                        onChange={handleChange}
+                                                        data-section="projects"
+                                                        data-iterator={index.toString()}
+                                                        name="description"
+                                                        autosize
+                                                        minRows={3}
+                                                        className={`${classes.inputField} ${classes.descriptionTextarea}`}
+                                                    />
+                                                </>
+                                            )}
+                                            {/* Optional: Hide/Show button */}
+                                            {/* <Button onClick={hideShowSection} data-section="projects" data-iterator={index.toString()}>
                       {projItem.display !== false ? 'Hide' : 'Show'} in Resume
                   </Button> */}
-                                    </Stack>
-                                </Paper>
-                            ),
+                                        </Stack>
+                                    </Paper>
+                                );
+                            },
                         )}
                         <Button
                             leftSection={<IconPlus size={18} />}
