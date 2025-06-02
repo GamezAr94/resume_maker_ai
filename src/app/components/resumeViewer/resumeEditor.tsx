@@ -87,7 +87,7 @@ export default function ResumeEditor({
             return;
         }
 
-        const sectionArray = (dataResume.resume_generated as any)[section];
+        const sectionArray = dataResume.resume_generated[section];
         if (!Array.isArray(sectionArray) || !sectionArray[index]) {
             console.error(
                 `hideShowSection: ${section}[${index}] is not accessible or not an array.`,
@@ -222,7 +222,7 @@ export default function ResumeEditor({
                 value={activeAccordion as string[]}
                 onChange={setActiveAccordion}
                 variant="separated"
-                className="classes.customAccordionWrapper"
+                className={classes.customAccordionWrapper}
             >
                 {/* Personal Info Section */}
                 <Accordion.Item
