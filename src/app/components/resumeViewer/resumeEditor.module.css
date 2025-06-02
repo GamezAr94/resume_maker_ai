@@ -31,7 +31,40 @@
     border-bottom: 2px solid var(--mantine-color-blue-1);
 }
 
+/* This class will be added to the main Accordion component */
+.customAccordionWrapper {
+    /* You can add specific wrapper styles here if needed, or leave it empty if it's just for scoping */
+}
+
+/* Scoped global styles for Accordion Control */
+.customAccordionWrapper :global(.mantine-Accordion-control) {
+    padding: var(--mantine-spacing-md) !important;
+    border-radius: var(--mantine-radius-md) var(--mantine-radius-md) 0 0;
+    background-color: var(--mantine-color-gray-1); /* Light mode header */
+}
+
+.customAccordionWrapper
+    :global(.mantine-Accordion-control[data-active='true']) {
+    background-color: var(
+        --mantine-color-blue-0
+    ); /* Light mode active header */
+    border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+/* Styles for .sectionTitle, which is a local class, when inside an active global control */
+.customAccordionWrapper
+    :global(.mantine-Accordion-control[data-active='true'])
+    .sectionTitle {
+    color: var(--mantine-color-blue-8); /* Light mode active title text */
+}
+
+/* Scoped global styles for Accordion Panel's direct child .sectionPaper */
+.customAccordionWrapper :global(.mantine-Accordion-panel) > .sectionPaper {
+    margin-bottom: var(--mantine-spacing-md);
+}
+
 .accordionItem {
+    /* This is a local class, applied to Accordion.Item */
     background-color: var(--mantine-color-white);
     border-radius: var(--mantine-radius-md);
     margin-bottom: var(--mantine-spacing-lg);
@@ -43,29 +76,14 @@
     box-shadow: var(--mantine-shadow-md);
 }
 
-:global(.mantine-Accordion-control) {
-    padding: var(--mantine-spacing-md) !important;
-    border-radius: var(--mantine-radius-md) var(--mantine-radius-md) 0 0;
-    background-color: var(--mantine-color-gray-1); /* Light mode header */
-}
-
-:global(.mantine-Accordion-control[data-active='true']) {
-    background-color: var(
-        --mantine-color-blue-0
-    ); /* Light mode active header */
-    border-bottom: 1px solid var(--mantine-color-gray-3);
-}
-
 .sectionTitle {
+    /* This is a local class, used inside Accordion.Control */
     font-weight: 600;
     color: var(--mantine-color-dark-6); /* Light mode title text */
 }
 
-:global(.mantine-Accordion-control[data-active='true']) .sectionTitle {
-    color: var(--mantine-color-blue-8); /* Light mode active title text */
-}
-
 .sectionPaper {
+    /* This is a local class, used inside Accordion.Panel */
     background-color: var(
         --mantine-color-white
     ); /* Light mode paper background */
@@ -75,15 +93,13 @@
     border-top: 1px solid var(--mantine-color-gray-2); /* Light mode separator */
     border-radius: 0;
     margin-top: 0;
-    margin-bottom: var(--mantine-spacing-md);
+    margin-bottom: var(
+        --mantine-spacing-md
+    ); /* Default margin, overridden if direct child of panel */
 }
 
 .sectionPaper:first-of-type {
     border-top: none;
-}
-
-:global(.mantine-Accordion-panel) > .sectionPaper {
-    margin-bottom: var(--mantine-spacing-md);
 }
 
 .inputField {
@@ -127,10 +143,11 @@
     border-color: var(--mantine-color-green-5); /* Light mode hover border */
 }
 
-:global(.mantine-ActionIcon-root[color='red']) {
+/* Scoped global styles for ActionIcon within the editor container */
+.editorContainer :global(.mantine-ActionIcon-root[color='red']) {
     color: var(--mantine-color-red-6) !important; /* Light mode icon color */
 }
-:global(.mantine-ActionIcon-root[color='red']:hover) {
+.editorContainer :global(.mantine-ActionIcon-root[color='red']:hover) {
     background-color: var(
         --mantine-color-red-0
     ) !important; /* Light mode icon hover bg */
@@ -163,11 +180,15 @@
     border-color: var(--mantine-color-dark-5);
 }
 
-[data-mantine-color-scheme='dark'] :global(.mantine-Accordion-control) {
+/* Scoped global styles for Accordion Control in dark mode */
+[data-mantine-color-scheme='dark']
+    .customAccordionWrapper
+    :global(.mantine-Accordion-control) {
     background-color: var(--mantine-color-dark-6); /* Dark mode header */
 }
 
 [data-mantine-color-scheme='dark']
+    .customAccordionWrapper
     :global(.mantine-Accordion-control[data-active='true']) {
     background-color: var(--mantine-color-dark-5); /* Dark mode active header */
     border-bottom-color: var(--mantine-color-dark-4);
@@ -177,7 +198,9 @@
     color: var(--mantine-color-gray-0); /* Dark mode title text */
 }
 
+/* Styles for .sectionTitle (local class) in dark mode when inside an active global control */
 [data-mantine-color-scheme='dark']
+    .customAccordionWrapper
     :global(.mantine-Accordion-control[data-active='true'])
     .sectionTitle {
     color: var(--mantine-color-blue-3); /* Dark mode active title text */
@@ -211,11 +234,14 @@
     border-color: var(--mantine-color-green-6); /* Dark mode hover border */
 }
 
+/* Scoped global styles for ActionIcon in dark mode */
 [data-mantine-color-scheme='dark']
+    .editorContainer
     :global(.mantine-ActionIcon-root[color='red']) {
     color: var(--mantine-color-red-4) !important; /* Dark mode icon color */
 }
 [data-mantine-color-scheme='dark']
+    .editorContainer
     :global(.mantine-ActionIcon-root[color='red']:hover) {
     background-color: var(
         --mantine-color-dark-6

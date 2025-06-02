@@ -213,6 +213,7 @@ export default function ResumeEditor({
                 value={activeAccordion as string[]}
                 onChange={setActiveAccordion}
                 variant="separated"
+                className="classes.customAccordionWrapper"
             >
                 {/* Personal Info Section */}
                 <Accordion.Item
