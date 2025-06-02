@@ -29,6 +29,8 @@ interface ResumeEditorProps {
     setDataResume: Dispatch<SetStateAction<FormJobOfferDataStructure>>;
 }
 
+type ToggleableSectionKey = 'experience' | 'projects' | 'education';
+
 export default function ResumeEditor({
     dataResume,
     setDataResume,
@@ -41,9 +43,10 @@ export default function ResumeEditor({
     // Your function to show/hide specific sections in the resume
     const hideShowSection = (e: React.MouseEvent<HTMLButtonElement>) => {
         const iterator = e.currentTarget.getAttribute('data-iterator');
-        const section = e.currentTarget.getAttribute('data-section');
+        const sectionNameFromAttr =
+            e.currentTarget.getAttribute('data-section');
 
-        if (iterator == null || section == null) {
+        if (iterator == null || sectionNameFromAttr == null) {
             // Added check for section as well
             console.error(
                 'hideShowSection: Missing data-iterator or data-section',
@@ -51,6 +54,21 @@ export default function ResumeEditor({
             return;
         }
         const index = parseInt(iterator, 10);
+
+        // Check if the sectionNameFromAttr is one of the keys we expect for this function
+        if (
+            sectionNameFromAttr !== 'experience' &&
+            sectionNameFromAttr !== 'projects' &&
+            sectionNameFromAttr !== 'education'
+        ) {
+            console.warn(
+                `hideShowSection: Section '${sectionNameFromAttr}' is not 'experience', 'projects', or 'education'. Logic not applied.`,
+            );
+            return;
+        }
+
+        // Now TypeScript knows 'section' is one of 'experience', 'projects', or 'education'
+        const section = sectionNameFromAttr as ToggleableSectionKey;
 
         // Assuming 'resume_generated' is a key in your FormJobOfferDataStructure
         // And 'projects' and 'experience' are keys within 'resume_generated'
