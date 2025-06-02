@@ -70,6 +70,8 @@ export default function Resume() {
                     ...data.data[0],
                     resume_generated: {
                         ...resumeData,
+                        selected_narrative:
+                            resumeData.selected_narrative || 'summary',
                         contact_info: {
                             name:
                                 userInfo.data.first_name +

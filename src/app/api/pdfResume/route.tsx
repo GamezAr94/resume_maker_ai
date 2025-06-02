@@ -141,16 +141,13 @@ const MyDocument = ({ dataResume }: Props) => {
                         </View>
                     </View>
                     <View>
-                        <Text style={styles.section_title}>
-                            Career Objective
-                        </Text>
-                        <Text>
-                            {dataResume.resume_generated.career_objective}
-                        </Text>
-                    </View>
-                    <View>
                         <Text style={styles.section_title}>Summary</Text>
-                        <Text>{dataResume.resume_generated.summary}</Text>
+                        <Text>
+                            {dataResume.resume_generated.selected_narrative ==
+                            'summary'
+                                ? dataResume.resume_generated.summary
+                                : dataResume.resume_generated.career_objective}
+                        </Text>
                     </View>
 
                     <View style={styles.content_resume}>
@@ -327,7 +324,11 @@ const MyDocument = ({ dataResume }: Props) => {
                                     (skill, id) => {
                                         return (
                                             <View key={id}>
-                                                <Text>- {skill}</Text>
+                                                <Text>
+                                                    {skill != ''
+                                                        ? `- ${skill}`
+                                                        : ''}
+                                                </Text>
                                             </View>
                                         );
                                     },

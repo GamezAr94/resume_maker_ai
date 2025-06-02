@@ -113,6 +113,7 @@ export interface GeminiResponse {
     keywords: string[];
     recommendations: string;
     explanation: string;
+    selected_narrative: 'summary' | 'career_objective';
 }
 interface ContactInfo {
     name: string;
@@ -166,6 +167,7 @@ export const emptyStateGeminiReponse: GeminiResponse = {
     keywords: [],
     recommendations: '',
     explanation: '',
+    selected_narrative: 'summary',
 };
 
 // ==============================

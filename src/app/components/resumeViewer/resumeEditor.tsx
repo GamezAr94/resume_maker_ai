@@ -13,8 +13,7 @@ import {
     TextInput,
     Textarea,
     ActionIcon,
-    Checkbox,
-    Select,
+    SegmentedControl,
 } from '@mantine/core';
 import { IconPlus, IconEye, IconEyeOff, IconTrash } from '@tabler/icons-react';
 
@@ -120,7 +119,6 @@ export default function ResumeEditor({
 
         const iteratorStr = e.target.getAttribute('data-iterator');
 
-        console.log(dataResume);
         switch (section) {
             case 'name':
             case 'email':
@@ -286,34 +284,88 @@ export default function ResumeEditor({
                                     data-field="linkedin"
                                     className={classes.inputField}
                                 />
-                                <Textarea
-                                    label="Career Objective"
-                                    placeholder="Brief professional summary or career objective..."
-                                    value={
+                                <Box mt="lg" mb="sm">
+                                    {' '}
+                                    {/* Added some margin for spacing */}
+                                    <Text size="sm" fw={500} mb={4}>
+                                        Personal Description:
+                                    </Text>
+                                    <SegmentedControl
+                                        value={
+                                            dataResume.resume_generated
+                                                ?.selected_narrative ||
+                                            'summary'
+                                        } // Default to 'summary' if nothing is selected
+                                        onChange={(value) => {
+                                            // Inline handler for simplicity
+                                            setDataResume((prevDataResume) => ({
+                                                ...prevDataResume,
+                                                resume_generated: {
+                                                    ...prevDataResume.resume_generated,
+                                                    selected_narrative:
+                                                        value as
+                                                            | 'summary'
+                                                            | 'career_objective',
+                                                },
+                                            }));
+                                        }}
+                                        data={[
+                                            {
+                                                label: 'Career Objective',
+                                                value: 'career_objective',
+                                            },
+                                            {
+                                                label: 'Summary',
+                                                value: 'summary',
+                                            },
+                                        ]}
+                                        fullWidth
+                                        color="blue" // Optional: add some color
+                                    />
+                                </Box>
+                                {(() => {
+                                    const activeNarrative =
                                         dataResume.resume_generated
-                                            ?.career_objective || ''
+                                            ?.selected_narrative || 'summary';
+
+                                    if (activeNarrative === 'summary') {
+                                        return (
+                                            <Textarea
+                                                label="Summary"
+                                                placeholder="Brief professional summary or career objective..."
+                                                value={
+                                                    dataResume.resume_generated
+                                                        ?.summary || ''
+                                                }
+                                                onChange={handleChange}
+                                                data-section="summary"
+                                                data-field="summary"
+                                                name="summary"
+                                                autosize
+                                                minRows={3}
+                                                className={`${classes.inputField} ${classes.descriptionTextarea}`}
+                                            />
+                                        );
+                                    } else {
+                                        return (
+                                            <Textarea
+                                                label="Career Objective"
+                                                placeholder="Brief professional summary or career objective..."
+                                                value={
+                                                    dataResume.resume_generated
+                                                        ?.career_objective || ''
+                                                }
+                                                onChange={handleChange}
+                                                data-section="career_objective"
+                                                data-field="career_objective"
+                                                name="career_objective"
+                                                autosize
+                                                minRows={3}
+                                                className={`${classes.inputField} ${classes.descriptionTextarea}`}
+                                            />
+                                        );
                                     }
-                                    onChange={handleChange}
-                                    data-section="career_objective"
-                                    data-field="career_objective"
-                                    autosize
-                                    minRows={3}
-                                    className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                />
-                                <Textarea
-                                    label="Summary"
-                                    placeholder="Brief professional summary or career objective..."
-                                    value={
-                                        dataResume.resume_generated?.summary ||
-                                        ''
-                                    }
-                                    onChange={handleChange}
-                                    data-section="summary"
-                                    data-field="summary"
-                                    autosize
-                                    minRows={3}
-                                    className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                />
+                                })()}
                             </Stack>
                         </Paper>
                     </Accordion.Panel>
