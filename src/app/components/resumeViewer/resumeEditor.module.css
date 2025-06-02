@@ -31,11 +31,6 @@
     border-bottom: 2px solid var(--mantine-color-blue-1);
 }
 
-/* This class will be added to the main Accordion component */
-.customAccordionWrapper {
-    /* You can add specific wrapper styles here if needed, or leave it empty if it's just for scoping */
-}
-
 /* Scoped global styles for Accordion Control */
 .customAccordionWrapper :global(.mantine-Accordion-control) {
     padding: var(--mantine-spacing-md) !important;

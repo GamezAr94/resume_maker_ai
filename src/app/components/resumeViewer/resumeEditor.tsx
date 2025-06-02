@@ -15,13 +15,10 @@ import {
     ActionIcon,
     SegmentedControl,
 } from '@mantine/core';
-import { IconPlus, IconEye, IconEyeOff, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconEye, IconEyeOff } from '@tabler/icons-react';
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
-import {
-    FormExperienceStructure,
-    FormJobOfferDataStructure,
-} from '@/utils/interfaces';
+import { FormJobOfferDataStructure } from '@/utils/interfaces';
 
 // Import the CSS module
 import classes from './resumeEditor.module.css';
