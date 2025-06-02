@@ -82,47 +82,41 @@ export default function ResumeEditor({
             return;
         }
 
-        if (
-            section === 'projects' ||
-            section === 'experience' ||
-            section === 'education'
-        ) {
-            // Ensure the section is an array
-            const sectionArray = (dataResume.resume_generated as any)[section];
-            if (!Array.isArray(sectionArray) || !sectionArray[index]) {
-                console.error(
-                    `hideShowSection: ${section}[${index}] is not accessible or not an array.`,
-                );
-                return;
-            }
-
-            const updatedSectionItems = [...sectionArray];
-            const currentItem = updatedSectionItems[index];
-
-            // if the display property is undefined, set its initial state based on what "hide/show" implies
-            // If clicking "hide", initial undefined means it's currently shown (true), so next state is false.
-            // If clicking "show", initial undefined means it's currently hidden (false), so next state is true.
-            // For simplicity, let's assume undefined means it's currently visible (true).
-            const display =
-                currentItem.display === undefined ? true : currentItem.display;
-
-            updatedSectionItems[index] = {
-                ...currentItem,
-                display: !display,
-            };
-
-            setDataResume((prevDataResume) => ({
-                ...prevDataResume,
-                resume_generated: {
-                    ...prevDataResume.resume_generated,
-                    [section]: updatedSectionItems,
-                },
-            }));
-        } else {
-            console.warn(
-                `hideShowSection: section '${section}' is not 'projects' or 'experience'. Logic not applied.`,
-            );
+        if (!dataResume.resume_generated) {
+            console.error('hideShowSection: resume_generated is missing.');
+            return;
         }
+
+        const sectionArray = (dataResume.resume_generated as any)[section];
+        if (!Array.isArray(sectionArray) || !sectionArray[index]) {
+            console.error(
+                `hideShowSection: ${section}[${index}] is not accessible or not an array.`,
+            );
+            return;
+        }
+
+        const updatedSectionItems = [...sectionArray];
+        const currentItem = updatedSectionItems[index];
+
+        // if the display property is undefined, set its initial state based on what "hide/show" implies
+        // If clicking "hide", initial undefined means it's currently shown (true), so next state is false.
+        // If clicking "show", initial undefined means it's currently hidden (false), so next state is true.
+        // For simplicity, let's assume undefined means it's currently visible (true).
+        const display =
+            currentItem.display === undefined ? true : currentItem.display;
+
+        updatedSectionItems[index] = {
+            ...currentItem,
+            display: !display,
+        };
+
+        setDataResume((prevDataResume) => ({
+            ...prevDataResume,
+            resume_generated: {
+                ...prevDataResume.resume_generated,
+                [section]: updatedSectionItems,
+            },
+        }));
     };
 
     // funciton to handle the change of the input
