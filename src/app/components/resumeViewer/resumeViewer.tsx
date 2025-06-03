@@ -11,6 +11,7 @@ import {
     View,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
+import { Button, Group } from '@mantine/core';
 
 // this is a hack to avoid the hyphenation of words
 Font.registerHyphenationCallback((word) => [word]);
@@ -325,6 +326,8 @@ const MyDocument = ({ dataResume }: Props) => {
 };
 export default function ResumeViewer({ dataResume }: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+
     useEffect(() => {
         // This code runs only on the client side after the component mounts
         const userAgent = navigator.userAgent;
@@ -335,6 +338,11 @@ export default function ResumeViewer({ dataResume }: Props) {
 
     // Function to validate the user data and save it
     async function gettingPDF() {
+        // Prevent multiple calls if already downloading
+        if (isDownloading) return;
+
+        setIsDownloading(true);
+
         try {
             const res = await fetch('../api/pdfResume', {
                 method: 'POST',
@@ -366,6 +374,8 @@ export default function ResumeViewer({ dataResume }: Props) {
         } catch (error) {
             // TODO show a proper error message to the user
             console.error('Error downloading PDF:', error);
+        } finally {
+            setIsDownloading(false); // Reset the downloading state
         }
     }
     return (
@@ -377,8 +387,24 @@ export default function ResumeViewer({ dataResume }: Props) {
                 <MyDocument dataResume={dataResume} />
             </PDFViewer>
             <div className={styles_css.action_buttons_container}>
-                <button>Save</button>
-                <button onClick={gettingPDF}>Download PDF</button>
+                <Button
+                    variant="outline"
+                    onClick={() => {
+                        // TODO: Implement your save functionality
+                        console.log('Save button clicked. Data:', dataResume);
+                        alert('Save functionality not yet implemented.');
+                    }}
+                    disabled={isDownloading} // <<<--- disable Save too during download
+                >
+                    Save
+                </Button>
+                <Button
+                    onClick={gettingPDF}
+                    disabled={isDownloading} // <<<--- DISABLE BUTTON WHEN DOWNLOADING
+                    loading={isDownloading} // <<<--- SHOW MANTINE'S LOADING SPINNER
+                >
+                    Download PDF
+                </Button>
             </div>
         </div>
     );
