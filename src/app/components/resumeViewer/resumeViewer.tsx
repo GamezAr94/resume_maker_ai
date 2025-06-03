@@ -11,7 +11,8 @@ import {
     View,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
-import { Button, Group } from '@mantine/core';
+import { Button } from '@mantine/core';
+import { SectionTypes } from '@/utils/enums';
 
 // this is a hack to avoid the hyphenation of words
 Font.registerHyphenationCallback((word) => [word]);
@@ -327,6 +328,7 @@ const MyDocument = ({ dataResume }: Props) => {
 export default function ResumeViewer({ dataResume }: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         // This code runs only on the client side after the component mounts
@@ -335,6 +337,53 @@ export default function ResumeViewer({ dataResume }: Props) {
             setIsFirefox(true);
         }
     }, []);
+
+    // function to handle saving the resume data
+    // This function will be called when the user clicks the Save button
+    // It will send the dataResume object to the server to be saved
+    async function handleSave() {
+        if (isSaving || !dataResume || !dataResume.id) {
+            // Don't save if already saving, or if there's no data/ID (shouldn't happen in this context)
+            console.warn(
+                'Save conditions not met. Current dataResume ID:',
+                dataResume?.id,
+            );
+            return;
+        }
+
+        setIsSaving(true);
+
+        try {
+            const response = await fetch('/api/saveUserInfo', {
+                // Use root-relative path
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: SectionTypes.JobOffer, // Tell the API what type of data this is
+                    data: dataResume, // Send the whole dataResume object
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to save resume.');
+            }
+
+            // TODO: Show a success notification to the user (e.g., using Mantine Notifications)
+            alert('Resume saved successfully!'); // Placeholder
+        } catch (error) {
+            console.error('Error saving resume:', error);
+            // TODO: Show an error notification to the user
+            alert(
+                `Error saving resume: ${
+                    error instanceof Error ? error.message : String(error)
+                }`,
+            ); // Placeholder
+        } finally {
+            setIsSaving(false);
+        }
+    }
 
     // Function to validate the user data and save it
     async function gettingPDF() {
@@ -389,18 +438,15 @@ export default function ResumeViewer({ dataResume }: Props) {
             <div className={styles_css.action_buttons_container}>
                 <Button
                     variant="outline"
-                    onClick={() => {
-                        // TODO: Implement your save functionality
-                        console.log('Save button clicked. Data:', dataResume);
-                        alert('Save functionality not yet implemented.');
-                    }}
-                    disabled={isDownloading} // <<<--- disable Save too during download
+                    onClick={handleSave}
+                    disabled={isDownloading || isSaving}
+                    loading={isSaving}
                 >
                     Save
                 </Button>
                 <Button
                     onClick={gettingPDF}
-                    disabled={isDownloading} // <<<--- DISABLE BUTTON WHEN DOWNLOADING
+                    disabled={isDownloading || isSaving} // <<<--- DISABLE BUTTON WHEN DOWNLOADING OR SAVING
                     loading={isDownloading} // <<<--- SHOW MANTINE'S LOADING SPINNER
                 >
                     Download PDF

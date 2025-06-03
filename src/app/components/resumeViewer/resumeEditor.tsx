@@ -123,12 +123,19 @@ export default function ResumeEditor({
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
+        console.log(dataResume);
         const [value, name] = [e.target.value, e.target.name];
         const section = e.target.getAttribute('data-section');
 
         const iteratorStr = e.target.getAttribute('data-iterator');
 
         switch (section) {
+            case 'job_position':
+                setDataResume({
+                    ...dataResume,
+                    job_position: value,
+                });
+                break;
             case 'name':
             case 'email':
             case 'linkedin':
@@ -255,6 +262,15 @@ export default function ResumeEditor({
                                     onChange={handleChange}
                                     data-section="name" // Key in resume_generated
                                     data-field="name" // Field within personalInfo object
+                                    className={classes.inputField}
+                                />
+                                <TextInput
+                                    label="Position Applied For"
+                                    placeholder="Position you are applying for"
+                                    value={dataResume.job_position}
+                                    onChange={handleChange}
+                                    data-section="job_position" // Key in resume_generated
+                                    data-field="job_position" // Field within personalInfo object
                                     className={classes.inputField}
                                 />
                                 <TextInput
