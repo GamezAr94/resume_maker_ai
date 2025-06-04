@@ -23,6 +23,8 @@ export default function ResumeBuilderForm() {
     const [formErrors, setFormErrors] = useState<FormJobOfferDataStructure>(
         emptyStateJobDataOffer,
     );
+    // this will manage the status of the button to show the user that the resume is being generated
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // Function to validate the JOB OFFER data save it and GENERATE the resume
     async function validatingAndSaving(
@@ -30,6 +32,9 @@ export default function ResumeBuilderForm() {
     ) {
         // prevent the default form submission and fetch the data
         event.preventDefault();
+        // if the isGenerating is true, we dont want to generate the resume again
+        if (isGenerating) return;
+
         // get the form data
         const formData = new FormData(event.currentTarget);
         // parse the user data with the zod schema
@@ -55,9 +60,9 @@ export default function ResumeBuilderForm() {
             return;
         }
 
-        /*
-        // TODO we dont need to store the job offer right away, maybe we can just store it ONLY if the user saves the resume
-            */
+        // If the user data is valid, we can proceed to generate the resume
+        // set the isGenerating to true to show the user that the resume is being generated
+        setIsGenerating(true);
 
         try {
             // Generate the resume usin Gemini
@@ -74,6 +79,8 @@ export default function ResumeBuilderForm() {
             if (!resGemini.ok) {
                 // TODO ART: show an error message to the user. Error processing the job offer, try again
                 console.error(responseGemini.message);
+                // Reset the isGenerating state
+                setIsGenerating(false);
                 return;
             }
 
@@ -112,31 +119,36 @@ export default function ResumeBuilderForm() {
             if (!resSaving.ok) {
                 // TODO ART: show an error message to the user. Error processing the job offer, try again
                 console.error(responseSaving.message);
+                // Reset the isGenerating state
+                setIsGenerating(false);
                 return;
             }
 
             // TODO ART: show a success message to the user
-            console.log('=====> RESPONSE GEMINI job offer');
-            console.log(resGemini.ok);
-            console.log(resSaving.ok);
+            console.log(
+                '=====> Resume Generated and Saved Successfully <=====',
+            );
+
             /*
+            // NOTE: Uncomment to see the response from the API
             console.log(responseSaving.id);
             console.log(responseGemini.message);
             */
-            console.log('=====>');
 
             const idResume = +responseSaving.id;
-            if (
-                idResume == null ||
-                typeof idResume == 'string' ||
-                isNaN(idResume)
-            ) {
+            if (isNaN(idResume) || idResume <= 0) {
                 // TODO we can fetch the id of the newest element in the DB
                 console.error(
                     'error getting the id of the saved data ' + idResume,
                 );
+                alert(
+                    'An error occurred after saving. Could not retrieve resume ID.',
+                );
+                // Reset the isGenerating state
+                setIsGenerating(false);
                 return;
             }
+
             // Redirect to Resume with data
             router.push(`/resume/${idResume}`);
         } catch (err) {
@@ -145,6 +157,9 @@ export default function ResumeBuilderForm() {
             } else {
                 console.error('unexpected error', err);
             }
+        } finally {
+            // Reset the isGenerating state
+            setIsGenerating(false);
         }
     }
     return (
@@ -163,6 +178,7 @@ export default function ResumeBuilderForm() {
                         error={!!formErrors.company_name}
                         placeholder="Company Name"
                         name="company_name"
+                        disabled={isGenerating}
                     />
                 </Input.Wrapper>
                 <Input.Wrapper
@@ -174,6 +190,7 @@ export default function ResumeBuilderForm() {
                         error={!!formErrors.job_position}
                         placeholder="Job Position"
                         name="job_position"
+                        disabled={isGenerating}
                     />
                 </Input.Wrapper>
                 <Input.Wrapper
@@ -187,9 +204,15 @@ export default function ResumeBuilderForm() {
                         error={!!formErrors.job_description}
                         placeholder="Job Description"
                         name="job_description"
+                        disabled={isGenerating}
                     />
                 </Input.Wrapper>
-                <Button size="md" fullWidth type="submit">
+                <Button
+                    size="md"
+                    fullWidth
+                    type="submit"
+                    loading={isGenerating}
+                >
                     Generate Resume
                 </Button>
             </form>
