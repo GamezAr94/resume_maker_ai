@@ -202,7 +202,7 @@ const MyDocument = ({ dataResume }: Props) => {
                                                 <Text>
                                                     {exp.display ||
                                                     exp.display == undefined
-                                                        ? exp.description
+                                                        ? exp.responsabilities
                                                         : ''}
                                                 </Text>
                                             </View>

@@ -129,7 +129,6 @@ interface Experience {
     title: string;
     location: string;
     responsabilities: string;
-    description: string;
 }
 
 interface Education {

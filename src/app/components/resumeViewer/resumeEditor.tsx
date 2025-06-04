@@ -518,7 +518,7 @@ export default function ResumeEditor({
                                                         label="Description & Responsibilities"
                                                         placeholder="Describe your role and achievements..."
                                                         value={
-                                                            expItem.description ||
+                                                            expItem.responsabilities ||
                                                             ''
                                                         }
                                                         onChange={handleChange}

@@ -74,18 +74,18 @@ export default function Resume() {
                         selected_narrative:
                             resumeData.selected_narrative || 'summary',
                         contact_info: {
-                            name: resumeData.contact_info.name
+                            name: resumeData.contact_info?.name
                                 ? resumeData.contact_info.name
                                 : userInfo.data.first_name +
                                   ' ' +
                                   userInfo.data.last_name,
-                            email: resumeData.contact_info.email
+                            email: resumeData.contact_info?.email
                                 ? resumeData.contact_info.email
                                 : userInfo.data.email,
-                            phone: resumeData.contact_info.phone
+                            phone: resumeData.contact_info?.phone
                                 ? resumeData.contact_info.phone
                                 : 'PHONE',
-                            linkedin: resumeData.contact_info.linkedin
+                            linkedin: resumeData.contact_info?.linkedin
                                 ? resumeData.contact_info.linkedin
                                 : 'LINKEDIN',
                         },
