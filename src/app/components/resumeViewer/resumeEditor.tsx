@@ -123,7 +123,6 @@ export default function ResumeEditor({
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
-        console.log(dataResume);
         const [value, name] = [e.target.value, e.target.name];
         const section = e.target.getAttribute('data-section');
 
@@ -575,7 +574,6 @@ export default function ResumeEditor({
                         </Text>
                         {(dataResume.resume_generated?.education || []).map(
                             (eduItem, index: number) => {
-                                console.log(eduItem);
                                 const isVisible =
                                     eduItem.display === undefined
                                         ? true

@@ -65,7 +65,8 @@ export default function Resume() {
                 }
                 // TODO validate the response of this request
                 const userInfo = await getDBTableInfo('');
-                // set the data returned from the database to the state
+                // set the data returned from the database to the state and prepare
+                // it to set the data for the resumeViewer and the resumeEditor
                 setDataResume({
                     ...data.data[0],
                     resume_generated: {
@@ -73,13 +74,20 @@ export default function Resume() {
                         selected_narrative:
                             resumeData.selected_narrative || 'summary',
                         contact_info: {
-                            name:
-                                userInfo.data.first_name +
-                                ' ' +
-                                userInfo.data.last_name,
-                            email: userInfo.data.email,
-                            phone: 'PHONE',
-                            linkedin: 'LINKEDIN',
+                            name: resumeData.contact_info.name
+                                ? resumeData.contact_info.name
+                                : userInfo.data.first_name +
+                                  ' ' +
+                                  userInfo.data.last_name,
+                            email: resumeData.contact_info.email
+                                ? resumeData.contact_info.email
+                                : userInfo.data.email,
+                            phone: resumeData.contact_info.phone
+                                ? resumeData.contact_info.phone
+                                : 'PHONE',
+                            linkedin: resumeData.contact_info.linkedin
+                                ? resumeData.contact_info.linkedin
+                                : 'LINKEDIN',
                         },
                     },
                 });
