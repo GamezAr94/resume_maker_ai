@@ -8,6 +8,7 @@ import {
     RefreshSections,
 } from '@/utils/interfaces';
 import { Button, Input } from '@mantine/core';
+import styles from './formContainerStyles.module.css';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
@@ -109,24 +110,16 @@ export default function PersonalInfoForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            <p>
-                Remember to keep up to date all your information for best
-                results
-            </p>
-            {/*
-            <input type="tel" name="phone" placeholder="Phone" />
-            <input type="text" name="address" placeholder="Address" />
-            <input type="url" name="linkedin" placeholder="LinkedIn" />
-            <input type="url" name="github" placeholder="GitHub" />
-            <input type="url" name="portfolio" placeholder="Portfolio" />
-            <input type="url" name="link" placeholder="Link" />
-                */}
+            {/* +++ Refactor inputs to use styled wrappers +++ */}
             <Input.Wrapper
+                label="Full Name:"
                 error={formErrors.first_name ? formErrors.first_name : ''}
+                classNames={{ root: styles.formField, label: styles.formLabel }}
             >
                 <Input
+                    classNames={{ input: styles.formInput }}
                     error={!!formErrors.first_name}
-                    placeholder="First Name"
+                    placeholder="Your Name"
                     name="first_name"
                     onChange={(event) => {
                         handleUserInputChange(
@@ -139,12 +132,16 @@ export default function PersonalInfoForm({
                     value={infoQuery.first_name}
                 />
             </Input.Wrapper>
+
             <Input.Wrapper
+                label="Last Name:"
                 error={formErrors.last_name ? formErrors.last_name : ''}
+                classNames={{ root: styles.formField, label: styles.formLabel }}
             >
                 <Input
+                    classNames={{ input: styles.formInput }}
                     error={!!formErrors.last_name}
-                    placeholder="Last Name"
+                    placeholder="Your Last Name"
                     name="last_name"
                     onChange={(event) => {
                         handleUserInputChange(
@@ -157,8 +154,19 @@ export default function PersonalInfoForm({
                     value={infoQuery.last_name}
                 />
             </Input.Wrapper>
-            <Button size="md" type="submit">
-                Update
+
+            {/* You can add Email, Phone, LinkedIn inputs here following the same pattern */}
+            {/*
+           <Input.Wrapper
+               label="Email:"
+               classNames={{ root: styles.formField, label: styles.formLabel }}
+           >
+               <Input classNames={{ input: styles.formInput }} placeholder="your.email@example.com" name="email" />
+           </Input.Wrapper>
+           */}
+
+            <Button type="submit" className={styles.primaryButton}>
+                Save Changes
             </Button>
         </form>
     );

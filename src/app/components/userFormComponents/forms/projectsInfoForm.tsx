@@ -9,10 +9,11 @@ import {
     FormProjectStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input, Select } from '@mantine/core';
+import { Button, Input, Select, Group } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
+import styles from './formContainerStyles.module.css';
 
 interface Params {
     setInfo: React.Dispatch<false | [FormProjectStructure]> | null;
@@ -229,83 +230,76 @@ export default function ProjectsInfoForm({
             [type]: null,
         }));
     }
+    const projectTypeOptions = ['Personal'];
+    if (experienceInfo && experienceInfo.length > 0) {
+        projectTypeOptions.push('Experience');
+    }
+    if (educationInfo && educationInfo.length > 0) {
+        projectTypeOptions.push('Education');
+    }
 
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <>
-                    <input
-                        readOnly
-                        hidden
-                        type="text"
-                        name="id"
-                        defaultValue={infoQuery.id}
-                    />
-                    <p>Project Name: {infoQuery.project_name}</p>
-                    <p>
-                        Project Type:{' '}
-                        {infoQuery.education_id
-                            ? 'School'
-                            : infoQuery.experience_id
-                            ? 'Job'
-                            : 'Personal'}
-                    </p>
-                    <p>Project Description: {infoQuery.project_description}</p>
-                    <p>
-                        project{' '}
-                        {infoQuery.education_id
-                            ? 'edu'
-                            : infoQuery.experience_id
-                            ? 'exp'
-                            : 'personal'}
-                        :{' '}
-                        {infoQuery.education_id
-                            ? infoQuery.education_id
-                            : infoQuery.experience_id
-                            ? infoQuery.experience_id
-                            : 'personal'}
-                    </p>
-                    <Button
-                        size="compact-md"
-                        type="button"
-                        variant="default"
-                        leftSection={<IconTrash size={18} />}
-                        onClick={() => {
-                            submitDeleteRecord(
-                                SectionTypes.Project,
-                                'id',
-                                infoQuery.id,
-                            );
-                        }}
-                    >
-                        Delete
-                    </Button>
-                    <Button
-                        size="compact-md"
-                        variant="default"
-                        leftSection={<IconPencil size={18} />}
-                        onClick={() => editRecord(infoQuery)}
-                        type="button"
-                    >
-                        Edit
-                    </Button>
+                    <div>
+                        <p>
+                            <strong>Project Name:</strong>{' '}
+                            {infoQuery.project_name}
+                        </p>
+                        <p>
+                            <strong>Description:</strong>{' '}
+                            {infoQuery.project_description}
+                        </p>
+                        <Group mt="md">
+                            <Button
+                                size="sm"
+                                variant="default"
+                                leftSection={<IconPencil size={16} />}
+                                onClick={() => editRecord(infoQuery)}
+                                type="button"
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="default"
+                                color="red"
+                                leftSection={<IconTrash size={16} />}
+                                onClick={() => {
+                                    submitDeleteRecord(
+                                        SectionTypes.Project,
+                                        'id',
+                                        infoQuery.id,
+                                    );
+                                }}
+                            >
+                                Delete
+                            </Button>
+                        </Group>
+                    </div>
                 </>
             )}
             {!infoQuery && (
                 <>
-                    <p>Add New Record</p>
                     <Input.Wrapper
+                        label="Project Name"
                         error={
                             formErrors.project_name
                                 ? formErrors.project_name
                                 : ''
                         }
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                        }}
                     >
                         <Input
+                            classNames={{ input: styles.formInput }}
                             error={!!formErrors.project_name}
                             type="text"
                             name="project_name"
-                            placeholder="Project Name"
+                            placeholder="e.g., AI Resume Analyzer"
                             onChange={(event) => {
                                 handleInputChange(
                                     event,
@@ -319,22 +313,31 @@ export default function ProjectsInfoForm({
                             }
                         />
                     </Input.Wrapper>
+
+                    {/* Project Type Select */}
                     <Select
-                        onChange={setType}
-                        label="Project Type: "
-                        placeholder="Project Type: "
+                        label="Project Type"
+                        placeholder="Select a type"
                         value={
-                            selectedType == 'experience_type'
+                            selectedType === 'experience_type'
                                 ? 'Experience'
-                                : selectedType == 'education_type'
+                                : selectedType === 'education_type'
                                 ? 'Education'
                                 : 'Personal'
                         }
-                        data={['Personal', 'Experience', 'Education']}
+                        data={projectTypeOptions}
+                        onChange={setType}
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                            input: styles.formInput,
+                        }}
                     />
-                    {selectedType == 'experience_type' && (
+
+                    {selectedType === 'experience_type' && (
                         <Select
-                            placeholder="Project Type: "
+                            label="Link to Experience"
+                            placeholder="Select an experience"
                             defaultValue={
                                 getEditRecord?.experience_id
                                     ? String(getEditRecord.experience_id)
@@ -352,11 +355,18 @@ export default function ProjectsInfoForm({
                                     getEditRecord,
                                 );
                             }}
+                            classNames={{
+                                root: styles.formField,
+                                label: styles.formLabel,
+                                input: styles.formInput,
+                            }}
                         />
                     )}
-                    {selectedType == 'education_type' && (
+
+                    {selectedType === 'education_type' && (
                         <Select
-                            placeholder="Education Type"
+                            label="Link to Education"
+                            placeholder="Select an institution"
                             defaultValue={
                                 getEditRecord?.education_id
                                     ? String(getEditRecord.education_id)
@@ -374,20 +384,34 @@ export default function ProjectsInfoForm({
                                     getEditRecord,
                                 );
                             }}
+                            classNames={{
+                                root: styles.formField,
+                                label: styles.formLabel,
+                                input: styles.formInput,
+                            }}
                         />
                     )}
+
+                    {/* Project Description Input */}
                     <Input.Wrapper
+                        label="Project Description"
                         error={
                             formErrors.project_description
                                 ? formErrors.project_description
                                 : ''
                         }
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                        }}
                     >
                         <Input
+                            component="textarea"
+                            rows={4}
+                            classNames={{ input: styles.formInput }}
                             error={!!formErrors.project_description}
-                            type="text"
                             name="project_description"
-                            placeholder="Project Description"
+                            placeholder="Describe your project..."
                             onChange={(event) => {
                                 handleInputChange(
                                     event,
@@ -403,28 +427,22 @@ export default function ProjectsInfoForm({
                             }
                         />
                     </Input.Wrapper>
-                    <Button size="md" type="submit">
-                        Save
-                    </Button>
-                    {getEditRecord && getEditRecord.id && (
-                        <>
-                            <input
-                                readOnly
-                                hidden
-                                type="text"
-                                name="id"
-                                defaultValue={getEditRecord.id}
-                            />
+
+                    {/* Action Buttons */}
+                    <Group justify="flex-start" mt="xl">
+                        <Button type="submit" className={styles.primaryButton}>
+                            {getEditRecord?.id ? 'Save Changes' : 'Add Entry'}
+                        </Button>
+                        {getEditRecord && (
                             <Button
-                                size="md"
-                                variant="default"
-                                onClick={() => editRecord(null)}
                                 type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => editRecord(null)}
                             >
                                 Cancel
                             </Button>
-                        </>
-                    )}
+                        )}
+                    </Group>
                 </>
             )}
         </form>

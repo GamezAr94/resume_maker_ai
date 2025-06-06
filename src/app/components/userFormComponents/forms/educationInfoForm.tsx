@@ -6,10 +6,11 @@ import {
     FormEducationStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input } from '@mantine/core';
+import { Button, Input, Group } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
+import styles from './formContainerStyles.module.css';
 
 const userSchema = z.object({
     school_name: z.string().min(1, 'School Name is required'),
@@ -171,52 +172,58 @@ export default function EducationInfoForm({
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <>
-                    <input
-                        hidden
-                        readOnly
-                        type="text"
-                        name="id"
-                        value={infoQuery.id}
-                    />
-                    <p>School Name: {infoQuery.school_name}</p>
-                    <p>Field of Study: {infoQuery.field_of_study}</p>
-                    <Button
-                        size="compact-md"
-                        type="button"
-                        variant="default"
-                        leftSection={<IconTrash size={18} />}
-                        onClick={() => {
-                            submitDeleteRecord(
-                                SectionTypes.Education,
-                                'id',
-                                infoQuery.id,
-                            );
-                        }}
-                    >
-                        Delete
-                    </Button>
-                    <Button
-                        size="compact-md"
-                        type="button"
-                        variant="default"
-                        leftSection={<IconPencil size={18} />}
-                        onClick={() => editRecord(infoQuery)}
-                    >
-                        Edit
-                    </Button>
+                    <div className={styles.infoDisplay}>
+                        <p>
+                            <strong>{infoQuery.field_of_study}</strong>
+                        </p>
+                        <p>{infoQuery.school_name}</p>
+                        <Group mt="md">
+                            <Button
+                                size="sm"
+                                variant="default"
+                                className={styles.iconButton}
+                                leftSection={<IconPencil size={16} />}
+                                onClick={() => editRecord(infoQuery)}
+                                type="button"
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="default"
+                                color="red"
+                                className={styles.iconButton}
+                                leftSection={<IconTrash size={16} />}
+                                onClick={() => {
+                                    submitDeleteRecord(
+                                        SectionTypes.Education,
+                                        'id',
+                                        infoQuery.id,
+                                    );
+                                }}
+                            >
+                                Delete
+                            </Button>
+                        </Group>
+                    </div>
                 </>
             )}
             {!infoQuery && (
                 <>
-                    <p>Add New Record</p>
                     <Input.Wrapper
+                        label="School Name:"
                         error={
                             formErrors.school_name ? formErrors.school_name : ''
                         }
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                        }}
                     >
                         <Input
+                            classNames={{ input: styles.formInput }}
                             error={!!formErrors.school_name}
-                            placeholder="School Name"
+                            placeholder="e.g., Harvard University"
                             name="school_name"
                             onChange={(event) => {
                                 handleInputChange(
@@ -231,16 +238,23 @@ export default function EducationInfoForm({
                             }
                         />
                     </Input.Wrapper>
+
                     <Input.Wrapper
+                        label="Field of Study:"
                         error={
                             formErrors.field_of_study
                                 ? formErrors.field_of_study
                                 : ''
                         }
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                        }}
                     >
                         <Input
+                            classNames={{ input: styles.formInput }}
                             error={!!formErrors.field_of_study}
-                            placeholder="Field of Study"
+                            placeholder="e.g., Computer Science"
                             name="field_of_study"
                             onChange={(event) => {
                                 handleInputChange(
@@ -257,28 +271,21 @@ export default function EducationInfoForm({
                             }
                         />
                     </Input.Wrapper>
-                    <Button size="md" type="submit">
-                        Save
-                    </Button>
-                    {getEditRecord && getEditRecord.id && (
-                        <>
-                            <input
-                                readOnly
-                                hidden
-                                type="text"
-                                name="id"
-                                defaultValue={getEditRecord.id}
-                            />
+
+                    <Group justify="flex-start" mt="xl">
+                        <Button type="submit" className={styles.primaryButton}>
+                            {getEditRecord ? 'Save Changes' : 'Add Entry'}
+                        </Button>
+                        {getEditRecord && (
                             <Button
-                                size="md"
-                                onClick={() => editRecord(null)}
                                 type="button"
-                                variant="default"
+                                className={styles.secondaryButton}
+                                onClick={() => editRecord(null)}
                             >
                                 Cancel
                             </Button>
-                        </>
-                    )}
+                        )}
+                    </Group>
                 </>
             )}
         </form>

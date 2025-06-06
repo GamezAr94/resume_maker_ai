@@ -3,28 +3,29 @@ import { FormSkillStructure, RefreshSections } from '@/utils/interfaces';
 import { Dispatch, SetStateAction, useState } from 'react';
 import SkillsInfoForm from '../forms/skillsInfoForm';
 import ShowUserDataSection from '../showUserDataSection';
+import styles from './formContainerStyles.module.css';
 
 interface Params {
     setSkillInfo: Dispatch<SetStateAction<false | [FormSkillStructure]>>;
     skillInfo: [FormSkillStructure] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
-    className: string;
 }
 export default function SkillContainerForm({
     setSkillInfo,
     skillInfo,
     setRefreshTrigger,
-    className,
 }: Params) {
     const [getEditRecord, setEditRecord] = useState<FormSkillStructure | null>(
         null,
     );
     return (
-        <>
-            <div>
-                <h2>Skills</h2>
-            </div>
-            <div className={className}>
+        <div>
+            {/* --- Card for the Add/Edit Form --- */}
+            <div className={styles.formCard}>
+                <h2 className={styles.formCardTitle}>Skills Management</h2>
+                <h3 className={styles.formCardSubtitle}>
+                    {getEditRecord ? 'Edit Skill' : 'Add New Skill'}
+                </h3>
                 <SkillsInfoForm
                     infoQuery={null}
                     setInfo={null}
@@ -32,21 +33,26 @@ export default function SkillContainerForm({
                     getEditRecord={getEditRecord}
                     setEditRecord={setEditRecord}
                 />
-                <ShowUserDataSection>
-                    {skillInfo.length > 0
-                        ? skillInfo.map((item, index) => (
-                              <SkillsInfoForm
-                                  key={index}
-                                  infoQuery={item}
-                                  setInfo={setSkillInfo}
-                                  setRefreshTrigger={setRefreshTrigger}
-                                  setEditRecord={setEditRecord}
-                                  getEditRecord={getEditRecord}
-                              />
-                          ))
-                        : null}
-                </ShowUserDataSection>
             </div>
-        </>
+
+            {/* --- Card for the List of Existing Skills --- */}
+            {skillInfo.length > 0 && (
+                <div className={`${styles.formCard} ${styles.infoDisplayCard}`}>
+                    <h3 className={styles.formCardSubtitle}>My Saved Skills</h3>
+                    <ShowUserDataSection>
+                        {skillInfo.map((item, index) => (
+                            <SkillsInfoForm
+                                key={index}
+                                infoQuery={item}
+                                setInfo={setSkillInfo}
+                                setRefreshTrigger={setRefreshTrigger}
+                                setEditRecord={setEditRecord}
+                                getEditRecord={getEditRecord}
+                            />
+                        ))}
+                    </ShowUserDataSection>
+                </div>
+            )}
+        </div>
     );
 }

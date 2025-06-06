@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { FormExperienceStructure, RefreshSections } from '@/utils/interfaces';
 import ExperienceForm from '../forms/experienceForm';
 import ShowUserDataSection from '../showUserDataSection';
+import styles from './formContainerStyles.module.css';
 
 interface Params {
     setExperienceInfo: Dispatch<
@@ -10,23 +11,23 @@ interface Params {
     >;
     experienceInfo: [FormExperienceStructure] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
-    className: string;
 }
 
 export default function ExperienceContainerForm({
     setExperienceInfo,
     experienceInfo,
     setRefreshTrigger,
-    className,
 }: Params) {
     const [getEditRecord, setEditRecord] =
         useState<FormExperienceStructure | null>(null);
     return (
-        <>
-            <div>
-                <h2>Experience</h2>
-            </div>
-            <div className={className}>
+        <div>
+            {/* --- Card for the Add/Edit Form --- */}
+            <div className={styles.formCard}>
+                <h2 className={styles.formCardTitle}>Experience Management</h2>
+                <h3 className={styles.formCardSubtitle}>
+                    {getEditRecord ? 'Edit Experience' : 'Add New Experience'}
+                </h3>
                 <ExperienceForm
                     infoQuery={null}
                     setInfo={null}
@@ -34,21 +35,28 @@ export default function ExperienceContainerForm({
                     getEditRecord={getEditRecord}
                     setEditRecord={setEditRecord}
                 />
-                <ShowUserDataSection>
-                    {experienceInfo.length > 0
-                        ? experienceInfo.map((item, index) => (
-                              <ExperienceForm
-                                  key={index}
-                                  infoQuery={item}
-                                  setInfo={setExperienceInfo}
-                                  setRefreshTrigger={setRefreshTrigger}
-                                  setEditRecord={setEditRecord}
-                                  getEditRecord={getEditRecord}
-                              />
-                          ))
-                        : null}
-                </ShowUserDataSection>
             </div>
-        </>
+
+            {/* --- Card for the List of Existing Experiences --- */}
+            {experienceInfo.length > 0 && (
+                <div className={`${styles.formCard} ${styles.infoDisplayCard}`}>
+                    <h3 className={styles.formCardSubtitle}>
+                        My Saved Experience
+                    </h3>
+                    <ShowUserDataSection>
+                        {experienceInfo.map((item, index) => (
+                            <ExperienceForm
+                                key={index}
+                                infoQuery={item}
+                                setInfo={setExperienceInfo}
+                                setRefreshTrigger={setRefreshTrigger}
+                                setEditRecord={setEditRecord}
+                                getEditRecord={getEditRecord}
+                            />
+                        ))}
+                    </ShowUserDataSection>
+                </div>
+            )}
+        </div>
     );
 }

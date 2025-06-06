@@ -157,9 +157,6 @@ export default function ResumeBuilderForm() {
             } else {
                 console.error('unexpected error', err);
             }
-        } finally {
-            // Reset the isGenerating state
-            setIsGenerating(false);
         }
     }
     return (

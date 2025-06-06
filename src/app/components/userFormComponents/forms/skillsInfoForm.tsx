@@ -7,10 +7,11 @@ import {
     FormSkillStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input } from '@mantine/core';
+import { Button, Input, Group, Select } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
+import styles from './formContainerStyles.module.css';
 
 interface Params {
     setInfo: React.Dispatch<false | [FormSkillStructure]> | null;
@@ -164,58 +165,83 @@ export default function SkillsInfoForm({
         }));
     }
 
+    const skillLevelOptions = [
+        { value: '1', label: 'Beginner' },
+        { value: '2', label: 'Intermediate' },
+        { value: '3', label: 'Advanced' },
+        { value: '4', label: 'Expert' },
+    ];
+
+    // +++ Helper to find the label for a given numeric value (for display) +++
+    const getSkillLabel = (level: string | number | null | undefined) => {
+        if (!level) return '';
+        const found = skillLevelOptions.find(
+            (opt) => opt.value === String(level),
+        );
+        return found ? found.label : '';
+    };
+
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <>
-                    <input
-                        hidden
-                        readOnly
-                        type="text"
-                        name="id"
-                        defaultValue={infoQuery.id}
-                    />
-                    <p>Skill Name: {infoQuery.skill_name}</p>
-                    <p>Skill Level: {infoQuery.skill_level}</p>
-                    <Button
-                        size="compact-md"
-                        type="button"
-                        variant="default"
-                        leftSection={<IconTrash size={18} />}
-                        onClick={() => {
-                            submitDeleteRecord(
-                                SectionTypes.Skill,
-                                'id',
-                                infoQuery.id,
-                            );
-                        }}
-                    >
-                        Delete
-                    </Button>
-                    <Button
-                        size="compact-md"
-                        type="button"
-                        variant="default"
-                        leftSection={<IconPencil size={18} />}
-                        onClick={() => editRecord(infoQuery)}
-                    >
-                        Edit
-                    </Button>
+                    <div className={styles.infoDisplay}>
+                        <p>
+                            <strong>Skill:</strong> {infoQuery.skill_name}
+                        </p>
+                        <p>
+                            <strong>Level:</strong>{' '}
+                            {getSkillLabel(infoQuery.skill_level)}
+                        </p>
+                        <Group mt="md">
+                            <Button
+                                size="sm"
+                                variant="default"
+                                className={styles.iconButton}
+                                leftSection={<IconPencil size={16} />}
+                                onClick={() => editRecord(infoQuery)}
+                                type="button"
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="default"
+                                color="red"
+                                className={styles.iconButton}
+                                leftSection={<IconTrash size={16} />}
+                                onClick={() => {
+                                    submitDeleteRecord(
+                                        SectionTypes.Skill,
+                                        'id',
+                                        infoQuery.id,
+                                    );
+                                }}
+                            >
+                                Delete
+                            </Button>
+                        </Group>
+                    </div>
                 </>
             )}
             {!infoQuery && (
                 <>
-                    <p>Add New Record</p>
                     <Input.Wrapper
+                        label="Skill Name:"
                         error={
                             formErrors.skill_name ? formErrors.skill_name : ''
                         }
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                        }}
                     >
                         <Input
+                            classNames={{ input: styles.formInput }}
                             error={!!formErrors.skill_name}
                             type="text"
                             name="skill_name"
-                            placeholder="Skill Name"
+                            placeholder="e.g., JavaScript, Python, Figma"
                             onChange={(event) => {
                                 handleInputChange(
                                     event,
@@ -229,55 +255,47 @@ export default function SkillsInfoForm({
                             }
                         />
                     </Input.Wrapper>
-                    <Input.Wrapper
-                        error={
-                            formErrors.skill_level ? formErrors.skill_level : ''
+
+                    <Select
+                        label="Skill Level:"
+                        placeholder="Select a level"
+                        data={skillLevelOptions}
+                        name="skill_level"
+                        onChange={(value) =>
+                            handleInputChange(
+                                { target: { value: value || '' } },
+                                'skill_level',
+                                setEditRecord,
+                                getEditRecord,
+                            )
                         }
-                    >
-                        <Input
-                            error={!!formErrors.skill_level}
-                            type="number"
-                            min="0"
-                            max="10"
-                            name="skill_level"
-                            placeholder="Skill Level"
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    'skill_level',
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            value={
-                                getEditRecord && getEditRecord.skill_level
-                                    ? getEditRecord.skill_level
-                                    : ''
-                            }
-                        />
-                    </Input.Wrapper>
-                    <Button size="md" type="submit">
-                        Save
-                    </Button>
-                    {getEditRecord && getEditRecord.id && (
-                        <>
-                            <input
-                                readOnly
-                                hidden
-                                type="text"
-                                name="id"
-                                defaultValue={getEditRecord.id}
-                            />
+                        // The value must be the numeric string ('1', '2', etc.)
+                        value={
+                            getEditRecord?.skill_level
+                                ? String(getEditRecord.skill_level)
+                                : ''
+                        }
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                            input: styles.formInput,
+                        }}
+                    />
+
+                    <Group justify="flex-start" mt="xl">
+                        <Button type="submit" className={styles.primaryButton}>
+                            {getEditRecord ? 'Save Changes' : 'Add Skill'}
+                        </Button>
+                        {getEditRecord && (
                             <Button
-                                size="md"
-                                variant="default"
-                                onClick={() => editRecord(null)}
                                 type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => editRecord(null)}
                             >
                                 Cancel
                             </Button>
-                        </>
-                    )}
+                        )}
+                    </Group>
                 </>
             )}
         </form>

@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import EducationInfoForm from '../forms/educationInfoForm';
 import { FormEducationStructure, RefreshSections } from '@/utils/interfaces';
 import ShowUserDataSection from '../showUserDataSection';
+import styles from './formContainerStyles.module.css';
 
 interface Params {
     setEducationInfo: Dispatch<
@@ -10,23 +11,23 @@ interface Params {
     >;
     educationInfo: [FormEducationStructure] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
-    className: string;
 }
 
 export default function EducationContainerForm({
     setEducationInfo,
     educationInfo,
     setRefreshTrigger,
-    className,
 }: Params) {
     const [getEditRecord, setEditRecord] =
         useState<FormEducationStructure | null>(null);
     return (
-        <>
-            <div>
-                <h2>Education</h2>
-            </div>
-            <div className={className}>
+        <div>
+            {/* --- Card for the Add/Edit Form --- */}
+            <div className={styles.formCard}>
+                <h2 className={styles.formCardTitle}>Education Management</h2>
+                <h3 className={styles.formCardSubtitle}>
+                    {getEditRecord ? 'Edit Education' : 'Add New Education'}
+                </h3>
                 <EducationInfoForm
                     infoQuery={null}
                     setInfo={null}
@@ -34,21 +35,28 @@ export default function EducationContainerForm({
                     getEditRecord={getEditRecord}
                     setEditRecord={setEditRecord}
                 />
-                <ShowUserDataSection>
-                    {educationInfo.length > 0
-                        ? educationInfo.map((item, index) => (
-                              <EducationInfoForm
-                                  key={index}
-                                  infoQuery={item}
-                                  setInfo={setEducationInfo}
-                                  setRefreshTrigger={setRefreshTrigger}
-                                  setEditRecord={setEditRecord}
-                                  getEditRecord={getEditRecord}
-                              />
-                          ))
-                        : null}
-                </ShowUserDataSection>
             </div>
-        </>
+
+            {/* --- Card for the List of Existing Education Entries --- */}
+            {educationInfo.length > 0 && (
+                <div className={`${styles.formCard} ${styles.infoDisplayCard}`}>
+                    <h3 className={styles.formCardSubtitle}>
+                        My Saved Education
+                    </h3>
+                    <ShowUserDataSection>
+                        {educationInfo.map((item, index) => (
+                            <EducationInfoForm
+                                key={index}
+                                infoQuery={item}
+                                setInfo={setEducationInfo}
+                                setRefreshTrigger={setRefreshTrigger}
+                                setEditRecord={setEditRecord}
+                                getEditRecord={getEditRecord}
+                            />
+                        ))}
+                    </ShowUserDataSection>
+                </div>
+            )}
+        </div>
     );
 }

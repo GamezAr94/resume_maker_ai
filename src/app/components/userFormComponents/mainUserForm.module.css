@@ -1,15 +1,73 @@
-.forms_section {
-    width: 98%;
-    margin: 0 auto;
+.sidebarNavItem {
+    display: block; /* Make it take full width for consistent clicking area */
+    width: 100%;
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md); /* Approx 8px 12px, adjust to match image */
+    margin-bottom: 4px; /* Space between items, adjust as needed */
+    text-align: left;
+    font-size: var(
+        --mantine-font-size-sm
+    ); /* Default Mantine small font size */
+    color: var(
+        --mantine-color-gray-7
+    ); /* Default text color (like your target inactive items) */
+    font-weight: 400; /* Lighter font weight for inactive items */
+    background-color: transparent;
+    border: none;
+    border-radius: var(--mantine-radius-sm); /* Consistent rounded corners */
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    outline: none; /* Remove default browser outline */
+    text-decoration: none !important; /* Remove any potential underlines */
 }
 
-.section_container {
-    display: flex;
-    gap: 30px;
+.sidebarNavItem:hover {
+    background-color: var(
+        --mantine-color-gray-1
+    ); /* Light gray hover for non-active items */
+    color: var(--mantine-color-gray-8); /* Slightly darker text on hover */
 }
-.section_container > * {
+
+.sidebarNavItemActive {
+    background-color: var(
+        --mantine-color-indigo-0
+    ); /* Light purplish-blue/lavender background for active */
+    color: var(
+        --mantine-color-indigo-7
+    ); /* Darker indigo text for active item */
+    font-weight: 500; /* Medium font weight for active item (adjust from 600 if too bold) */
+}
+
+.sidebarNavItem:focus-visible {
+    /* For accessibility: visible focus state */
+    outline: 2px solid var(--mantine-color-blue-5); /* Example focus outline */
+    outline-offset: 2px;
+}
+
+.manualModeContainer {
     display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 15px;
+    flex-direction: column; /* Default: Stack vertically (mobile-first) */
+    gap: var(
+        --mantine-spacing-lg
+    ); /* Space between sidebar and content when stacked */
+    margin-top: var(--mantine-spacing-xl);
+}
+
+.sidebarPaper {
+    width: 100%; /* Default: Sidebar takes full width */
+}
+
+.contentArea {
+    flex-grow: 1; /* This will be used when in flex-direction: row */
+}
+
+/* Apply side-by-side layout for screens 768px and wider (tablets and up) */
+@media (min-width: 768px) {
+    .manualModeContainer {
+        flex-direction: row; /* Switch to horizontal layout */
+    }
+
+    .sidebarPaper {
+        width: 280px; /* Fixed width for the sidebar on larger screens */
+        flex-shrink: 0; /* Prevent sidebar from shrinking */
+    }
 }

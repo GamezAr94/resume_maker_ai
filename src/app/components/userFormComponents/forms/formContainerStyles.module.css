@@ -1,0 +1,62 @@
+/* Styles for individual form fields (label + input) */
+.formField {
+    margin-bottom: var(--mantine-spacing-lg); /* Space between form fields */
+}
+
+/* Styles for the field labels */
+.formLabel {
+    display: block;
+    font-weight: 500;
+    font-size: var(--mantine-font-size-sm);
+    color: var(--mantine-color-gray-7);
+    margin-bottom: var(--mantine-spacing-xs);
+    text-align: left; /* Ensure labels are left-aligned */
+}
+
+/* Styles for the Input and Select fields themselves */
+.formInput {
+    height: auto; /* Allow padding to define height */
+    padding-top: var(--mantine-spacing-xs);
+    padding-bottom: var(--mantine-spacing-xs);
+    border-color: var(
+        --mantine-color-gray-4
+    ); /* Slightly darker border for better visibility */
+    font-size: var(--mantine-font-size-sm);
+}
+
+.formInput:focus {
+    border-color: var(--mantine-color-indigo-5); /* Indigo border on focus */
+    box-shadow: 0 0 0 1px var(--mantine-color-indigo-5); /* Add a subtle glow on focus */
+}
+
+/* --- Styles for Buttons --- */
+.primaryButton {
+    /* This will be the main purple/indigo button */
+    background-color: var(--mantine-color-indigo-6);
+    color: white;
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-lg);
+    font-weight: 500;
+    border-radius: var(--mantine-radius-md); /* Slightly larger radius */
+    height: auto;
+    transition: background-color 0.2s ease;
+}
+
+.primaryButton:hover {
+    background-color: var(--mantine-color-indigo-7);
+}
+
+.secondaryButton {
+    /* This will be the "Cancel" button */
+    background-color: var(--mantine-color-gray-2);
+    color: var(--mantine-color-gray-8);
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-lg);
+    font-weight: 500;
+    border-radius: var(--mantine-radius-md);
+    height: auto;
+    transition: background-color 0.2s ease;
+    border: none;
+}
+
+.secondaryButton:hover {
+    background-color: var(--mantine-color-gray-3);
+}

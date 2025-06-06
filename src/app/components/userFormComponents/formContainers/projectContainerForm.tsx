@@ -8,6 +8,7 @@ import {
 import { Dispatch, SetStateAction, useState } from 'react';
 import ProjectsInfoForm from '../forms/projectsInfoForm';
 import ShowUserDataSection from '../showUserDataSection';
+import styles from './formContainerStyles.module.css';
 
 interface Params {
     setProjectInfo: Dispatch<SetStateAction<false | [FormProjectStructure]>>;
@@ -31,13 +32,16 @@ export default function ProjectContainerForm({
         'personal_type' | 'experience_type' | 'education_type'
     >('personal_type');
     return (
-        <>
-            <div>
-                <h2>Projects</h2>
-            </div>
-            <div className={className}>
+        <div>
+            {/* --- Card for the Add/Edit Form --- */}
+            <div className={styles.formCard}>
+                <h2 className={styles.formCardTitle}>Project Management</h2>
+                <h3 className={styles.formCardSubtitle}>
+                    {getEditRecord ? 'Edit Project' : 'Add New Project'}
+                </h3>
                 <ProjectsInfoForm
-                    infoQuery={null}
+                    // This form is now for both adding and editing
+                    infoQuery={null} // This seems to be for display-only instances, so null is correct here
                     setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
                     educationInfo={educationInfo}
@@ -47,25 +51,32 @@ export default function ProjectContainerForm({
                     setSelectedType={setSelectedType}
                     selectedType={selectedType}
                 />
-                <ShowUserDataSection>
-                    {projectInfo.length > 0
-                        ? projectInfo.map((item, index) => (
-                              <ProjectsInfoForm
-                                  key={index}
-                                  infoQuery={item}
-                                  setInfo={setProjectInfo}
-                                  setRefreshTrigger={setRefreshTrigger}
-                                  educationInfo={educationInfo}
-                                  experienceInfo={experienceInfo}
-                                  setEditRecord={setEditRecord}
-                                  getEditRecord={getEditRecord}
-                                  setSelectedType={setSelectedType}
-                                  selectedType={selectedType}
-                              />
-                          ))
-                        : null}
-                </ShowUserDataSection>
             </div>
-        </>
+
+            {/* --- Card for the List of Existing Projects --- */}
+            {projectInfo.length > 0 && (
+                <div className={`${styles.formCard} ${styles.infoDisplayCard}`}>
+                    <h3 className={styles.formCardSubtitle}>
+                        My Saved Projects
+                    </h3>
+                    <ShowUserDataSection>
+                        {projectInfo.map((item, index) => (
+                            <ProjectsInfoForm
+                                key={index}
+                                infoQuery={item} // Passing the item here makes it a display instance
+                                setInfo={setProjectInfo}
+                                setRefreshTrigger={setRefreshTrigger}
+                                educationInfo={educationInfo}
+                                experienceInfo={experienceInfo}
+                                setEditRecord={setEditRecord}
+                                getEditRecord={getEditRecord}
+                                setSelectedType={setSelectedType}
+                                selectedType={selectedType}
+                            />
+                        ))}
+                    </ShowUserDataSection>
+                </div>
+            )}
+        </div>
     );
 }

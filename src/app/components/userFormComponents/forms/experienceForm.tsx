@@ -6,10 +6,11 @@ import {
     FormExperienceStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input } from '@mantine/core';
+import { Button, Input, Group } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
+import styles from './formContainerStyles.module.css';
 
 const userSchema = z.object({
     company_name: z.string().min(1, 'Company Name is required'),
@@ -182,55 +183,86 @@ export default function ExperienceForm({
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <>
-                    <input
-                        hidden
-                        readOnly
-                        type="text"
-                        name="id"
-                        defaultValue={infoQuery.id}
-                    />
-                    <p>Company Name: {infoQuery.company_name}</p>
-                    <p>Job Title: {infoQuery.job_title}</p>
-                    <Button
-                        size="compact-md"
-                        type="button"
-                        variant="default"
-                        leftSection={<IconTrash size={18} />}
-                        onClick={() => {
-                            submitDeleteRecord(
-                                SectionTypes.Experience,
-                                'id',
-                                infoQuery.id,
-                            );
-                        }}
-                    >
-                        Delete
-                    </Button>
-                    <Button
-                        size="compact-md"
-                        type="button"
-                        variant="default"
-                        leftSection={<IconPencil size={18} />}
-                        onClick={() => editRecord(infoQuery)}
-                    >
-                        Edit
-                    </Button>
+                    <div className={styles.infoDisplay}>
+                        <p>
+                            <strong>{infoQuery.job_title}</strong>
+                        </p>
+                        <p>{infoQuery.company_name}</p>
+                        <Group mt="md">
+                            <Button
+                                size="sm"
+                                variant="default"
+                                className={styles.iconButton}
+                                leftSection={<IconPencil size={16} />}
+                                onClick={() => editRecord(infoQuery)}
+                                type="button"
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="default"
+                                color="red"
+                                className={styles.iconButton}
+                                leftSection={<IconTrash size={16} />}
+                                onClick={() => {
+                                    submitDeleteRecord(
+                                        SectionTypes.Experience,
+                                        'id',
+                                        infoQuery.id,
+                                    );
+                                }}
+                            >
+                                Delete
+                            </Button>
+                        </Group>
+                    </div>
                 </>
             )}
             {!infoQuery && (
                 <>
-                    <p>Add New Record</p>
                     <Input.Wrapper
+                        label="Title:"
+                        error={formErrors.job_title ? formErrors.job_title : ''}
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                        }}
+                    >
+                        <Input
+                            classNames={{ input: styles.formInput }}
+                            error={!!formErrors.job_title}
+                            name="job_title"
+                            placeholder="e.g., Software Engineer"
+                            onChange={(event) => {
+                                handleInputChange(
+                                    event,
+                                    'job_title',
+                                    setEditRecord,
+                                    getEditRecord,
+                                );
+                            }}
+                            value={getEditRecord ? getEditRecord.job_title : ''}
+                        />
+                    </Input.Wrapper>
+
+                    <Input.Wrapper
+                        label="Company:"
                         error={
                             formErrors.company_name
                                 ? formErrors.company_name
                                 : ''
                         }
+                        classNames={{
+                            root: styles.formField,
+                            label: styles.formLabel,
+                        }}
                     >
                         <Input
+                            classNames={{ input: styles.formInput }}
                             error={!!formErrors.company_name}
                             name="company_name"
-                            placeholder="Company"
+                            placeholder="e.g., Google, Microsoft"
                             onChange={(event) => {
                                 handleInputChange(
                                     event,
@@ -244,46 +276,23 @@ export default function ExperienceForm({
                             }
                         />
                     </Input.Wrapper>
-                    <Input.Wrapper
-                        error={formErrors.job_title ? formErrors.job_title : ''}
-                    >
-                        <Input
-                            error={!!formErrors.job_title}
-                            name="job_title"
-                            placeholder="Job Title"
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    'job_title',
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            value={getEditRecord ? getEditRecord.job_title : ''}
-                        />
-                    </Input.Wrapper>
-                    <Button size="md" type="submit">
-                        Save
-                    </Button>
-                    {getEditRecord && getEditRecord.id && (
-                        <>
-                            <input
-                                readOnly
-                                hidden
-                                type="text"
-                                name="id"
-                                defaultValue={getEditRecord.id}
-                            />
+
+                    {/* Add Start/End Dates and Description here using the same pattern if needed */}
+
+                    <Group justify="flex-start" mt="xl">
+                        <Button type="submit" className={styles.primaryButton}>
+                            {getEditRecord ? 'Save Changes' : 'Add Entry'}
+                        </Button>
+                        {getEditRecord && (
                             <Button
-                                onClick={() => editRecord(null)}
                                 type="button"
-                                size="md"
-                                variant="default"
+                                className={styles.secondaryButton}
+                                onClick={() => editRecord(null)}
                             >
                                 Cancel
                             </Button>
-                        </>
-                    )}
+                        )}
+                    </Group>
                 </>
             )}
         </form>

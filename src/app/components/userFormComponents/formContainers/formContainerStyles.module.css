@@ -1,0 +1,63 @@
+.formCard {
+    background-color: var(
+        --mantine-color-gray-0
+    ); /* A very light gray background */
+    padding: var(--mantine-spacing-xl); /* Generous padding (approx 24px) */
+    border: 1px solid var(--mantine-color-gray-2); /* A light border */
+    border-radius: var(--mantine-radius-md); /* Rounded corners */
+    box-shadow: var(--mantine-shadow-sm); /* A subtle shadow */
+}
+
+.formCardTitle {
+    font-size: var(--mantine-font-size-lg); /* Approx 18px */
+    font-weight: 600; /* Semibold */
+    color: var(--mantine-color-gray-8);
+    margin-bottom: var(--mantine-spacing-lg); /* Space below the main title */
+    padding-bottom: var(--mantine-spacing-sm);
+    border-bottom: 1px solid var(--mantine-color-gray-2); /* Separator line */
+}
+
+.formCardSubtitle {
+    font-size: var(--mantine-font-size-md); /* Approx 16px */
+    font-weight: 500;
+    color: var(--mantine-color-gray-7);
+    margin-bottom: var(
+        --mantine-spacing-xl
+    ); /* Space between subtitle and first form field */
+}
+
+/* --- Placeholder styles for inner form elements --- */
+/* To finalize these, I'll need to see your PersonalInfoForm.tsx code */
+
+/* Example for a form field wrapper div */
+.formField {
+    margin-bottom: var(--mantine-spacing-md);
+}
+
+/* Example for a label */
+.formLabel {
+    display: block;
+    font-weight: 500;
+    font-size: var(--mantine-font-size-sm);
+    margin-bottom: var(--mantine-spacing-xs);
+}
+
+/* Example for an input */
+.formInput {
+    width: 100%;
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+    border: 1px solid var(--mantine-color-gray-3);
+    border-radius: var(--mantine-radius-sm);
+}
+
+/* Example for the submit button */
+.formButton {
+    background-color: var(--mantine-color-indigo-6);
+    color: white;
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-lg);
+    border: none;
+    border-radius: var(--mantine-radius-sm);
+    font-weight: 500;
+    margin-top: var(--mantine-spacing-sm);
+    cursor: pointer;
+}
