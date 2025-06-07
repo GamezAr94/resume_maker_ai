@@ -16,7 +16,6 @@ interface Params {
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     educationInfo: [FormEducationStructure] | [];
     experienceInfo: [FormExperienceStructure] | [];
-    className: string;
 }
 export default function ProjectContainerForm({
     setProjectInfo,
@@ -24,7 +23,6 @@ export default function ProjectContainerForm({
     setRefreshTrigger,
     educationInfo,
     experienceInfo,
-    className,
 }: Params) {
     const [getEditRecord, setEditRecord] =
         useState<FormProjectStructure | null>(null);
@@ -59,22 +57,24 @@ export default function ProjectContainerForm({
                     <h3 className={styles.formCardSubtitle}>
                         My Saved Projects
                     </h3>
-                    <ShowUserDataSection>
-                        {projectInfo.map((item, index) => (
-                            <ProjectsInfoForm
-                                key={index}
-                                infoQuery={item} // Passing the item here makes it a display instance
-                                setInfo={setProjectInfo}
-                                setRefreshTrigger={setRefreshTrigger}
-                                educationInfo={educationInfo}
-                                experienceInfo={experienceInfo}
-                                setEditRecord={setEditRecord}
-                                getEditRecord={getEditRecord}
-                                setSelectedType={setSelectedType}
-                                selectedType={selectedType}
-                            />
-                        ))}
-                    </ShowUserDataSection>
+                    <div className={styles.scrollableRecordList}>
+                        <ShowUserDataSection>
+                            {projectInfo.map((item, index) => (
+                                <ProjectsInfoForm
+                                    key={index}
+                                    infoQuery={item} // Passing the item here makes it a display instance
+                                    setInfo={setProjectInfo}
+                                    setRefreshTrigger={setRefreshTrigger}
+                                    educationInfo={educationInfo}
+                                    experienceInfo={experienceInfo}
+                                    setEditRecord={setEditRecord}
+                                    getEditRecord={getEditRecord}
+                                    setSelectedType={setSelectedType}
+                                    selectedType={selectedType}
+                                />
+                            ))}
+                        </ShowUserDataSection>
+                    </div>
                 </div>
             )}
         </div>

@@ -43,18 +43,20 @@ export default function ExperienceContainerForm({
                     <h3 className={styles.formCardSubtitle}>
                         My Saved Experience
                     </h3>
-                    <ShowUserDataSection>
-                        {experienceInfo.map((item, index) => (
-                            <ExperienceForm
-                                key={index}
-                                infoQuery={item}
-                                setInfo={setExperienceInfo}
-                                setRefreshTrigger={setRefreshTrigger}
-                                setEditRecord={setEditRecord}
-                                getEditRecord={getEditRecord}
-                            />
-                        ))}
-                    </ShowUserDataSection>
+                    <div className={styles.scrollableRecordList}>
+                        <ShowUserDataSection>
+                            {experienceInfo.map((item, index) => (
+                                <ExperienceForm
+                                    key={index}
+                                    infoQuery={item}
+                                    setInfo={setExperienceInfo}
+                                    setRefreshTrigger={setRefreshTrigger}
+                                    setEditRecord={setEditRecord}
+                                    getEditRecord={getEditRecord}
+                                />
+                            ))}
+                        </ShowUserDataSection>
+                    </div>
                 </div>
             )}
         </div>

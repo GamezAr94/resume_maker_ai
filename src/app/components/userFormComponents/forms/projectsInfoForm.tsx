@@ -9,7 +9,7 @@ import {
     FormProjectStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input, Select, Group } from '@mantine/core';
+import { Button, Input, Select, Group, Text } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
@@ -241,44 +241,49 @@ export default function ProjectsInfoForm({
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
-                <>
+                <div className={styles.infoCard}>
                     <div>
-                        <p>
-                            <strong>Project Name:</strong>{' '}
+                        <Text className={styles.infoTextPrimary}>
                             {infoQuery.project_name}
-                        </p>
-                        <p>
-                            <strong>Description:</strong>{' '}
+                        </Text>
+                        <Text
+                            className={styles.infoTextSecondary}
+                            lineClamp={1}
+                        >
                             {infoQuery.project_description}
-                        </p>
-                        <Group mt="md">
-                            <Button
-                                size="sm"
-                                variant="default"
-                                leftSection={<IconPencil size={16} />}
-                                onClick={() => editRecord(infoQuery)}
-                                type="button"
-                            >
-                                Edit
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="default"
-                                color="red"
-                                leftSection={<IconTrash size={16} />}
-                                onClick={() => {
-                                    submitDeleteRecord(
-                                        SectionTypes.Project,
-                                        'id',
-                                        infoQuery.id,
-                                    );
-                                }}
-                            >
-                                Delete
-                            </Button>
-                        </Group>
+                        </Text>
                     </div>
-                </>
+                    <Group
+                        gap="xs"
+                        justify="flex-end"
+                        className={styles.infoActions}
+                    >
+                        <Button
+                            variant="light"
+                            color="blue"
+                            size="sm"
+                            leftSection={<IconPencil size={16} />}
+                            onClick={() => editRecord(infoQuery)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="light"
+                            color="red"
+                            size="sm"
+                            leftSection={<IconTrash size={16} />}
+                            onClick={() => {
+                                submitDeleteRecord(
+                                    SectionTypes.Project,
+                                    'id',
+                                    infoQuery.id,
+                                );
+                            }}
+                        >
+                            Delete
+                        </Button>
+                    </Group>
+                </div>
             )}
             {!infoQuery && (
                 <>

@@ -61,3 +61,13 @@
     margin-top: var(--mantine-spacing-sm);
     cursor: pointer;
 }
+
+.scrollableRecordList {
+    max-height: 400px; /* Adjust this value to control when the scrollbar appears */
+    overflow-y: auto; /* Show vertical scrollbar only when content exceeds max-height */
+    padding: var(
+        --mantine-spacing-xs
+    ); /* A little space inside the scroll area */
+    margin-right: -4px; /* Helps offset the scrollbar visually */
+    padding-right: 4px;
+}

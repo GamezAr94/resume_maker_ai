@@ -43,18 +43,20 @@ export default function EducationContainerForm({
                     <h3 className={styles.formCardSubtitle}>
                         My Saved Education
                     </h3>
-                    <ShowUserDataSection>
-                        {educationInfo.map((item, index) => (
-                            <EducationInfoForm
-                                key={index}
-                                infoQuery={item}
-                                setInfo={setEducationInfo}
-                                setRefreshTrigger={setRefreshTrigger}
-                                setEditRecord={setEditRecord}
-                                getEditRecord={getEditRecord}
-                            />
-                        ))}
-                    </ShowUserDataSection>
+                    <div className={styles.scrollableRecordList}>
+                        <ShowUserDataSection>
+                            {educationInfo.map((item, index) => (
+                                <EducationInfoForm
+                                    key={index}
+                                    infoQuery={item}
+                                    setInfo={setEducationInfo}
+                                    setRefreshTrigger={setRefreshTrigger}
+                                    setEditRecord={setEditRecord}
+                                    getEditRecord={getEditRecord}
+                                />
+                            ))}
+                        </ShowUserDataSection>
+                    </div>
                 </div>
             )}
         </div>

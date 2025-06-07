@@ -7,7 +7,7 @@ import {
     FormSkillStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input, Group, Select } from '@mantine/core';
+import { Button, Input, Group, Select, Text } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
@@ -184,45 +184,46 @@ export default function SkillsInfoForm({
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
-                <>
-                    <div className={styles.infoDisplay}>
-                        <p>
-                            <strong>Skill:</strong> {infoQuery.skill_name}
-                        </p>
-                        <p>
-                            <strong>Level:</strong>{' '}
+                <div className={styles.infoCard}>
+                    <div>
+                        <Text className={styles.infoTextPrimary}>
+                            {infoQuery.skill_name}
+                        </Text>
+                        <Text className={styles.infoTextSecondary}>
                             {getSkillLabel(infoQuery.skill_level)}
-                        </p>
-                        <Group mt="md">
-                            <Button
-                                size="sm"
-                                variant="default"
-                                className={styles.iconButton}
-                                leftSection={<IconPencil size={16} />}
-                                onClick={() => editRecord(infoQuery)}
-                                type="button"
-                            >
-                                Edit
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="default"
-                                color="red"
-                                className={styles.iconButton}
-                                leftSection={<IconTrash size={16} />}
-                                onClick={() => {
-                                    submitDeleteRecord(
-                                        SectionTypes.Skill,
-                                        'id',
-                                        infoQuery.id,
-                                    );
-                                }}
-                            >
-                                Delete
-                            </Button>
-                        </Group>
+                        </Text>
                     </div>
-                </>
+                    <Group
+                        gap="xs"
+                        justify="flex-end"
+                        className={styles.infoActions}
+                    >
+                        <Button
+                            variant="light"
+                            color="blue"
+                            size="sm"
+                            leftSection={<IconPencil size={16} />}
+                            onClick={() => editRecord(infoQuery)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="light"
+                            color="red"
+                            size="sm"
+                            leftSection={<IconTrash size={16} />}
+                            onClick={() => {
+                                submitDeleteRecord(
+                                    SectionTypes.Skill,
+                                    'id',
+                                    infoQuery.id,
+                                );
+                            }}
+                        >
+                            Delete
+                        </Button>
+                    </Group>
+                </div>
             )}
             {!infoQuery && (
                 <>

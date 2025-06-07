@@ -6,7 +6,7 @@ import {
     FormExperienceStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input, Group } from '@mantine/core';
+import { Button, Group, Text, Input } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
@@ -182,42 +182,46 @@ export default function ExperienceForm({
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
-                <>
-                    <div className={styles.infoDisplay}>
-                        <p>
-                            <strong>{infoQuery.job_title}</strong>
-                        </p>
-                        <p>{infoQuery.company_name}</p>
-                        <Group mt="md">
-                            <Button
-                                size="sm"
-                                variant="default"
-                                className={styles.iconButton}
-                                leftSection={<IconPencil size={16} />}
-                                onClick={() => editRecord(infoQuery)}
-                                type="button"
-                            >
-                                Edit
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="default"
-                                color="red"
-                                className={styles.iconButton}
-                                leftSection={<IconTrash size={16} />}
-                                onClick={() => {
-                                    submitDeleteRecord(
-                                        SectionTypes.Experience,
-                                        'id',
-                                        infoQuery.id,
-                                    );
-                                }}
-                            >
-                                Delete
-                            </Button>
-                        </Group>
+                <div className={styles.infoCard}>
+                    <div>
+                        <Text className={styles.infoTextPrimary}>
+                            {infoQuery.job_title}
+                        </Text>
+                        <Text className={styles.infoTextSecondary}>
+                            {infoQuery.company_name}
+                        </Text>
                     </div>
-                </>
+                    <Group
+                        gap="xs"
+                        justify="flex-end"
+                        className={styles.infoActions}
+                    >
+                        <Button
+                            variant="light"
+                            color="blue"
+                            size="sm"
+                            leftSection={<IconPencil size={16} />}
+                            onClick={() => editRecord(infoQuery)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="light"
+                            color="red"
+                            size="sm"
+                            leftSection={<IconTrash size={16} />}
+                            onClick={() => {
+                                submitDeleteRecord(
+                                    SectionTypes.Experience,
+                                    'id',
+                                    infoQuery.id,
+                                );
+                            }}
+                        >
+                            Delete
+                        </Button>
+                    </Group>
+                </div>
             )}
             {!infoQuery && (
                 <>

@@ -60,3 +60,42 @@
 .secondaryButton:hover {
     background-color: var(--mantine-color-gray-3);
 }
+
+.infoCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: var(--mantine-spacing-md); /* 12px padding */
+    border: 1px solid var(--mantine-color-gray-2);
+    border-radius: var(--mantine-radius-md);
+    margin-bottom: var(
+        --mantine-spacing-md
+    ); /* This creates the separation between records */
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.infoCard:hover {
+    border-color: var(--mantine-color-gray-3);
+    box-shadow: var(--mantine-shadow-xs);
+}
+
+.infoCard:last-child {
+    margin-bottom: 0;
+}
+
+.infoActions {
+    min-width: fit-content;
+}
+
+.infoTextPrimary {
+    font-weight: 600;
+    color: var(--mantine-color-gray-8);
+    font-size: var(--mantine-font-size-sm);
+}
+
+.infoTextSecondary {
+    font-size: var(--mantine-font-size-sm);
+    color: var(--mantine-color-gray-6);
+    margin-top: 2px;
+}

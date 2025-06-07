@@ -5,7 +5,6 @@ export default function ShowUserDataSection({
 }>) {
     return (
         <div>
-            <p>Existing Records</p>
             {children || (
                 <p>
                     No records found. Please, add your information to generate a

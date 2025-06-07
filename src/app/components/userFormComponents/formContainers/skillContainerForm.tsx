@@ -39,18 +39,20 @@ export default function SkillContainerForm({
             {skillInfo.length > 0 && (
                 <div className={`${styles.formCard} ${styles.infoDisplayCard}`}>
                     <h3 className={styles.formCardSubtitle}>My Saved Skills</h3>
-                    <ShowUserDataSection>
-                        {skillInfo.map((item, index) => (
-                            <SkillsInfoForm
-                                key={index}
-                                infoQuery={item}
-                                setInfo={setSkillInfo}
-                                setRefreshTrigger={setRefreshTrigger}
-                                setEditRecord={setEditRecord}
-                                getEditRecord={getEditRecord}
-                            />
-                        ))}
-                    </ShowUserDataSection>
+                    <div className={styles.scrollableRecordList}>
+                        <ShowUserDataSection>
+                            {skillInfo.map((item, index) => (
+                                <SkillsInfoForm
+                                    key={index}
+                                    infoQuery={item}
+                                    setInfo={setSkillInfo}
+                                    setRefreshTrigger={setRefreshTrigger}
+                                    setEditRecord={setEditRecord}
+                                    getEditRecord={getEditRecord}
+                                />
+                            ))}
+                        </ShowUserDataSection>
+                    </div>
                 </div>
             )}
         </div>
