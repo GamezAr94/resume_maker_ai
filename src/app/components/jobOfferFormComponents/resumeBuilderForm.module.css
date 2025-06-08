@@ -1,12 +1,53 @@
-.resume_maker_container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 98%;
-    margin: 15px auto 0px auto;
+/* === NEW and IMPROVED resumeBuilderForm.module.css === */
+.formWrapper {
+    background-color: var(--mantine-color-white);
+    padding: var(--mantine-spacing-xl);
+    border-radius: var(--mantine-radius-lg); /* Softer, larger corners */
+    border: 1px solid var(--mantine-color-gray-2);
+    /* This top border makes the component feel important */
+    border-top: 4px solid var(--mantine-primary-color-6);
+    max-width: 800px;
+    margin: var(--mantine-spacing-xl) auto;
+    box-shadow: var(
+        --mantine-shadow-md
+    ); /* A slightly more pronounced shadow */
 }
-.form_container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+
+.header {
+    text-align: center; /* Center the header text for a modern feel */
+    padding-bottom: var(--mantine-spacing-lg);
+    margin-bottom: var(--mantine-spacing-xl);
+    border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.mainTitle {
+    font-weight: 800; /* Make it bolder */
+    font-size: rem(32px); /* Make it larger */
+    color: var(--mantine-color-dark-7);
+    margin-bottom: var(--mantine-spacing-xs);
+}
+
+.subTitle {
+    color: var(--mantine-color-gray-6);
+    max-width: 600px; /* Constrain subtitle line length for readability */
+    margin: auto; /* Center the subtitle text block */
+}
+
+/* --- Dark Mode Styles --- */
+[data-mantine-color-scheme='dark'] .formWrapper {
+    background-color: var(--mantine-color-dark-7);
+    border-color: var(--mantine-color-dark-5);
+    border-top-color: var(--mantine-primary-color-filled);
+}
+
+[data-mantine-color-scheme='dark'] .header {
+    border-bottom-color: var(--mantine-color-dark-5);
+}
+
+[data-mantine-color-scheme='dark'] .mainTitle {
+    color: var(--mantine-color-white);
+}
+
+[data-mantine-color-scheme='dark'] .subTitle {
+    color: var(--mantine-color-dark-2);
 }

@@ -9,7 +9,16 @@ import { z } from 'zod';
 
 import styles from './resumeBuilderForm.module.css';
 import { useRouter } from 'next/navigation';
-import { Button, Input } from '@mantine/core';
+import {
+    Button,
+    TextInput,
+    Textarea,
+    Stack,
+    Title,
+    Text,
+    Box,
+    LoadingOverlay,
+} from '@mantine/core';
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
@@ -160,59 +169,66 @@ export default function ResumeBuilderForm() {
         }
     }
     return (
-        <div className={styles.resume_maker_container}>
-            <h2>Resume Maker</h2>
-            <form
-                onSubmit={validatingAndSaving}
-                className={styles.form_container}
-            >
-                <Input.Wrapper
-                    error={
-                        formErrors.company_name ? formErrors.company_name : ''
-                    }
-                >
-                    <Input
-                        error={!!formErrors.company_name}
-                        placeholder="Company Name"
+        <Box className={styles.formWrapper} pos="relative">
+            <LoadingOverlay
+                visible={isGenerating}
+                zIndex={1000}
+                overlayProps={{ radius: 'sm', blur: 2 }}
+            />
+            <div className={styles.header}>
+                <Title order={2} className={styles.mainTitle}>
+                    AI Resume Builder
+                </Title>
+                <Text className={styles.subTitle}>
+                    Enter the job details below to generate a tailored
+                    AI-powered resume.
+                </Text>
+            </div>
+
+            <form onSubmit={validatingAndSaving}>
+                <Stack gap="lg">
+                    <TextInput
+                        label="Company Name"
+                        placeholder="e.g., Google, Microsoft, Netflix"
                         name="company_name"
+                        error={formErrors.company_name || undefined}
+                        required
                         disabled={isGenerating}
                     />
-                </Input.Wrapper>
-                <Input.Wrapper
-                    error={
-                        formErrors.job_position ? formErrors.job_position : ''
-                    }
-                >
-                    <Input
-                        error={!!formErrors.job_position}
-                        placeholder="Job Position"
+
+                    <TextInput
+                        label="Job Position"
+                        placeholder="e.g., Senior Frontend Engineer"
                         name="job_position"
+                        error={formErrors.job_position || undefined}
+                        required
                         disabled={isGenerating}
                     />
-                </Input.Wrapper>
-                <Input.Wrapper
-                    error={
-                        formErrors.job_description
-                            ? formErrors.job_description
-                            : ''
-                    }
-                >
-                    <Input
-                        error={!!formErrors.job_description}
-                        placeholder="Job Description"
+
+                    <Textarea
+                        label="Job Description"
+                        placeholder="Paste the full job description here..."
                         name="job_description"
+                        error={formErrors.job_description || undefined}
+                        required
+                        autosize
+                        minRows={6}
                         disabled={isGenerating}
                     />
-                </Input.Wrapper>
-                <Button
-                    size="md"
-                    fullWidth
-                    type="submit"
-                    loading={isGenerating}
-                >
-                    Generate Resume
-                </Button>
+
+                    <Button
+                        size="lg"
+                        fullWidth
+                        type="submit"
+                        loading={isGenerating}
+                        mt="xl"
+                        color="blue" /* Use your primary theme color, like in the screenshot */
+                        variant="filled" /* A solid, primary button */
+                    >
+                        Generate Resume
+                    </Button>
+                </Stack>
             </form>
-        </div>
+        </Box>
     );
 }
