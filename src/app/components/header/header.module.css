@@ -56,6 +56,14 @@
     display: flex;
     align-items: center;
     gap: rem(6px);
+    cursor: pointer;
+    padding: var(--mantine-spacing-xs);
+    border-radius: var(--mantine-radius-md);
+    transition: background-color 0.2s ease;
+}
+
+.tokenDisplay:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .tokenValue {
@@ -64,7 +72,8 @@
 }
 
 .hamburger {
-    display: block; /* Show hamburger on mobile */
+    display: flex;
+    align-items: center;
 }
 
 /* Media query for larger screens */
@@ -98,30 +107,6 @@
     color: var(--mantine-primary-color-filled);
 }
 
-.tokenDisplayMobile {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--mantine-spacing-md);
-    background-color: var(--mantine-color-gray-0);
-    border-radius: var(--mantine-radius-md);
-    margin-top: var(--mantine-spacing-xl);
-}
-
-/* --- Dark Mode Overrides for Mobile Menu --- */
-[data-mantine-color-scheme='dark'] .mobileNavLink {
-    color: var(--mantine-color-dark-0);
-    border-bottom-color: var(--mantine-color-dark-5);
-}
-
-[data-mantine-color-scheme='dark'] .mobileNavLink:hover {
-    color: var(--mantine-primary-color-3);
-}
-
-[data-mantine-color-scheme='dark'] .tokenDisplayMobile {
-    background-color: var(--mantine-color-dark-6);
-}
-
 /* === NEW STYLES for the toggleable search input === */
 .searchInput {
     /* You can adjust the width as needed */
@@ -133,7 +118,26 @@
     color: var(--mantine-color-dark-3);
 }
 
-/* New helper class to hide elements on mobile */
-.desktopOnly {
-    display: none;
+.modalTokenDisplay {
+    cursor: default; /* Remove the pointer cursor */
+    padding: 0; /* Remove the extra padding from the header version */
+}
+
+.modalTokenDisplay:hover {
+    background-color: transparent; /* Remove the hover effect */
+}
+
+/* Target the token value ONLY when it's inside the modal's display */
+.modalTokenDisplay .tokenValue {
+    color: var(--mantine-color-dark-9); /* Use a dark text color */
+}
+[data-mantine-color-scheme='dark'] .modalTokenDisplay .tokenValue {
+    color: var(
+        --mantine-color-dark-0
+    ); /* Use a light text color for dark mode modals */
+}
+[data-mantine-color-scheme='dark'] .modalTokenDisplay .tokenValue {
+    color: var(
+        --mantine-color-dark-0
+    ); /* Use a light text color for dark mode modals */
 }
