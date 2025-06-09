@@ -1,23 +1,139 @@
-.menu_section,
-.logo_area,
-.header_container {
+/* === NEW STYLES for a modern, dark header === */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: rem(60px);
+    z-index: 1000;
+    /* Dark background color similar to screenshot */
+    background-color: #1a202c;
+    /* Default text color for all children will be light */
+    color: var(--mantine-color-gray-4);
+    padding: 0 var(--mantine-spacing-md);
+    border-bottom: none; /* No bottom border for a flatter look */
+}
+
+.inner {
+    height: 100%;
+    width: 100%;
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
 }
-.header_container {
+
+.logoSection {
+    display: flex;
+    align-items: center;
+    gap: var(--mantine-spacing-sm);
+}
+
+.logoText {
+    font-weight: 700;
+    font-size: var(--mantine-font-size-lg);
+    color: var(--mantine-color-white); /* Bright white for the main title */
+}
+
+/* This group will contain all navigation and action items on the right */
+.mainNav {
+    display: none; /* Hide on mobile by default */
+}
+
+/* Individual text links for navigation */
+.navLink {
+    font-weight: 600;
+    font-size: var(--mantine-font-size-sm);
+    color: var(--mantine-color-gray-4); /* Muted light color */
+    transition: color 0.2s ease;
+    text-decoration: none;
+}
+
+.navLink:hover {
+    color: var(--mantine-color-white); /* Brighten on hover */
+}
+
+.tokenDisplay {
+    display: flex;
+    align-items: center;
+    gap: rem(6px);
+}
+
+.tokenValue {
+    font-weight: 700;
+    color: var(--mantine-color-white);
+}
+
+.hamburger {
+    display: block; /* Show hamburger on mobile */
+}
+
+/* Media query for larger screens */
+@media (min-width: 1350px) {
+    /* Adjust this breakpoint if needed */
+    .mainNav {
+        display: flex;
+        align-items: center;
+        gap: var(
+            --mantine-spacing-xl
+        ); /* Increase spacing between groups of items */
+    }
+
+    .hamburger {
+        display: none; /* Hide hamburger on desktop */
+    }
+}
+
+/* === NEW STYLES for the mobile drawer menu === */
+.mobileNavLink {
+    font-weight: 600;
+    font-size: var(--mantine-font-size-lg);
+    padding: var(--mantine-spacing-md) 0;
+    border-bottom: 1px solid var(--mantine-color-gray-2);
+    color: var(--mantine-color-dark-9);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.mobileNavLink:hover {
+    color: var(--mantine-primary-color-filled);
+}
+
+.tokenDisplayMobile {
+    display: flex;
     justify-content: space-between;
-    padding: 0 30px;
-    border-bottom: 1px solid rgb(226, 226, 226);
-    min-height: 70px;
-    margin-bottom: 30px;
+    align-items: center;
+    padding: var(--mantine-spacing-md);
+    background-color: var(--mantine-color-gray-0);
+    border-radius: var(--mantine-radius-md);
+    margin-top: var(--mantine-spacing-xl);
 }
-.menu_section {
-    gap: 25px;
+
+/* --- Dark Mode Overrides for Mobile Menu --- */
+[data-mantine-color-scheme='dark'] .mobileNavLink {
+    color: var(--mantine-color-dark-0);
+    border-bottom-color: var(--mantine-color-dark-5);
 }
-.logout_form {
-    width: 100%;
+
+[data-mantine-color-scheme='dark'] .mobileNavLink:hover {
+    color: var(--mantine-primary-color-3);
 }
-.logout_form > button {
-    width: 100%;
+
+[data-mantine-color-scheme='dark'] .tokenDisplayMobile {
+    background-color: var(--mantine-color-dark-6);
+}
+
+/* === NEW STYLES for the toggleable search input === */
+.searchInput {
+    /* You can adjust the width as needed */
+    width: rem(300px);
+}
+
+/* This will style the placeholder text for dark mode, which is often needed */
+.searchInput :global(::placeholder) {
+    color: var(--mantine-color-dark-3);
+}
+
+/* New helper class to hide elements on mobile */
+.desktopOnly {
+    display: none;
 }

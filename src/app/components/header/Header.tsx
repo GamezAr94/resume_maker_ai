@@ -1,51 +1,216 @@
+/* === NEW and IMPROVED header.tsx === */
 'use client';
 
-import { Button, Menu, useMantineColorScheme } from '@mantine/core';
-import styles from './header.module.css';
-import { signOutAction } from '@/app/actions';
+import {
+    Container,
+    Group,
+    Button,
+    Text,
+    ActionIcon,
+    Burger,
+    Drawer,
+    Stack,
+    rem,
+    Anchor,
+    TextInput,
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import {
+    IconCoinFilled,
+    IconSearch,
+    IconBriefcase,
+    IconX,
+} from '@tabler/icons-react';
 import Link from 'next/link';
+import styles from './header.module.css'; // Use the new styles
 
 export default function Header() {
-    const { setColorScheme, colorScheme } = useMantineColorScheme();
-    function toggleTheme() {
-        setColorScheme(colorScheme == 'light' ? 'dark' : 'light');
-    }
+    // NOTE: This state is for toggling the mobile menu.
+    // The logic to close it on navigation would be added later.
+    const [opened, { toggle }] = useDisclosure(false);
+    const [searchOpened, { toggle: toggleSearch }] = useDisclosure(false);
+
+    // NOTE: This would come from user data later.
+    const tokenCount = 1000;
+
     return (
-        <header className={styles.header_container}>
-            <Link className={styles.logo_area} href="/">
-                Logo<p>App Name</p>
-            </Link>
-            <div className={styles.menu_section}>
-                <div>T 1</div>
-                <Menu position="bottom-end" offset={0}>
-                    <Menu.Target>
-                        <p>Menu</p>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                        <Menu.Item>
-                            <Link href="/">Home</Link>
-                        </Menu.Item>
-                        <Menu.Item>Buy Tokens</Menu.Item>
-                        <Menu.Item>Info</Menu.Item>
-                        <Menu.Item onClick={toggleTheme}>
-                            {colorScheme == 'light' ? 'Dark' : 'Light'} Mode
-                        </Menu.Item>
+        <header className={styles.header}>
+            <Container size="xxl" className={styles.inner}>
+                <Group className={styles.logoSection}>
+                    <IconBriefcase
+                        size={28}
+                        color="var(--mantine-color-blue-5)"
+                    />{' '}
+                    {/* Your Logo */}
+                    <Text className={styles.logoText}>ResumeCraft AI</Text>
+                </Group>
+
+                {/* This Group will be hidden on mobile by the CSS media query */}
+                <Group className={styles.mainNav}>
+                    {/* This is the new conditional search bar section */}
+                    {searchOpened ? (
+                        <Group gap="xs">
+                            <TextInput
+                                placeholder="Search company (e.g., Innovate Hub)"
+                                className={styles.searchInput}
+                            />
+                            <Button>Search</Button>
+                            <ActionIcon
+                                variant="transparent"
+                                c="gray.4"
+                                title="Close search"
+                                onClick={toggleSearch}
+                            >
+                                <IconX
+                                    style={{ width: rem(18), height: rem(18) }}
+                                />
+                            </ActionIcon>
+                        </Group>
+                    ) : (
+                        <ActionIcon
+                            variant="transparent"
+                            c="gray.4"
+                            title="Search"
+                            onClick={toggleSearch}
+                        >
+                            <IconSearch
+                                style={{ width: rem(18), height: rem(18) }}
+                            />
+                        </ActionIcon>
+                    )}
+
+                    <div className={styles.tokenDisplay}>
+                        <Text size="sm">Tokens:</Text>
+                        <Text size="sm" className={styles.tokenValue}>
+                            {tokenCount}
+                        </Text>
+                        <IconCoinFilled
+                            style={{ width: rem(16), height: rem(16) }}
+                            color="var(--mantine-color-yellow-5)"
+                        />
+                    </div>
+
+                    <Group gap="xl">
+                        <Anchor
+                            component={Link}
+                            href="/dashboard"
+                            className={styles.navLink}
+                        >
+                            Dashboard
+                        </Anchor>
+                        <Anchor
+                            component={Link}
+                            href="/my-applications"
+                            className={styles.navLink}
+                        >
+                            My Applications
+                        </Anchor>
+                        <Anchor
+                            component={Link}
+                            href="/settings"
+                            className={styles.navLink}
+                        >
+                            Settings
+                        </Anchor>
                         <form
-                            className={styles.logout_form}
-                            action={signOutAction}
+                            action="/auth/sign-out"
+                            method="post"
+                            style={{ margin: 0 }}
                         >
                             <Button
-                                variant="filled"
-                                size="xs"
-                                color="red.5"
                                 type="submit"
+                                variant="transparent"
+                                classNames={{
+                                    root: styles.navLink,
+                                }} /* Apply navLink styles to the button */
                             >
                                 Logout
                             </Button>
                         </form>
-                    </Menu.Dropdown>
-                </Menu>
-            </div>
+                    </Group>
+                </Group>
+
+                {/* Mobile Hamburger Menu */}
+                <Burger
+                    opened={opened}
+                    onClick={toggle}
+                    className={styles.hamburger}
+                    color="white"
+                    size="sm"
+                    aria-label="Toggle navigation" /* Accessibility improvement */
+                />
+
+                {/* Mobile Drawer Menu */}
+                <Drawer
+                    opened={opened}
+                    onClose={toggle}
+                    position="right"
+                    size="100%"
+                    padding="md"
+                    title={
+                        <Text fw={700} size="lg">
+                            Menu
+                        </Text>
+                    }
+                    overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
+                    zIndex={
+                        2000
+                    } /* Ensure drawer is on top of the fixed header */
+                >
+                    <Stack gap="lg" mt="md">
+                        <Anchor
+                            component={Link}
+                            href="/dashboard"
+                            className={styles.mobileNavLink}
+                            onClick={toggle} /* Close drawer on click */
+                        >
+                            Dashboard
+                        </Anchor>
+                        <Anchor
+                            component={Link}
+                            href="/my-applications"
+                            className={styles.mobileNavLink}
+                            onClick={toggle} /* Close drawer on click */
+                        >
+                            My Applications
+                        </Anchor>
+                        <Anchor
+                            component={Link}
+                            href="/settings"
+                            className={styles.mobileNavLink}
+                            onClick={toggle} /* Close drawer on click */
+                        >
+                            Settings
+                        </Anchor>
+
+                        <div className={styles.tokenDisplayMobile}>
+                            <Text size="md" c="dimmed">
+                                Tokens:
+                            </Text>
+                            <Group gap="xs" align="center">
+                                <Text size="md" fw={700}>
+                                    {tokenCount}
+                                </Text>
+                                <IconCoinFilled
+                                    size={20}
+                                    color="var(--mantine-color-yellow-5)"
+                                />
+                            </Group>
+                        </div>
+
+                        {/* Logout button at the bottom of the drawer */}
+                        <form
+                            action="/auth/sign-out"
+                            method="post"
+                            style={{ marginTop: 'auto' }}
+                        >
+                            <Button type="submit" variant="default" fullWidth>
+                                Logout
+                            </Button>
+                        </form>
+                    </Stack>
+                </Drawer>
+            </Container>
         </header>
     );
 }
