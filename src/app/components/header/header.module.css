@@ -117,27 +117,3 @@
 .searchInput :global(::placeholder) {
     color: var(--mantine-color-dark-3);
 }
-
-.modalTokenDisplay {
-    cursor: default; /* Remove the pointer cursor */
-    padding: 0; /* Remove the extra padding from the header version */
-}
-
-.modalTokenDisplay:hover {
-    background-color: transparent; /* Remove the hover effect */
-}
-
-/* Target the token value ONLY when it's inside the modal's display */
-.modalTokenDisplay .tokenValue {
-    color: var(--mantine-color-dark-9); /* Use a dark text color */
-}
-[data-mantine-color-scheme='dark'] .modalTokenDisplay .tokenValue {
-    color: var(
-        --mantine-color-dark-0
-    ); /* Use a light text color for dark mode modals */
-}
-[data-mantine-color-scheme='dark'] .modalTokenDisplay .tokenValue {
-    color: var(
-        --mantine-color-dark-0
-    ); /* Use a light text color for dark mode modals */
-}
