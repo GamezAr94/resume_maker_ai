@@ -7,13 +7,37 @@ import {
     FormPersonalStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input } from '@mantine/core';
-import styles from './formContainerStyles.module.css';
+import { Button, TextInput, Stack } from '@mantine/core'; // Using TextInput and Stack for consistency
 
 // creating the zod schema to validate the user data
 const userSchema = z.object({
     first_name: z.string().min(2, 'First Name is required'),
     last_name: z.string().min(2, 'Last Name is required'),
+    email: z.string().email('A valid email is required'),
+    phone: z
+        .string()
+        .min(10, 'Phone number must be at least 10 digits if provided')
+        .or(z.literal('')), // Allows an empty string
+    linkedin: z
+        .string()
+        .url('A valid URL is required')
+        .optional()
+        .or(z.literal('')), // Optional but must be a valid URL if provided
+    github: z
+        .string()
+        .url('A valid URL is required')
+        .optional()
+        .or(z.literal('')),
+    portfolio: z
+        .string()
+        .url('A valid URL is required')
+        .optional()
+        .or(z.literal('')),
+    link: z
+        .string()
+        .url('A valid URL is required')
+        .optional()
+        .or(z.literal('')),
 });
 interface Params {
     infoQuery: FormPersonalStructure;
@@ -110,64 +134,138 @@ export default function PersonalInfoForm({
 
     return (
         <form onSubmit={validatingAndSaving}>
-            {/* +++ Refactor inputs to use styled wrappers +++ */}
-            <Input.Wrapper
-                label="Full Name:"
-                error={formErrors.first_name ? formErrors.first_name : ''}
-                classNames={{ root: styles.formField, label: styles.formLabel }}
-            >
-                <Input
-                    classNames={{ input: styles.formInput }}
-                    error={!!formErrors.first_name}
-                    placeholder="Your Name"
+            <Stack>
+                <TextInput
+                    label="First Name"
+                    placeholder="Your first name"
                     name="first_name"
-                    onChange={(event) => {
+                    value={infoQuery.first_name}
+                    onChange={(event) =>
                         handleUserInputChange(
                             event,
                             'first_name',
                             setUserInfo,
                             infoQuery,
-                        );
-                    }}
-                    value={infoQuery.first_name}
+                        )
+                    }
+                    error={formErrors.first_name || undefined}
+                    required
                 />
-            </Input.Wrapper>
-
-            <Input.Wrapper
-                label="Last Name:"
-                error={formErrors.last_name ? formErrors.last_name : ''}
-                classNames={{ root: styles.formField, label: styles.formLabel }}
-            >
-                <Input
-                    classNames={{ input: styles.formInput }}
-                    error={!!formErrors.last_name}
-                    placeholder="Your Last Name"
+                <TextInput
+                    label="Last Name"
+                    placeholder="Your last name"
                     name="last_name"
-                    onChange={(event) => {
+                    value={infoQuery.last_name}
+                    onChange={(event) =>
                         handleUserInputChange(
                             event,
                             'last_name',
                             setUserInfo,
                             infoQuery,
-                        );
-                    }}
-                    value={infoQuery.last_name}
+                        )
+                    }
+                    error={formErrors.last_name || undefined}
+                    required
                 />
-            </Input.Wrapper>
 
-            {/* You can add Email, Phone, LinkedIn inputs here following the same pattern */}
-            {/*
-           <Input.Wrapper
-               label="Email:"
-               classNames={{ root: styles.formField, label: styles.formLabel }}
-           >
-               <Input classNames={{ input: styles.formInput }} placeholder="your.email@example.com" name="email" />
-           </Input.Wrapper>
-           */}
+                {/* === NEWLY ADDED FIELDS === */}
+                <TextInput
+                    label="Email Address"
+                    placeholder="your.email@example.com"
+                    name="email"
+                    type="email"
+                    value={infoQuery.email || ''}
+                    onChange={(event) =>
+                        handleUserInputChange(
+                            event,
+                            'email',
+                            setUserInfo,
+                            infoQuery,
+                        )
+                    }
+                    error={formErrors.email || undefined}
+                    required
+                />
+                <TextInput
+                    label="Phone Number"
+                    placeholder="e.g., (123) 456-7890"
+                    name="phone"
+                    value={infoQuery.phone || ''}
+                    onChange={(event) =>
+                        handleUserInputChange(
+                            event,
+                            'phone',
+                            setUserInfo,
+                            infoQuery,
+                        )
+                    }
+                    error={formErrors.phone || undefined}
+                />
+                <TextInput
+                    label="LinkedIn Profile URL"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    name="linkedin_url"
+                    value={infoQuery.linkedin_url || ''}
+                    onChange={(event) =>
+                        handleUserInputChange(
+                            event,
+                            'linkedin_url',
+                            setUserInfo,
+                            infoQuery,
+                        )
+                    }
+                    error={formErrors.linkedin_url || undefined}
+                />
+                <TextInput
+                    label="GitHub URL"
+                    placeholder="https://github.com/your-username"
+                    name="github_url"
+                    value={infoQuery.github_url || ''}
+                    onChange={(event) =>
+                        handleUserInputChange(
+                            event,
+                            'github_url',
+                            setUserInfo,
+                            infoQuery,
+                        )
+                    }
+                    error={formErrors.github_url || undefined}
+                />
+                <TextInput
+                    label="Portfolio URL"
+                    placeholder="https://your-portfolio.com"
+                    name="portfolio_url"
+                    value={infoQuery.portfolio_url || ''}
+                    onChange={(event) =>
+                        handleUserInputChange(
+                            event,
+                            'portfolio_url',
+                            setUserInfo,
+                            infoQuery,
+                        )
+                    }
+                    error={formErrors.portfolio_url || undefined}
+                />
+                <TextInput
+                    label="Other Website URL"
+                    placeholder="e.g., your personal blog"
+                    name="other_url"
+                    value={infoQuery.other_url || ''}
+                    onChange={(event) =>
+                        handleUserInputChange(
+                            event,
+                            'other_url',
+                            setUserInfo,
+                            infoQuery,
+                        )
+                    }
+                    error={formErrors.other_url || undefined}
+                />
 
-            <Button type="submit" className={styles.primaryButton}>
-                Save Changes
-            </Button>
+                <Button type="submit" mt="md">
+                    Save Changes
+                </Button>
+            </Stack>
         </form>
     );
 }

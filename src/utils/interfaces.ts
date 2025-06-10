@@ -5,22 +5,22 @@ export const emptyStatePersonal: FormPersonalStructure = {
     first_name: '',
     last_name: '',
     phone: '',
-    address: '',
-    linkedin: '',
-    github: '',
-    portfolio: '',
-    link: '',
+    email: '',
+    linkedin_url: '',
+    github_url: '',
+    portfolio_url: '',
+    other_url: '',
 };
 // Interface for the form personal structure
 export interface FormPersonalStructure {
     first_name: string;
     last_name: string;
     phone: string;
-    address: string;
-    linkedin: string;
-    github: string;
-    portfolio: string;
-    link: string;
+    email: string;
+    linkedin_url: string;
+    github_url: string;
+    portfolio_url: string;
+    other_url: string;
 }
 
 //EXPERIENCE FORM
