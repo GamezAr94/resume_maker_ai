@@ -49,6 +49,7 @@ export default function PersonalInfoForm({
     setRefreshTrigger,
     setUserInfo,
 }: Params) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors, setFormErrors] =
         useState<FormPersonalStructure>(emptyStatePersonal);
 
@@ -56,58 +57,66 @@ export default function PersonalInfoForm({
     async function validatingAndSaving(
         event: React.FormEvent<HTMLFormElement>,
     ) {
+        setIsSubmitting(true);
+
         // prevent the default form submission and fetch the data
         event.preventDefault();
-        // get the form data
-        const formData = new FormData(event.currentTarget);
-        // parse the user data with the zod schema
-        const parseUser = userSchema.safeParse(Object.fromEntries(formData));
+        try {
+            // get the form data
+            const formData = new FormData(event.currentTarget);
+            // parse the user data with the zod schema
+            const parseUser = userSchema.safeParse(
+                Object.fromEntries(formData),
+            );
 
-        // reset the errors in the state
-        setFormErrors(emptyStatePersonal);
+            // reset the errors in the state
+            setFormErrors(emptyStatePersonal);
 
-        // if the user data is not valid, store the errors in the state and return
-        if (!parseUser.success) {
-            const error = parseUser.error;
-            let newErrors = emptyStatePersonal;
-            for (const issue of error.errors) {
-                newErrors = {
-                    ...newErrors,
-                    [issue.path[0]]: issue.message,
-                };
+            // if the user data is not valid, store the errors in the state and return
+            if (!parseUser.success) {
+                const error = parseUser.error;
+                let newErrors = emptyStatePersonal;
+                for (const issue of error.errors) {
+                    newErrors = {
+                        ...newErrors,
+                        [issue.path[0]]: issue.message,
+                    };
+                }
+                // set the errors in the state to show them to the user
+                setFormErrors(newErrors);
+                return; // Exit here, but `finally` will still run
             }
-            // set the errors in the state to show them to the user
-            setFormErrors(newErrors);
-            return;
+
+            const res = await fetch('api/saveUserInfo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: SectionTypes.Personal,
+                    data: Object.fromEntries(formData),
+                }),
+            });
+            const response = await res.json();
+
+            // show a message to the user
+            if (!res.ok) {
+                // TODO ART: show an error message to the user
+                console.error(response.message);
+                return;
+            }
+            // TODO ART: show a success message to the user
+            console.log('=====> RESPONSE personal');
+            console.log(res.ok);
+            console.log(response.message);
+            console.log('=====>');
+
+            // required to refresh the UI
+            setRefreshTrigger((prevTrigger) => ({
+                ...prevTrigger,
+                personal: !prevTrigger.personal,
+            }));
+        } finally {
+            setIsSubmitting(false);
         }
-
-        const res = await fetch('api/saveUserInfo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: SectionTypes.Personal,
-                data: Object.fromEntries(formData),
-            }),
-        });
-        const response = await res.json();
-
-        // show a message to the user
-        if (!res.ok) {
-            // TODO ART: show an error message to the user
-            console.error(response.message);
-            return;
-        }
-        // TODO ART: show a success message to the user
-        console.log('=====> RESPONSE personal');
-        console.log(res.ok);
-        console.log(response.message);
-        console.log('=====>');
-
-        // required to refresh the UI
-        setRefreshTrigger((prevTrigger) => ({
-            ...prevTrigger,
-            personal: !prevTrigger.personal,
-        }));
     }
 
     interface HandleInputChangeEvent {
@@ -262,7 +271,7 @@ export default function PersonalInfoForm({
                     error={formErrors.other_url || undefined}
                 />
 
-                <Button type="submit" mt="md">
+                <Button type="submit" mt="md" loading={isSubmitting}>
                     Save Changes
                 </Button>
             </Stack>

@@ -29,22 +29,6 @@
     box-shadow: 0 0 0 1px var(--mantine-color-indigo-5); /* Add a subtle glow on focus */
 }
 
-/* --- Styles for Buttons --- */
-.primaryButton {
-    /* This will be the main purple/indigo button */
-    background-color: var(--mantine-color-indigo-6);
-    color: white;
-    padding: var(--mantine-spacing-xs) var(--mantine-spacing-lg);
-    font-weight: 500;
-    border-radius: var(--mantine-radius-md); /* Slightly larger radius */
-    height: auto;
-    transition: background-color 0.2s ease;
-}
-
-.primaryButton:hover {
-    background-color: var(--mantine-color-indigo-7);
-}
-
 .secondaryButton {
     /* This will be the "Cancel" button */
     background-color: var(--mantine-color-gray-2);

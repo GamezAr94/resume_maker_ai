@@ -48,6 +48,8 @@ export default function ProjectsInfoForm({
     // whit this we will erase all the data in the form after saving it
     const formRef = useRef<HTMLFormElement>(null);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
         useState<FormProjectStructure>(emptyStateProject);
@@ -59,74 +61,84 @@ export default function ProjectsInfoForm({
         // prevent the default form submission and fetch the data
         event.preventDefault();
 
-        // get the form data
-        const formData = new FormData();
-        if (getEditRecord) {
-            Object.entries(getEditRecord).forEach(([key, value]) => {
-                if (value !== null && value !== undefined && value != '') {
-                    formData.append(key, String(value));
-                }
-            });
-        }
+        setIsSubmitting(true);
 
-        // parse the user data with the zod schema
-        const parseUser = userSchema.safeParse(Object.fromEntries(formData));
-
-        // reset the errors in the state
-        setFormErrors(emptyStateProject);
-
-        // if the user data is not valid, store the errors in the state and return
-        if (!parseUser.success) {
-            const error = parseUser.error;
-            let newErrors = emptyStateProject;
-            for (const issue of error.errors) {
-                newErrors = {
-                    ...newErrors,
-                    [issue.path[0]]: issue.message,
-                };
+        try {
+            // get the form data
+            const formData = new FormData();
+            if (getEditRecord) {
+                Object.entries(getEditRecord).forEach(([key, value]) => {
+                    if (value !== null && value !== undefined && value != '') {
+                        formData.append(key, String(value));
+                    }
+                });
             }
-            // set the errors in the state to show them to the user
-            setFormErrors(newErrors);
-            return;
-        }
 
-        const res = await fetch('api/saveUserInfo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: SectionTypes.Project,
-                data: Object.fromEntries(formData),
-            }),
-        });
-        const response = await res.json();
+            // parse the user data with the zod schema
+            const parseUser = userSchema.safeParse(
+                Object.fromEntries(formData),
+            );
 
-        // show a message to the user
-        if (!res.ok) {
-            // TODO ART: show an error message to the user
-            console.error(response.message);
-            return;
-        }
+            // reset the errors in the state
+            setFormErrors(emptyStateProject);
 
-        if (setInfo) {
-            const projectInfoResp = await getDBTableInfo(SectionTypes.Project);
-            if (!projectInfoResp) {
+            // if the user data is not valid, store the errors in the state and return
+            if (!parseUser.success) {
+                const error = parseUser.error;
+                let newErrors = emptyStateProject;
+                for (const issue of error.errors) {
+                    newErrors = {
+                        ...newErrors,
+                        [issue.path[0]]: issue.message,
+                    };
+                }
+                // set the errors in the state to show them to the user
+                setFormErrors(newErrors);
                 return;
             }
-            setInfo(projectInfoResp.data);
+
+            const res = await fetch('api/saveUserInfo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: SectionTypes.Project,
+                    data: Object.fromEntries(formData),
+                }),
+            });
+            const response = await res.json();
+
+            // show a message to the user
+            if (!res.ok) {
+                // TODO ART: show an error message to the user
+                console.error(response.message);
+                return;
+            }
+
+            if (setInfo) {
+                const projectInfoResp = await getDBTableInfo(
+                    SectionTypes.Project,
+                );
+                if (!projectInfoResp) {
+                    return;
+                }
+                setInfo(projectInfoResp.data);
+            }
+            // TODO ART: show a success message to the user
+            console.log('=====> RESPONSE project');
+            console.log(res.ok);
+            console.log(response.message);
+            console.log('=====>');
+            // required to refresh the UI
+            setRefreshTrigger((prevTrigger) => ({
+                ...prevTrigger,
+                project: !prevTrigger.project,
+            }));
+            setEditRecord(null);
+            setSelectedType('personal_type');
+            formRef.current?.reset();
+        } finally {
+            setIsSubmitting(false);
         }
-        // TODO ART: show a success message to the user
-        console.log('=====> RESPONSE project');
-        console.log(res.ok);
-        console.log(response.message);
-        console.log('=====>');
-        // required to refresh the UI
-        setRefreshTrigger((prevTrigger) => ({
-            ...prevTrigger,
-            project: !prevTrigger.project,
-        }));
-        setEditRecord(null);
-        setSelectedType('personal_type');
-        formRef.current?.reset();
     }
 
     // Function to delete the record and refresh the UI
@@ -435,11 +447,12 @@ export default function ProjectsInfoForm({
 
                     {/* Action Buttons */}
                     <Group justify="flex-start" mt="xl">
-                        <Button type="submit" className={styles.primaryButton}>
+                        <Button type="submit" loading={isSubmitting}>
                             {getEditRecord?.id ? 'Save Changes' : 'Add Entry'}
                         </Button>
                         {getEditRecord && (
                             <Button
+                                loading={isSubmitting}
                                 type="button"
                                 className={styles.secondaryButton}
                                 onClick={() => editRecord(null)}

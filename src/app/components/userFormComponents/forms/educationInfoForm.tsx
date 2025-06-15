@@ -45,6 +45,7 @@ export default function EducationInfoForm({
 }: Params) {
     // whit this we will erase all the data in the form after saving it
     const formRef = useRef<HTMLFormElement>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
@@ -57,82 +58,88 @@ export default function EducationInfoForm({
         // prevent the default form submission and fetch the data
         event.preventDefault();
 
-        // Directly build the object to validate from the state
-        const dataToValidate = {
-            ...(getEditRecord?.id && { id: getEditRecord.id }),
-            school_name: getEditRecord?.school_name || '',
-            field_of_study: getEditRecord?.field_of_study || '',
-            degree: getEditRecord?.degree || '',
-            start_date: getEditRecord?.start_date || '',
-            // field end_date is optional only if is_current is true
-            // if is_current is true, end_date should be undefined
-            // if is_current is false, end_date should be the value of end_date or undefined
-            end_date: getEditRecord?.is_current
-                ? undefined
-                : getEditRecord?.end_date || null,
-            is_current: getEditRecord?.is_current || false,
-            grades: getEditRecord?.grades || undefined,
-        };
+        setIsSubmitting(true);
 
-        const parseUser = userSchema.safeParse(dataToValidate);
+        try {
+            // Directly build the object to validate from the state
+            const dataToValidate = {
+                ...(getEditRecord?.id && { id: getEditRecord.id }),
+                school_name: getEditRecord?.school_name || '',
+                field_of_study: getEditRecord?.field_of_study || '',
+                degree: getEditRecord?.degree || '',
+                start_date: getEditRecord?.start_date || '',
+                // field end_date is optional only if is_current is true
+                // if is_current is true, end_date should be undefined
+                // if is_current is false, end_date should be the value of end_date or undefined
+                end_date: getEditRecord?.is_current
+                    ? undefined
+                    : getEditRecord?.end_date || null,
+                is_current: getEditRecord?.is_current || false,
+                grades: getEditRecord?.grades || undefined,
+            };
 
-        // reset the errors in the state
-        setFormErrors(emptyStateEducation);
+            const parseUser = userSchema.safeParse(dataToValidate);
 
-        // if the user data is not valid, store the errors in the state and return
-        if (!parseUser.success) {
-            console.error('Validation errors:', parseUser.error);
-            const error = parseUser.error;
-            let newErrors = emptyStateEducation;
-            for (const issue of error.errors) {
-                newErrors = {
-                    ...newErrors,
-                    [issue.path[0]]: issue.message,
-                };
-            }
-            // set the errors in the state to show them to the user
-            setFormErrors(newErrors);
-            return;
-        }
+            // reset the errors in the state
+            setFormErrors(emptyStateEducation);
 
-        const res = await fetch('api/saveUserInfo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: SectionTypes.Education,
-                data: parseUser.data, // Send the clean, validated data
-            }),
-        });
-        const response = await res.json();
-
-        // show a message to the user
-        if (!res.ok) {
-            // TODO ART: show an error message to the user
-            console.error(response.message);
-            return;
-        }
-
-        if (setInfo) {
-            const experienceInfoResp = await getDBTableInfo(
-                SectionTypes.Education,
-            );
-            if (!experienceInfoResp) {
+            // if the user data is not valid, store the errors in the state and return
+            if (!parseUser.success) {
+                console.error('Validation errors:', parseUser.error);
+                const error = parseUser.error;
+                let newErrors = emptyStateEducation;
+                for (const issue of error.errors) {
+                    newErrors = {
+                        ...newErrors,
+                        [issue.path[0]]: issue.message,
+                    };
+                }
+                // set the errors in the state to show them to the user
+                setFormErrors(newErrors);
                 return;
             }
-            setInfo(experienceInfoResp.data);
+
+            const res = await fetch('api/saveUserInfo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: SectionTypes.Education,
+                    data: parseUser.data, // Send the clean, validated data
+                }),
+            });
+            const response = await res.json();
+
+            // show a message to the user
+            if (!res.ok) {
+                // TODO ART: show an error message to the user
+                console.error(response.message);
+                return;
+            }
+
+            if (setInfo) {
+                const experienceInfoResp = await getDBTableInfo(
+                    SectionTypes.Education,
+                );
+                if (!experienceInfoResp) {
+                    return;
+                }
+                setInfo(experienceInfoResp.data);
+            }
+            // TODO ART: show a success message to the user
+            console.log('=====> RESPONSE education');
+            console.log(res.ok);
+            console.log(response.message);
+            console.log('=====>');
+            // required to refresh the UI
+            setRefreshTrigger((prevTrigger) => ({
+                ...prevTrigger,
+                education: !prevTrigger.education,
+            }));
+            setEditRecord(null);
+            formRef.current?.reset();
+        } finally {
+            setIsSubmitting(false);
         }
-        // TODO ART: show a success message to the user
-        console.log('=====> RESPONSE education');
-        console.log(res.ok);
-        console.log(response.message);
-        console.log('=====>');
-        // required to refresh the UI
-        setRefreshTrigger((prevTrigger) => ({
-            ...prevTrigger,
-            education: !prevTrigger.education,
-        }));
-        setEditRecord(null);
-        formRef.current?.reset();
     }
 
     // Function to delete the record and refresh the UI
@@ -367,11 +374,12 @@ export default function EducationInfoForm({
                         error={formErrors.grades || undefined}
                     />
                     <Group justify="flex-start" mt="md">
-                        <Button type="submit">
+                        <Button type="submit" loading={isSubmitting}>
                             {getEditRecord?.id ? 'Save Changes' : 'Add Entry'}
                         </Button>
                         {getEditRecord && (
                             <Button
+                                loading={isSubmitting}
                                 type="button"
                                 variant="default"
                                 onClick={() => editRecord(null)}

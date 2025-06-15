@@ -51,6 +51,7 @@ export default function ExperienceForm({
 }: Params) {
     // whit this we will erase all the data in the form after saving it
     const formRef = useRef<HTMLFormElement>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
@@ -63,75 +64,81 @@ export default function ExperienceForm({
         // prevent the default form submission and fetch the data
         event.preventDefault();
 
-        // Directly build the object to validate from the state
-        const dataToValidate = {
-            ...(getEditRecord?.id && { id: getEditRecord.id }),
-            company_name: getEditRecord?.company_name || '',
-            job_title: getEditRecord?.job_title || '',
-            start_date: getEditRecord?.start_date || '',
-            end_date: getEditRecord?.end_date || undefined,
-            is_current: getEditRecord?.is_current || false,
-            description: getEditRecord?.description || '',
-        };
+        setIsSubmitting(true);
 
-        const parseUser = userSchema.safeParse(dataToValidate);
+        try {
+            // Directly build the object to validate from the state
+            const dataToValidate = {
+                ...(getEditRecord?.id && { id: getEditRecord.id }),
+                company_name: getEditRecord?.company_name || '',
+                job_title: getEditRecord?.job_title || '',
+                start_date: getEditRecord?.start_date || '',
+                end_date: getEditRecord?.end_date || undefined,
+                is_current: getEditRecord?.is_current || false,
+                description: getEditRecord?.description || '',
+            };
 
-        // reset the errors in the state
-        setFormErrors(emptyStateExperience);
+            const parseUser = userSchema.safeParse(dataToValidate);
 
-        // if the user data is not valid, store the errors in the state and return
-        if (!parseUser.success) {
-            const error = parseUser.error;
-            let newErrors = emptyStateExperience;
-            for (const issue of error.errors) {
-                newErrors = {
-                    ...newErrors,
-                    [issue.path[0]]: issue.message,
-                };
-            }
-            // set the errors in the state to show them to the user
-            setFormErrors(newErrors);
-            return;
-        }
+            // reset the errors in the state
+            setFormErrors(emptyStateExperience);
 
-        const res = await fetch('api/saveUserInfo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: SectionTypes.Experience,
-                data: parseUser.data, // Send the clean, validated data
-            }),
-        });
-        const response = await res.json();
-
-        // show a message to the user
-        if (!res.ok) {
-            // TODO ART: show an error message to the user
-            console.error(response.message);
-            return;
-        }
-
-        if (setInfo) {
-            const experienceInfoResp = await getDBTableInfo(
-                SectionTypes.Experience,
-            );
-            if (!experienceInfoResp) {
+            // if the user data is not valid, store the errors in the state and return
+            if (!parseUser.success) {
+                const error = parseUser.error;
+                let newErrors = emptyStateExperience;
+                for (const issue of error.errors) {
+                    newErrors = {
+                        ...newErrors,
+                        [issue.path[0]]: issue.message,
+                    };
+                }
+                // set the errors in the state to show them to the user
+                setFormErrors(newErrors);
                 return;
             }
-            setInfo(experienceInfoResp.data);
+
+            const res = await fetch('api/saveUserInfo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: SectionTypes.Experience,
+                    data: parseUser.data, // Send the clean, validated data
+                }),
+            });
+            const response = await res.json();
+
+            // show a message to the user
+            if (!res.ok) {
+                // TODO ART: show an error message to the user
+                console.error(response.message);
+                return;
+            }
+
+            if (setInfo) {
+                const experienceInfoResp = await getDBTableInfo(
+                    SectionTypes.Experience,
+                );
+                if (!experienceInfoResp) {
+                    return;
+                }
+                setInfo(experienceInfoResp.data);
+            }
+            // TODO ART: show a success message to the user
+            console.log('=====> RESPONSE experience');
+            console.log(res.ok);
+            console.log(response.message);
+            console.log('=====>');
+            // required to refresh the UI
+            setRefreshTrigger((prevTrigger) => ({
+                ...prevTrigger,
+                experience: !prevTrigger.experience,
+            }));
+            setEditRecord(null);
+            formRef.current?.reset();
+        } finally {
+            setIsSubmitting(false);
         }
-        // TODO ART: show a success message to the user
-        console.log('=====> RESPONSE experience');
-        console.log(res.ok);
-        console.log(response.message);
-        console.log('=====>');
-        // required to refresh the UI
-        setRefreshTrigger((prevTrigger) => ({
-            ...prevTrigger,
-            experience: !prevTrigger.experience,
-        }));
-        setEditRecord(null);
-        formRef.current?.reset();
     }
 
     // Function to delete the record and refresh the UI
@@ -378,11 +385,12 @@ export default function ExperienceForm({
                     />
 
                     <Group justify="flex-start" mt="md">
-                        <Button type="submit" className={styles.primaryButton}>
+                        <Button type="submit" loading={isSubmitting}>
                             {getEditRecord?.id ? 'Save Changes' : 'Add Entry'}
                         </Button>
                         {getEditRecord && (
                             <Button
+                                loading={isSubmitting}
                                 type="button"
                                 className={styles.secondaryButton}
                                 onClick={() => editRecord(null)}

@@ -33,6 +33,7 @@ export default function SkillsInfoForm({
 }: Params) {
     // whit this we will erase all the data in the form after saving it
     const formRef = useRef<HTMLFormElement>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // State to store the errors in the form
     const [formErrors, setFormErrors] =
@@ -45,73 +46,81 @@ export default function SkillsInfoForm({
         // prevent the default form submission and fetch the data
         event.preventDefault();
 
-        // get the form data
-        const formData = new FormData();
-        if (getEditRecord) {
-            Object.entries(getEditRecord).forEach(([key, value]) => {
-                if (value !== null && value !== undefined && value != '') {
-                    formData.append(key, String(value));
-                }
-            });
-        }
+        setIsSubmitting(true);
 
-        // parse the user data with the zod schema
-        const parseUser = userSchema.safeParse(Object.fromEntries(formData));
-
-        // reset the errors in the state
-        setFormErrors(emptyStateSkill);
-
-        // if the user data is not valid, store the errors in the state and return
-        if (!parseUser.success) {
-            const error = parseUser.error;
-            let newErrors = emptyStateSkill;
-            for (const issue of error.errors) {
-                newErrors = {
-                    ...newErrors,
-                    [issue.path[0]]: issue.message,
-                };
+        try {
+            // get the form data
+            const formData = new FormData();
+            if (getEditRecord) {
+                Object.entries(getEditRecord).forEach(([key, value]) => {
+                    if (value !== null && value !== undefined && value != '') {
+                        formData.append(key, String(value));
+                    }
+                });
             }
-            // set the errors in the state to show them to the user
-            setFormErrors(newErrors);
-            return;
-        }
 
-        const res = await fetch('api/saveUserInfo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: SectionTypes.Skill,
-                data: Object.fromEntries(formData),
-            }),
-        });
-        const response = await res.json();
+            // parse the user data with the zod schema
+            const parseUser = userSchema.safeParse(
+                Object.fromEntries(formData),
+            );
 
-        // show a message to the user
-        if (!res.ok) {
-            // TODO ART: show an error message to the user
-            console.error(response.message);
-            return;
-        }
+            // reset the errors in the state
+            setFormErrors(emptyStateSkill);
 
-        if (setInfo) {
-            const skillInfoResp = await getDBTableInfo(SectionTypes.Skill);
-            if (!skillInfoResp) {
+            // if the user data is not valid, store the errors in the state and return
+            if (!parseUser.success) {
+                const error = parseUser.error;
+                let newErrors = emptyStateSkill;
+                for (const issue of error.errors) {
+                    newErrors = {
+                        ...newErrors,
+                        [issue.path[0]]: issue.message,
+                    };
+                }
+                // set the errors in the state to show them to the user
+                setFormErrors(newErrors);
                 return;
             }
-            setInfo(skillInfoResp.data);
+
+            const res = await fetch('api/saveUserInfo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: SectionTypes.Skill,
+                    data: Object.fromEntries(formData),
+                }),
+            });
+            const response = await res.json();
+
+            // show a message to the user
+            if (!res.ok) {
+                // TODO ART: show an error message to the user
+                console.error(response.message);
+                return;
+            }
+
+            if (setInfo) {
+                const skillInfoResp = await getDBTableInfo(SectionTypes.Skill);
+                if (!skillInfoResp) {
+                    return;
+                }
+                setInfo(skillInfoResp.data);
+            }
+            // TODO ART: show a success message to the user
+            console.log('=====> RESPONSE skill');
+            console.log(res.ok);
+            console.log(response.message);
+            console.log('=====>');
+            // required to refresh the UI
+            setRefreshTrigger((prevTrigger) => ({
+                ...prevTrigger,
+                skill: !prevTrigger.skill,
+            }));
+            setEditRecord(null);
+            formRef.current?.reset();
+        } finally {
+            setIsSubmitting(false);
         }
-        // TODO ART: show a success message to the user
-        console.log('=====> RESPONSE skill');
-        console.log(res.ok);
-        console.log(response.message);
-        console.log('=====>');
-        // required to refresh the UI
-        setRefreshTrigger((prevTrigger) => ({
-            ...prevTrigger,
-            skill: !prevTrigger.skill,
-        }));
-        setEditRecord(null);
-        formRef.current?.reset();
     }
 
     // Function to delete the record and refresh the UI
@@ -258,7 +267,7 @@ export default function SkillsInfoForm({
                     </Input.Wrapper>
 
                     <Select
-                        label="Skill Level:"
+                        label="Skill Level: (Optional)"
                         placeholder="Select a level"
                         data={skillLevelOptions}
                         name="skill_level"
@@ -284,11 +293,12 @@ export default function SkillsInfoForm({
                     />
 
                     <Group justify="flex-start" mt="xl">
-                        <Button type="submit" className={styles.primaryButton}>
+                        <Button type="submit" loading={isSubmitting}>
                             {getEditRecord ? 'Save Changes' : 'Add Skill'}
                         </Button>
                         {getEditRecord && (
                             <Button
+                                loading={isSubmitting}
                                 type="button"
                                 className={styles.secondaryButton}
                                 onClick={() => editRecord(null)}
