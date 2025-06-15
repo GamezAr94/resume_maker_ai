@@ -96,6 +96,14 @@ async function updatePerType(
                 error = personalError ? personalError.message : null;
                 break;
             case SectionTypes.Experience:
+                // If 'is_current' is true, force end_date to be null
+                if (
+                    'is_current' in requestBodyData &&
+                    requestBodyData.is_current
+                ) {
+                    (requestBodyData as FormExperienceStructure).end_date =
+                        null;
+                }
                 // Save the user experience data in the supabase database
                 const { data: savedExperienceData, error: experienceError } =
                     await supabase
@@ -110,6 +118,13 @@ async function updatePerType(
                 error = experienceError ? experienceError.message : null;
                 break;
             case SectionTypes.Education:
+                // If 'is_current' is true, force end_date to be null
+                if (
+                    'is_current' in requestBodyData &&
+                    requestBodyData.is_current
+                ) {
+                    (requestBodyData as FormEducationStructure).end_date = null;
+                }
                 // Save the user experience data in the supabase database
                 const { data: savedEducationData, error: educationError } =
                     await supabase
@@ -143,27 +158,20 @@ async function updatePerType(
                 error = skillError ? skillError.message : null;
                 break;
             case SectionTypes.Project:
-                // if the experience_id or education_id is not in the request body, set it to null
-                if (!('experience_id' in requestBodyData)) {
-                    requestBodyData = {
-                        ...requestBodyData,
-                        experience_id: null,
-                    };
-                }
-                if (!('education_id' in requestBodyData)) {
-                    requestBodyData = {
-                        ...requestBodyData,
-                        education_id: null,
-                    };
-                }
+                // First, assert the type so we can safely access project-specific properties
+                const projectData = requestBodyData as FormProjectStructure;
+
+                // Next, create a new, clean object for the upsert operation
+                const dataToUpsert = {
+                    ...projectData,
+                    user_id: userData[0].id,
+                    // Explicitly set foreign keys to null if they are missing
+                    experience_id: projectData.experience_id || null,
+                    education_id: projectData.education_id || null,
+                };
+
                 const { data: savedProjectData, error: projectError } =
-                    await supabase
-                        .from(type)
-                        .upsert({
-                            user_id: userData[0].id,
-                            ...requestBodyData,
-                        })
-                        .select();
+                    await supabase.from(type).upsert(dataToUpsert).select();
 
                 data = savedProjectData;
                 error = projectError ? projectError.message : null;

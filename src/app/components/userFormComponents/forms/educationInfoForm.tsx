@@ -15,6 +15,7 @@ import styles from './formContainerStyles.module.css';
 
 const userSchema = z
     .object({
+        id: z.number().optional(),
         school_name: z.string().min(1, 'School Name is required'),
         field_of_study: z.string().min(1, 'Field of Study is required'),
         degree: z.string().min(2, 'Degree is required'),
@@ -58,11 +59,17 @@ export default function EducationInfoForm({
 
         // Directly build the object to validate from the state
         const dataToValidate = {
+            ...(getEditRecord?.id && { id: getEditRecord.id }),
             school_name: getEditRecord?.school_name || '',
             field_of_study: getEditRecord?.field_of_study || '',
             degree: getEditRecord?.degree || '',
             start_date: getEditRecord?.start_date || '',
-            end_date: getEditRecord?.end_date || undefined,
+            // field end_date is optional only if is_current is true
+            // if is_current is true, end_date should be undefined
+            // if is_current is false, end_date should be the value of end_date or undefined
+            end_date: getEditRecord?.is_current
+                ? undefined
+                : getEditRecord?.end_date || null,
             is_current: getEditRecord?.is_current || false,
             grades: getEditRecord?.grades || undefined,
         };
@@ -74,6 +81,7 @@ export default function EducationInfoForm({
 
         // if the user data is not valid, store the errors in the state and return
         if (!parseUser.success) {
+            console.error('Validation errors:', parseUser.error);
             const error = parseUser.error;
             let newErrors = emptyStateEducation;
             for (const issue of error.errors) {

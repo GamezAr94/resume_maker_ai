@@ -40,7 +40,7 @@ export interface FormExperienceStructure {
     company_name: string;
     job_title: string;
     start_date: Date | string;
-    end_date: Date | string;
+    end_date: Date | string | null;
     description: string;
     is_current?: boolean | null; // Optional field to indicate if the job is current
 }
@@ -65,7 +65,7 @@ export interface FormEducationStructure {
     degree: string;
     is_current: boolean | null;
     start_date: Date | string;
-    end_date: Date | string;
+    end_date: Date | string | null;
     grades: string;
 }
 

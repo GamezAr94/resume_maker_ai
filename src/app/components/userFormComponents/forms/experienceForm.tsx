@@ -23,6 +23,7 @@ import { DatePickerInput } from '@mantine/dates';
 
 const userSchema = z
     .object({
+        id: z.number().optional(),
         company_name: z.string().min(1, 'Company Name is required'),
         job_title: z.string().min(1, 'Job Title is required'),
         start_date: z.string().min(1, 'Start Date is required'),
@@ -64,6 +65,7 @@ export default function ExperienceForm({
 
         // Directly build the object to validate from the state
         const dataToValidate = {
+            ...(getEditRecord?.id && { id: getEditRecord.id }),
             company_name: getEditRecord?.company_name || '',
             job_title: getEditRecord?.job_title || '',
             start_date: getEditRecord?.start_date || '',
