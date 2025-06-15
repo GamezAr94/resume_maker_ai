@@ -6,28 +6,34 @@ import {
     FormExperienceStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Group, Text, Input } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
+import {
+    Button,
+    Group,
+    Text,
+    TextInput,
+    Stack,
+    Checkbox,
+    Textarea,
+} from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 
-const userSchema = z.object({
-    company_name: z.string().min(1, 'Company Name is required'),
-    job_title: z.string().min(1, 'Job Title is required'),
-    //start_date: z
-    //    .string()
-    //    .refine((date) => new Date(date).toString() !== 'Invalid Date', {
-    //        message: 'A valid date is required',
-    //    }),
-    //end_date: z
-    //    .string()
-    //    .refine((date) => new Date(date).toString() !== 'Invalid Date', {
-    //        message: 'A valid date is required',
-    //    })
-    //    .optional(),
-    //description: z.string().min(1, 'Description is required'),
-});
+const userSchema = z
+    .object({
+        company_name: z.string().min(1, 'Company Name is required'),
+        job_title: z.string().min(1, 'Job Title is required'),
+        start_date: z.string().min(1, 'Start Date is required'),
+        end_date: z.string().optional(),
+        is_current: z.boolean().optional(),
+        description: z.string().min(1, 'A description is required'),
+    })
+    .refine((data) => data.is_current || !!data.end_date, {
+        message: 'End Date is required if this is not a current position',
+        path: ['end_date'],
+    });
 interface Params {
     setInfo: React.Dispatch<false | [FormExperienceStructure]> | null;
     infoQuery: FormExperienceStructure | null;
@@ -56,18 +62,17 @@ export default function ExperienceForm({
         // prevent the default form submission and fetch the data
         event.preventDefault();
 
-        // get the form data
-        const formData = new FormData();
-        if (getEditRecord) {
-            Object.entries(getEditRecord).forEach(([key, value]) => {
-                if (value !== null && value !== undefined && value != '') {
-                    formData.append(key, String(value));
-                }
-            });
-        }
+        // Directly build the object to validate from the state
+        const dataToValidate = {
+            company_name: getEditRecord?.company_name || '',
+            job_title: getEditRecord?.job_title || '',
+            start_date: getEditRecord?.start_date || '',
+            end_date: getEditRecord?.end_date || undefined,
+            is_current: getEditRecord?.is_current || false,
+            description: getEditRecord?.description || '',
+        };
 
-        // parse the user data with the zod schema
-        const parseUser = userSchema.safeParse(Object.fromEntries(formData));
+        const parseUser = userSchema.safeParse(dataToValidate);
 
         // reset the errors in the state
         setFormErrors(emptyStateExperience);
@@ -92,7 +97,7 @@ export default function ExperienceForm({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 type: SectionTypes.Experience,
-                data: Object.fromEntries(formData),
+                data: parseUser.data, // Send the clean, validated data
             }),
         });
         const response = await res.json();
@@ -160,7 +165,7 @@ export default function ExperienceForm({
         };
     }
     // Function to handle the input change and also to rever the form errors
-    function handleInputChange(
+    function handleInputChange2(
         event: HandleInputChangeEvent,
         type: keyof FormExperienceStructure,
         setter: Dispatch<SetStateAction<FormExperienceStructure | null>>,
@@ -179,6 +184,20 @@ export default function ExperienceForm({
         }));
     }
 
+    // A new, safer function to handle all input changes
+    function handleInputChange(
+        type: keyof FormExperienceStructure,
+        value: string | boolean,
+    ) {
+        // This functional form of setEditRecord guarantees we always have the latest state
+        setEditRecord((currentRecord) => ({
+            ...(currentRecord || emptyStateExperience),
+            [type]: value,
+        }));
+
+        // Clear any errors for the field being updated
+        setFormErrors((prevErrors) => ({ ...prevErrors, [type]: null }));
+    }
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
@@ -224,68 +243,141 @@ export default function ExperienceForm({
                 </div>
             )}
             {!infoQuery && (
-                <>
-                    <Input.Wrapper
-                        label="Title:"
-                        error={formErrors.job_title ? formErrors.job_title : ''}
-                        classNames={{
-                            root: styles.formField,
-                            label: styles.formLabel,
-                        }}
-                    >
-                        <Input
-                            classNames={{ input: styles.formInput }}
-                            error={!!formErrors.job_title}
-                            name="job_title"
-                            placeholder="e.g., Software Engineer"
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    'job_title',
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            value={getEditRecord ? getEditRecord.job_title : ''}
-                        />
-                    </Input.Wrapper>
-
-                    <Input.Wrapper
-                        label="Company:"
-                        error={
-                            formErrors.company_name
-                                ? formErrors.company_name
-                                : ''
+                <Stack>
+                    <TextInput
+                        label="Job Title"
+                        placeholder="e.g., Software Engineer"
+                        name="job_title"
+                        value={getEditRecord?.job_title || ''}
+                        onChange={(e) =>
+                            handleInputChange(
+                                'job_title',
+                                e.currentTarget.value,
+                            )
                         }
-                        classNames={{
-                            root: styles.formField,
-                            label: styles.formLabel,
-                        }}
-                    >
-                        <Input
-                            classNames={{ input: styles.formInput }}
-                            error={!!formErrors.company_name}
-                            name="company_name"
-                            placeholder="e.g., Google, Microsoft"
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    'company_name',
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
+                        error={formErrors.job_title}
+                        required
+                    />
+                    <TextInput
+                        label="Company Name"
+                        placeholder="e.g., Google"
+                        name="company_name"
+                        value={getEditRecord?.company_name || ''}
+                        onChange={(e) =>
+                            handleInputChange(
+                                'company_name',
+                                e.currentTarget.value,
+                            )
+                        }
+                        error={formErrors.company_name}
+                        required
+                    />
+
+                    <Group grow>
+                        <DatePickerInput
+                            label="Start Date"
+                            placeholder="Pick start date"
+                            value={getEditRecord?.start_date || null}
+                            onChange={(newStartDateString) => {
+                                const dateValue = newStartDateString || '';
+                                handleInputChange('start_date', dateValue);
+
+                                const currentEndDateString =
+                                    getEditRecord?.end_date;
+
+                                if (currentEndDateString && dateValue) {
+                                    if (
+                                        new Date(dateValue) >
+                                        new Date(currentEndDateString)
+                                    ) {
+                                        handleInputChange('end_date', '');
+                                    }
+                                }
                             }}
-                            value={
-                                getEditRecord ? getEditRecord.company_name : ''
+                            error={
+                                typeof formErrors.start_date === 'string'
+                                    ? formErrors.start_date
+                                    : undefined
+                            }
+                            required
+                        />
+                        <DatePickerInput
+                            label="End Date"
+                            placeholder="Pick end date"
+                            value={getEditRecord?.end_date || null}
+                            onChange={(value) =>
+                                handleInputChange('end_date', value || '')
+                            }
+                            disabled={getEditRecord?.is_current || false}
+                            minDate={(() => {
+                                if (!getEditRecord?.start_date) {
+                                    return undefined;
+                                }
+                                let startDateObj: Date;
+                                if (getEditRecord.start_date instanceof Date) {
+                                    startDateObj = new Date(
+                                        getEditRecord.start_date,
+                                    );
+                                } else if (
+                                    typeof getEditRecord.start_date === 'string'
+                                ) {
+                                    const dateParts = getEditRecord.start_date
+                                        .split('-')
+                                        .map((part) => parseInt(part, 10));
+                                    startDateObj = new Date(
+                                        dateParts[0],
+                                        dateParts[1] - 1,
+                                        dateParts[2],
+                                    );
+                                } else {
+                                    return undefined;
+                                }
+                                startDateObj.setDate(
+                                    startDateObj.getDate() + 1,
+                                );
+                                return startDateObj;
+                            })()}
+                            error={
+                                typeof formErrors.end_date === 'string'
+                                    ? formErrors.end_date
+                                    : undefined
                             }
                         />
-                    </Input.Wrapper>
+                    </Group>
 
-                    {/* Add Start/End Dates and Description here using the same pattern if needed */}
+                    <Checkbox
+                        label="I currently work here"
+                        name="is_current"
+                        checked={!!getEditRecord?.is_current}
+                        onChange={(event) => {
+                            const { checked } = event.currentTarget;
+                            handleInputChange('is_current', checked);
+                            // Also clear end_date if user checks this box
+                            if (checked) {
+                                handleInputChange('end_date', '');
+                            }
+                        }}
+                    />
 
-                    <Group justify="flex-start" mt="xl">
+                    <Textarea
+                        label="Description"
+                        placeholder="Describe your role and accomplishments..."
+                        value={getEditRecord?.description || ''}
+                        onChange={(event) =>
+                            handleInputChange(
+                                'description',
+                                event.currentTarget.value,
+                            )
+                        }
+                        autosize
+                        minRows={4}
+                        error={formErrors.description}
+                        required
+                    />
+
+                    <Group justify="flex-start" mt="md">
                         <Button type="submit" className={styles.primaryButton}>
-                            {getEditRecord ? 'Save Changes' : 'Add Entry'}
+                            {getEditRecord?.id ? 'Save Changes' : 'Add Entry'}
                         </Button>
                         {getEditRecord && (
                             <Button
@@ -297,7 +389,7 @@ export default function ExperienceForm({
                             </Button>
                         )}
                     </Group>
-                </>
+                </Stack>
             )}
         </form>
     );

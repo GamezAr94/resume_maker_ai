@@ -32,6 +32,7 @@ export const emptyStateExperience: FormExperienceStructure = {
     start_date: '',
     end_date: '',
     description: '',
+    is_current: false,
 };
 // Interface for the form experience structure
 export interface FormExperienceStructure {
@@ -41,6 +42,7 @@ export interface FormExperienceStructure {
     start_date: Date | string;
     end_date: Date | string;
     description: string;
+    is_current?: boolean | null; // Optional field to indicate if the job is current
 }
 
 // EDUCATION FORM

@@ -17,7 +17,6 @@ import { SectionTypes } from '@/utils/enums';
 import SkillContainerForm from './formContainers/skillContainerForm';
 import ProjectContainerForm from './formContainers/projectContainerForm';
 import {
-    SegmentedControl,
     Paper,
     Title,
     Text,
@@ -29,6 +28,7 @@ import {
 import PersonalContainerForm from './formContainers/personalContainerForm';
 
 import styles from './mainUserForm.module.css';
+import '@mantine/dates/styles.css';
 
 interface Props {
     className: string;

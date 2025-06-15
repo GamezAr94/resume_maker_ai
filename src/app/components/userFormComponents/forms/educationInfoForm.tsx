@@ -6,16 +6,28 @@ import {
     FormEducationStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input, Group, Text } from '@mantine/core';
+import { Button, TextInput, Group, Text, Stack, Checkbox } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
 
-const userSchema = z.object({
-    school_name: z.string().min(1, 'School Name is required'),
-    field_of_study: z.string().min(1, 'Field of Study is required'),
-});
+const userSchema = z
+    .object({
+        school_name: z.string().min(1, 'School Name is required'),
+        field_of_study: z.string().min(1, 'Field of Study is required'),
+        degree: z.string().min(2, 'Degree is required'),
+        start_date: z.string().min(1, 'Start Date is required'),
+        // End date is optional only if 'is_current' is true
+        end_date: z.string().optional(),
+        is_current: z.boolean().optional(),
+        grades: z.string().optional(),
+    })
+    .refine((data) => data.is_current || !!data.end_date, {
+        message: 'End Date is required if this is not a current position',
+        path: ['end_date'], // Assign error to end_date field
+    });
 interface Params {
     setInfo: React.Dispatch<false | [FormEducationStructure]> | null;
     infoQuery: FormEducationStructure | null;
@@ -44,19 +56,18 @@ export default function EducationInfoForm({
         // prevent the default form submission and fetch the data
         event.preventDefault();
 
-        // get the form data
-        //const formData = new FormData(event.currentTarget);
-        const formData = new FormData();
-        if (getEditRecord) {
-            Object.entries(getEditRecord).forEach(([key, value]) => {
-                if (value !== null && value !== undefined && value != '') {
-                    formData.append(key, String(value));
-                }
-            });
-        }
+        // Directly build the object to validate from the state
+        const dataToValidate = {
+            school_name: getEditRecord?.school_name || '',
+            field_of_study: getEditRecord?.field_of_study || '',
+            degree: getEditRecord?.degree || '',
+            start_date: getEditRecord?.start_date || '',
+            end_date: getEditRecord?.end_date || undefined,
+            is_current: getEditRecord?.is_current || false,
+            grades: getEditRecord?.grades || undefined,
+        };
 
-        // parse the user data with the zod schema
-        const parseUser = userSchema.safeParse(Object.fromEntries(formData));
+        const parseUser = userSchema.safeParse(dataToValidate);
 
         // reset the errors in the state
         setFormErrors(emptyStateEducation);
@@ -81,7 +92,7 @@ export default function EducationInfoForm({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 type: SectionTypes.Education,
-                data: Object.fromEntries(formData),
+                data: parseUser.data, // Send the clean, validated data
             }),
         });
         const response = await res.json();
@@ -143,29 +154,19 @@ export default function EducationInfoForm({
         setEditRecord(value);
     }
 
-    interface HandleInputChangeEvent {
-        target: {
-            value: string;
-        };
-    }
-    // Function to handle the input change and also to rever the form errors
+    // A new, safer function to handle all input changes
     function handleInputChange(
-        event: HandleInputChangeEvent,
         type: keyof FormEducationStructure,
-        setter: Dispatch<SetStateAction<FormEducationStructure | null>>,
-        prevState: FormEducationStructure | null,
+        value: string | boolean,
     ) {
-        if (!prevState) {
-            prevState = emptyStateEducation;
-        }
-        setter({
-            ...prevState,
-            [type]: event.target.value,
-        });
-        setFormErrors((prev) => ({
-            ...prev,
-            [type]: null,
+        // This functional form of setEditRecord guarantees we always have the latest state
+        setEditRecord((currentRecord) => ({
+            ...(currentRecord || emptyStateEducation),
+            [type]: value,
         }));
+
+        // Clear any errors for the field being updated
+        setFormErrors((prevErrors) => ({ ...prevErrors, [type]: null }));
     }
 
     return (
@@ -213,84 +214,165 @@ export default function EducationInfoForm({
                 </div>
             )}
             {!infoQuery && (
-                <>
-                    <Input.Wrapper
-                        label="School Name:"
-                        error={
-                            formErrors.school_name ? formErrors.school_name : ''
+                <Stack>
+                    <TextInput
+                        label="School Name"
+                        placeholder="e.g., Harvard University"
+                        name="school_name"
+                        value={getEditRecord?.school_name || ''}
+                        onChange={(e) =>
+                            handleInputChange(
+                                'school_name',
+                                e.currentTarget.value,
+                            )
                         }
-                        classNames={{
-                            root: styles.formField,
-                            label: styles.formLabel,
-                        }}
-                    >
-                        <Input
-                            classNames={{ input: styles.formInput }}
-                            error={!!formErrors.school_name}
-                            placeholder="e.g., Harvard University"
-                            name="school_name"
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    'school_name',
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            value={
-                                getEditRecord ? getEditRecord.school_name : ''
-                            }
-                        />
-                    </Input.Wrapper>
-
-                    <Input.Wrapper
-                        label="Field of Study:"
-                        error={
-                            formErrors.field_of_study
-                                ? formErrors.field_of_study
-                                : ''
+                        error={formErrors.school_name || undefined}
+                        required
+                    />
+                    <TextInput
+                        label="Degree"
+                        placeholder="e.g., Bachelor of Science"
+                        name="degree"
+                        value={getEditRecord?.degree || ''}
+                        onChange={(e) =>
+                            handleInputChange('degree', e.currentTarget.value)
                         }
-                        classNames={{
-                            root: styles.formField,
-                            label: styles.formLabel,
-                        }}
-                    >
-                        <Input
-                            classNames={{ input: styles.formInput }}
-                            error={!!formErrors.field_of_study}
-                            placeholder="e.g., Computer Science"
-                            name="field_of_study"
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    'field_of_study',
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            value={
-                                getEditRecord
-                                    ? getEditRecord.field_of_study
-                                    : ''
-                            }
-                        />
-                    </Input.Wrapper>
+                        error={formErrors.degree || undefined}
+                        required
+                    />
+                    <TextInput
+                        label="Field of Study"
+                        placeholder="e.g., Computer Science"
+                        name="field_of_study"
+                        value={getEditRecord?.field_of_study || ''}
+                        onChange={(e) =>
+                            handleInputChange(
+                                'field_of_study',
+                                e.currentTarget.value,
+                            )
+                        }
+                        error={formErrors.field_of_study || undefined}
+                        required
+                    />
+                    <Group grow>
+                        <DatePickerInput
+                            label="Start Date"
+                            placeholder="Pick start date"
+                            name="start_date"
+                            value={getEditRecord?.start_date || null}
+                            onChange={(newStartDateString) => {
+                                const dateValue = newStartDateString || '';
+                                handleInputChange('start_date', dateValue);
 
-                    <Group justify="flex-start" mt="xl">
-                        <Button type="submit" className={styles.primaryButton}>
-                            {getEditRecord ? 'Save Changes' : 'Add Entry'}
+                                const currentEndDateString =
+                                    getEditRecord?.end_date;
+
+                                if (currentEndDateString && dateValue) {
+                                    if (
+                                        new Date(dateValue) >
+                                        new Date(currentEndDateString)
+                                    ) {
+                                        // If new start date is after end date, clear end date.
+                                        handleInputChange('end_date', '');
+                                    }
+                                }
+                            }}
+                            error={
+                                typeof formErrors.start_date === 'string'
+                                    ? formErrors.start_date
+                                    : undefined
+                            }
+                            required
+                        />
+                        <DatePickerInput
+                            label="End Date"
+                            placeholder="Pick end date"
+                            name="end_date"
+                            value={getEditRecord?.end_date || null}
+                            onChange={(value) =>
+                                handleInputChange('end_date', value || '')
+                            }
+                            error={
+                                typeof formErrors.end_date === 'string'
+                                    ? formErrors.end_date
+                                    : undefined
+                            }
+                            disabled={getEditRecord?.is_current || false}
+                            minDate={(() => {
+                                if (!getEditRecord?.start_date) {
+                                    return undefined;
+                                }
+                                // This logic correctly parses the date string to avoid timezone bugs
+                                let startDate: Date;
+                                if (
+                                    typeof getEditRecord.start_date === 'string'
+                                ) {
+                                    const dateParts = getEditRecord.start_date
+                                        .split('-')
+                                        .map((part) => parseInt(part, 10));
+                                    startDate = new Date(
+                                        dateParts[0],
+                                        dateParts[1] - 1,
+                                        dateParts[2],
+                                    );
+                                } else if (
+                                    getEditRecord.start_date instanceof Date
+                                ) {
+                                    startDate = new Date(
+                                        getEditRecord.start_date,
+                                    );
+                                } else {
+                                    startDate = new Date();
+                                }
+
+                                // Add one day to the start date
+                                startDate.setDate(startDate.getDate() + 1);
+                                return startDate;
+                            })()}
+                        />
+                    </Group>
+                    <Checkbox
+                        label="I currently attend here"
+                        name="is_current"
+                        checked={getEditRecord?.is_current || false}
+                        onChange={(event) => {
+                            const { checked } = event.currentTarget;
+                            // Also clear end_date if user checks this box
+                            const newEndDateState = checked
+                                ? ''
+                                : getEditRecord?.end_date;
+                            setEditRecord((prev) => ({
+                                ...(prev || emptyStateEducation),
+                                is_current: checked,
+                                end_date: newEndDateState as string,
+                            }));
+                        }}
+                    />
+                    <TextInput
+                        label="GPA / Grades (Optional)"
+                        placeholder="e.g., 3.8/4.0"
+                        name="grades"
+                        value={getEditRecord?.grades || ''}
+                        onChange={(e) =>
+                            handleInputChange('grades', e.currentTarget.value)
+                        }
+                        error={formErrors.grades || undefined}
+                    />
+                    <Group justify="flex-start" mt="md">
+                        <Button type="submit">
+                            {getEditRecord?.id ? 'Save Changes' : 'Add Entry'}
                         </Button>
                         {getEditRecord && (
                             <Button
                                 type="button"
-                                className={styles.secondaryButton}
+                                variant="default"
                                 onClick={() => editRecord(null)}
                             >
                                 Cancel
                             </Button>
                         )}
                     </Group>
-                </>
+                </Stack>
             )}
         </form>
     );
