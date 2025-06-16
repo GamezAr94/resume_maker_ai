@@ -15,6 +15,9 @@ import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
 
+// Character limits for the form fields
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
+
 interface Params {
     setInfo: React.Dispatch<false | [FormProjectStructure]> | null;
     infoQuery: FormProjectStructure | null;
@@ -28,12 +31,25 @@ interface Params {
     >;
     selectedType: 'personal_type' | 'experience_type' | 'education_type';
 }
+
 const userSchema = z.object({
-    project_name: z.string().min(1, 'Project Name is required'),
+    id: z.string().optional(),
+    project_name: z
+        .string()
+        .min(1, 'Project Name is required')
+        .max(
+            CHARACTER_LIMITS.title,
+            `Cannot exceed ${CHARACTER_LIMITS.title} characters`,
+        ),
     project_description: z
         .string()
-        .min(1, 'Provide a description for the project'),
+        .min(1, 'A description is required')
+        .max(
+            CHARACTER_LIMITS.description,
+            `Cannot exceed ${CHARACTER_LIMITS.description} characters`,
+        ),
 });
+
 export default function ProjectsInfoForm({
     setInfo,
     infoQuery,
@@ -85,6 +101,7 @@ export default function ProjectsInfoForm({
             // if the user data is not valid, store the errors in the state and return
             if (!parseUser.success) {
                 const error = parseUser.error;
+                console.error('Error validating user data:', error);
                 let newErrors = emptyStateProject;
                 for (const issue of error.errors) {
                     newErrors = {
@@ -92,6 +109,8 @@ export default function ProjectsInfoForm({
                         [issue.path[0]]: issue.message,
                     };
                 }
+                console.log('=====> validatingAndSaving');
+                console.log('getEditRecord', getEditRecord);
                 // set the errors in the state to show them to the user
                 setFormErrors(newErrors);
                 return;
@@ -316,6 +335,7 @@ export default function ProjectsInfoForm({
                             error={!!formErrors.project_name}
                             type="text"
                             name="project_name"
+                            maxLength={CHARACTER_LIMITS.title}
                             placeholder="e.g., AI Resume Analyzer"
                             onChange={(event) => {
                                 handleInputChange(
@@ -424,6 +444,7 @@ export default function ProjectsInfoForm({
                     >
                         <Input
                             component="textarea"
+                            maxLength={CHARACTER_LIMITS.description}
                             rows={4}
                             classNames={{ input: styles.formInput }}
                             error={!!formErrors.project_description}

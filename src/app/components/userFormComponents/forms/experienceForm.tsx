@@ -21,15 +21,36 @@ import {
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 
+// Character limits for the form fields
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
+
 const userSchema = z
     .object({
         id: z.number().optional(),
-        company_name: z.string().min(1, 'Company Name is required'),
-        job_title: z.string().min(1, 'Job Title is required'),
+        job_title: z
+            .string()
+            .min(1, 'Job Title is required')
+            .max(
+                CHARACTER_LIMITS.title,
+                `Cannot exceed ${CHARACTER_LIMITS.title} characters`,
+            ),
+        company_name: z
+            .string()
+            .min(1, 'Company Name is required')
+            .max(
+                CHARACTER_LIMITS.company,
+                `Cannot exceed ${CHARACTER_LIMITS.company} characters`,
+            ),
+        description: z
+            .string()
+            .min(1, 'A description is required')
+            .max(
+                CHARACTER_LIMITS.description,
+                `Cannot exceed ${CHARACTER_LIMITS.description} characters`,
+            ),
         start_date: z.string().min(1, 'Start Date is required'),
         end_date: z.string().optional(),
         is_current: z.boolean().optional(),
-        description: z.string().min(1, 'A description is required'),
     })
     .refine((data) => data.is_current || !!data.end_date, {
         message: 'End Date is required if this is not a current position',
@@ -256,6 +277,7 @@ export default function ExperienceForm({
                     <TextInput
                         label="Job Title"
                         placeholder="e.g., Software Engineer"
+                        maxLength={CHARACTER_LIMITS.title}
                         name="job_title"
                         value={getEditRecord?.job_title || ''}
                         onChange={(e) =>
@@ -270,6 +292,7 @@ export default function ExperienceForm({
                     <TextInput
                         label="Company Name"
                         placeholder="e.g., Google"
+                        maxLength={CHARACTER_LIMITS.company}
                         name="company_name"
                         value={getEditRecord?.company_name || ''}
                         onChange={(e) =>
@@ -372,6 +395,7 @@ export default function ExperienceForm({
                         label="Description"
                         placeholder="Describe your role and accomplishments..."
                         value={getEditRecord?.description || ''}
+                        maxLength={CHARACTER_LIMITS.description}
                         onChange={(event) =>
                             handleInputChange(
                                 'description',

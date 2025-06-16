@@ -7,9 +7,13 @@ import {
     FormPersonalStructure,
     FormSkillStructure,
     FormProjectStructure,
+    FormJobOfferDataStructure,
 } from '@/utils/interfaces';
 import { createClient } from '@/utils/supabase/server';
 import { SupabaseClient } from '@supabase/supabase-js';
+
+// the limits for the content of each input field in the forms
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 export async function POST(req: Request) {
     const supabase = await createClient();
@@ -81,6 +85,74 @@ async function updatePerType(
     try {
         switch (type) {
             case SectionTypes.Personal:
+                // --- SERVER-SIDE VALIDATION ---
+                const personalData = requestBodyData as FormPersonalStructure;
+                if (personalData.first_name.length > CHARACTER_LIMITS.name) {
+                    return {
+                        id: null,
+                        message: 'First name exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (personalData.last_name.length > CHARACTER_LIMITS.name) {
+                    return {
+                        id: null,
+                        message: 'Last name exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    personalData.phone &&
+                    personalData.phone.length > CHARACTER_LIMITS.phone
+                ) {
+                    return {
+                        id: null,
+                        message: 'Phone number exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                // Add validation for all URL fields
+                if (
+                    personalData.linkedin_url &&
+                    personalData.linkedin_url.length > CHARACTER_LIMITS.url
+                ) {
+                    return {
+                        id: null,
+                        message: 'LinkedIn URL exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    personalData.github_url &&
+                    personalData.github_url.length > CHARACTER_LIMITS.url
+                ) {
+                    return {
+                        id: null,
+                        message: 'GitHub URL exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    personalData.portfolio_url &&
+                    personalData.portfolio_url.length > CHARACTER_LIMITS.url
+                ) {
+                    return {
+                        id: null,
+                        message: 'Portfolio URL exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    personalData.other_url &&
+                    personalData.other_url.length > CHARACTER_LIMITS.url
+                ) {
+                    return {
+                        id: null,
+                        message: 'Other link exceeds character limit.',
+                        status: 400,
+                    };
+                }
+
                 // Save the user data in the supabase database
                 const { data: savedPersonalData, error: personalError } =
                     await supabase
@@ -96,13 +168,40 @@ async function updatePerType(
                 error = personalError ? personalError.message : null;
                 break;
             case SectionTypes.Experience:
-                // If 'is_current' is true, force end_date to be null
+                const experienceData =
+                    requestBodyData as FormExperienceStructure;
+                // --- SERVER-SIDE VALIDATION ---
+                if (experienceData.job_title.length > CHARACTER_LIMITS.title) {
+                    return {
+                        id: null,
+                        message: 'Job title exceeds character limit.',
+                        status: 400,
+                    };
+                }
                 if (
-                    'is_current' in requestBodyData &&
-                    requestBodyData.is_current
+                    experienceData.company_name.length >
+                    CHARACTER_LIMITS.company
                 ) {
-                    (requestBodyData as FormExperienceStructure).end_date =
-                        null;
+                    return {
+                        id: null,
+                        message: 'Company name exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    experienceData.description.length >
+                    CHARACTER_LIMITS.description
+                ) {
+                    return {
+                        id: null,
+                        message: 'Description exceeds character limit.',
+                        status: 400,
+                    };
+                }
+
+                // If 'is_current' is true, force end_date to be null
+                if (experienceData.is_current) {
+                    experienceData.end_date = null;
                 }
                 // Save the user experience data in the supabase database
                 const { data: savedExperienceData, error: experienceError } =
@@ -110,7 +209,7 @@ async function updatePerType(
                         .from(type)
                         .upsert({
                             user_id: userData[0].id,
-                            ...requestBodyData,
+                            ...experienceData,
                         })
                         .select();
 
@@ -118,12 +217,47 @@ async function updatePerType(
                 error = experienceError ? experienceError.message : null;
                 break;
             case SectionTypes.Education:
-                // If 'is_current' is true, force end_date to be null
+                const educationData = requestBodyData as FormEducationStructure;
+                // --- SERVER-SIDE VALIDATION ---
                 if (
-                    'is_current' in requestBodyData &&
-                    requestBodyData.is_current
+                    educationData.school_name.length > CHARACTER_LIMITS.school
                 ) {
-                    (requestBodyData as FormEducationStructure).end_date = null;
+                    return {
+                        id: null,
+                        message: 'School name exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (educationData.degree.length > CHARACTER_LIMITS.degree) {
+                    return {
+                        id: null,
+                        message: 'Degree exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    educationData.field_of_study.length >
+                    CHARACTER_LIMITS.fieldOfStudy
+                ) {
+                    return {
+                        id: null,
+                        message: 'Field of study exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    educationData.grades &&
+                    educationData.grades.length > CHARACTER_LIMITS.grades
+                ) {
+                    return {
+                        id: null,
+                        message: 'Grades exceed character limit.',
+                        status: 400,
+                    };
+                }
+                // If 'is_current' is true, force end_date to be null
+                if (educationData.is_current) {
+                    educationData.end_date = null;
                 }
                 // Save the user experience data in the supabase database
                 const { data: savedEducationData, error: educationError } =
@@ -131,7 +265,7 @@ async function updatePerType(
                         .from(type)
                         .upsert({
                             user_id: userData[0].id,
-                            ...requestBodyData,
+                            ...educationData,
                         })
                         .select();
 
@@ -139,18 +273,23 @@ async function updatePerType(
                 error = educationError ? educationError.message : null;
                 break;
             case SectionTypes.Skill:
+                const skillData = requestBodyData as FormSkillStructure;
+                // --- SERVER-SIDE VALIDATION ---
+                if (skillData.skill_name.length > CHARACTER_LIMITS.skill) {
+                    return {
+                        id: null,
+                        message: 'Skill name exceeds character limit.',
+                        status: 400,
+                    };
+                }
                 // Save the user experience data in the supabase database
                 const { data: savedSkillData, error: skillError } =
                     await supabase
                         .from(type)
                         .upsert({
                             user_id: userData[0].id,
-                            ...requestBodyData,
-                            skill_level:
-                                !('skill_level' in requestBodyData) ||
-                                requestBodyData.skill_level == ''
-                                    ? null
-                                    : requestBodyData.skill_level,
+                            ...skillData,
+                            skill_level: skillData.skill_level || null,
                         })
                         .select();
 
@@ -160,6 +299,25 @@ async function updatePerType(
             case SectionTypes.Project:
                 // First, assert the type so we can safely access project-specific properties
                 const projectData = requestBodyData as FormProjectStructure;
+
+                // --- SERVER-SIDE VALIDATION ---
+                if (projectData.project_name.length > CHARACTER_LIMITS.title) {
+                    return {
+                        id: null,
+                        message: 'Project name exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    projectData.project_description.length >
+                    CHARACTER_LIMITS.description
+                ) {
+                    return {
+                        id: null,
+                        message: 'Description exceeds character limit.',
+                        status: 400,
+                    };
+                }
 
                 // Next, create a new, clean object for the upsert operation
                 const dataToUpsert = {
@@ -177,12 +335,41 @@ async function updatePerType(
                 error = projectError ? projectError.message : null;
                 break;
             case SectionTypes.JobOffer:
+                const jobOfferData =
+                    requestBodyData as unknown as FormJobOfferDataStructure;
+                // --- SERVER-SIDE VALIDATION ---
+                if (
+                    jobOfferData.company_name.length > CHARACTER_LIMITS.company
+                ) {
+                    return {
+                        id: null,
+                        message: 'Company name exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (jobOfferData.job_position.length > CHARACTER_LIMITS.title) {
+                    return {
+                        id: null,
+                        message: 'Job position exceeds character limit.',
+                        status: 400,
+                    };
+                }
+                if (
+                    jobOfferData.job_description.length >
+                    CHARACTER_LIMITS.jobDescription
+                ) {
+                    return {
+                        id: null,
+                        message: 'Job description exceeds character limit.',
+                        status: 400,
+                    };
+                }
                 const { data: dataResumeSaved, error: jobOfferError } =
                     await supabase
                         .from(type)
                         .upsert({
                             user_id: userData[0].id,
-                            ...requestBodyData,
+                            ...jobOfferData,
                         })
                         .select();
                 data = dataResumeSaved;

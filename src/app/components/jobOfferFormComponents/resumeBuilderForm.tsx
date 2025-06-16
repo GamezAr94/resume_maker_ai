@@ -20,11 +20,32 @@ import {
     LoadingOverlay,
 } from '@mantine/core';
 
+// the limits for the content of each input field in the forms
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
+
 // creating the zod schema to validate the user data
 const userSchema = z.object({
-    company_name: z.string().min(2, 'Company Name is required'),
-    job_position: z.string().min(2, 'Job Position is required'),
-    job_description: z.string().min(2, 'Job Description is required'),
+    company_name: z
+        .string()
+        .min(2, 'Company Name is required')
+        .max(
+            CHARACTER_LIMITS.company,
+            `Cannot exceed ${CHARACTER_LIMITS.company} characters`,
+        ),
+    job_position: z
+        .string()
+        .min(2, 'Job Position is required')
+        .max(
+            CHARACTER_LIMITS.title,
+            `Cannot exceed ${CHARACTER_LIMITS.title} characters`,
+        ),
+    job_description: z
+        .string()
+        .min(2, 'Job Description is required')
+        .max(
+            CHARACTER_LIMITS.jobDescription,
+            `Cannot exceed ${CHARACTER_LIMITS.jobDescription} characters`,
+        ),
 });
 
 export default function ResumeBuilderForm() {
@@ -189,6 +210,7 @@ export default function ResumeBuilderForm() {
                 <Stack gap="lg">
                     <TextInput
                         label="Company Name"
+                        maxLength={CHARACTER_LIMITS.company}
                         placeholder="e.g., Google, Microsoft, Netflix"
                         name="company_name"
                         error={formErrors.company_name || undefined}
@@ -198,6 +220,7 @@ export default function ResumeBuilderForm() {
 
                     <TextInput
                         label="Job Position"
+                        maxLength={CHARACTER_LIMITS.title}
                         placeholder="e.g., Senior Frontend Engineer"
                         name="job_position"
                         error={formErrors.job_position || undefined}
@@ -206,6 +229,7 @@ export default function ResumeBuilderForm() {
                     />
 
                     <Textarea
+                        maxLength={CHARACTER_LIMITS.jobDescription}
                         label="Job Description"
                         placeholder="Paste the full job description here..."
                         name="job_description"

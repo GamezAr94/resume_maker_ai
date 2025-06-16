@@ -13,22 +13,49 @@ import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
 
+// the limits for the content of each input field in the forms
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
+
 const userSchema = z
     .object({
         id: z.number().optional(),
-        school_name: z.string().min(1, 'School Name is required'),
-        field_of_study: z.string().min(1, 'Field of Study is required'),
-        degree: z.string().min(2, 'Degree is required'),
+        school_name: z
+            .string()
+            .min(1, 'School Name is required')
+            .max(
+                CHARACTER_LIMITS.school,
+                `Cannot exceed ${CHARACTER_LIMITS.school} characters`,
+            ),
+        field_of_study: z
+            .string()
+            .min(1, 'Field of Study is required')
+            .max(
+                CHARACTER_LIMITS.fieldOfStudy,
+                `Cannot exceed ${CHARACTER_LIMITS.fieldOfStudy} characters`,
+            ),
+        degree: z
+            .string()
+            .min(2, 'Degree is required')
+            .max(
+                CHARACTER_LIMITS.degree,
+                `Cannot exceed ${CHARACTER_LIMITS.degree} characters`,
+            ),
+        grades: z
+            .string()
+            .max(
+                CHARACTER_LIMITS.grades,
+                `Cannot exceed ${CHARACTER_LIMITS.grades} characters`,
+            )
+            .optional(),
         start_date: z.string().min(1, 'Start Date is required'),
-        // End date is optional only if 'is_current' is true
         end_date: z.string().optional(),
         is_current: z.boolean().optional(),
-        grades: z.string().optional(),
     })
     .refine((data) => data.is_current || !!data.end_date, {
         message: 'End Date is required if this is not a current position',
-        path: ['end_date'], // Assign error to end_date field
+        path: ['end_date'],
     });
+
 interface Params {
     setInfo: React.Dispatch<false | [FormEducationStructure]> | null;
     infoQuery: FormEducationStructure | null;
@@ -234,6 +261,7 @@ export default function EducationInfoForm({
                         label="School Name"
                         placeholder="e.g., Harvard University"
                         name="school_name"
+                        maxLength={CHARACTER_LIMITS.school}
                         value={getEditRecord?.school_name || ''}
                         onChange={(e) =>
                             handleInputChange(
@@ -248,6 +276,7 @@ export default function EducationInfoForm({
                         label="Degree"
                         placeholder="e.g., Bachelor of Science"
                         name="degree"
+                        maxLength={CHARACTER_LIMITS.degree}
                         value={getEditRecord?.degree || ''}
                         onChange={(e) =>
                             handleInputChange('degree', e.currentTarget.value)
@@ -257,6 +286,7 @@ export default function EducationInfoForm({
                     />
                     <TextInput
                         label="Field of Study"
+                        maxLength={CHARACTER_LIMITS.fieldOfStudy}
                         placeholder="e.g., Computer Science"
                         name="field_of_study"
                         value={getEditRecord?.field_of_study || ''}
@@ -366,6 +396,7 @@ export default function EducationInfoForm({
                     <TextInput
                         label="GPA / Grades (Optional)"
                         placeholder="e.g., 3.8/4.0"
+                        maxLength={CHARACTER_LIMITS.grades}
                         name="grades"
                         value={getEditRecord?.grades || ''}
                         onChange={(e) =>

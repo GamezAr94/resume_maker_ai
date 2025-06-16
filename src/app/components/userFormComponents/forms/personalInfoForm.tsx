@@ -9,33 +9,68 @@ import {
 } from '@/utils/interfaces';
 import { Button, TextInput, Stack } from '@mantine/core'; // Using TextInput and Stack for consistency
 
+// the limits for the content of each input field in the forms
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
+
 // creating the zod schema to validate the user data
 const userSchema = z.object({
-    first_name: z.string().min(2, 'First Name is required'),
-    last_name: z.string().min(2, 'Last Name is required'),
+    first_name: z
+        .string()
+        .min(2, 'First Name is required')
+        .max(
+            CHARACTER_LIMITS.name,
+            `Cannot exceed ${CHARACTER_LIMITS.name} characters`,
+        ),
+    last_name: z
+        .string()
+        .min(2, 'Last Name is required')
+        .max(
+            CHARACTER_LIMITS.name,
+            `Cannot exceed ${CHARACTER_LIMITS.name} characters`,
+        ),
     email: z.string().email('A valid email is required'),
     phone: z
         .string()
         .min(10, 'Phone number must be at least 10 digits if provided')
+        .max(
+            CHARACTER_LIMITS.phone,
+            `Cannot exceed ${CHARACTER_LIMITS.phone} characters`,
+        )
         .or(z.literal('')), // Allows an empty string
-    linkedin: z
+    linkedin_url: z
         .string()
         .url('A valid URL is required')
+        .max(
+            CHARACTER_LIMITS.url,
+            `Cannot exceed ${CHARACTER_LIMITS.url} characters`,
+        )
         .optional()
         .or(z.literal('')), // Optional but must be a valid URL if provided
-    github: z
+    github_url: z
         .string()
         .url('A valid URL is required')
+        .max(
+            CHARACTER_LIMITS.url,
+            `Cannot exceed ${CHARACTER_LIMITS.url} characters`,
+        )
         .optional()
         .or(z.literal('')),
-    portfolio: z
+    portfolio_url: z
         .string()
         .url('A valid URL is required')
+        .max(
+            CHARACTER_LIMITS.url,
+            `Cannot exceed ${CHARACTER_LIMITS.url} characters`,
+        )
         .optional()
         .or(z.literal('')),
-    link: z
+    other_url: z
         .string()
         .url('A valid URL is required')
+        .max(
+            CHARACTER_LIMITS.url,
+            `Cannot exceed ${CHARACTER_LIMITS.url} characters`,
+        )
         .optional()
         .or(z.literal('')),
 });
@@ -148,6 +183,7 @@ export default function PersonalInfoForm({
                     label="First Name"
                     placeholder="Your first name"
                     name="first_name"
+                    maxLength={CHARACTER_LIMITS.name}
                     value={infoQuery.first_name}
                     onChange={(event) =>
                         handleUserInputChange(
@@ -163,6 +199,7 @@ export default function PersonalInfoForm({
                 <TextInput
                     label="Last Name"
                     placeholder="Your last name"
+                    maxLength={CHARACTER_LIMITS.name}
                     name="last_name"
                     value={infoQuery.last_name}
                     onChange={(event) =>
@@ -199,6 +236,7 @@ export default function PersonalInfoForm({
                     label="Phone Number"
                     placeholder="e.g., (123) 456-7890"
                     name="phone"
+                    maxLength={CHARACTER_LIMITS.phone}
                     value={infoQuery.phone || ''}
                     onChange={(event) =>
                         handleUserInputChange(
@@ -230,6 +268,7 @@ export default function PersonalInfoForm({
                     placeholder="https://github.com/your-username"
                     name="github_url"
                     value={infoQuery.github_url || ''}
+                    maxLength={CHARACTER_LIMITS.url}
                     onChange={(event) =>
                         handleUserInputChange(
                             event,
@@ -245,6 +284,7 @@ export default function PersonalInfoForm({
                     placeholder="https://your-portfolio.com"
                     name="portfolio_url"
                     value={infoQuery.portfolio_url || ''}
+                    maxLength={CHARACTER_LIMITS.url}
                     onChange={(event) =>
                         handleUserInputChange(
                             event,
@@ -260,6 +300,7 @@ export default function PersonalInfoForm({
                     placeholder="e.g., your personal blog"
                     name="other_url"
                     value={infoQuery.other_url || ''}
+                    maxLength={CHARACTER_LIMITS.url}
                     onChange={(event) =>
                         handleUserInputChange(
                             event,

@@ -13,6 +13,9 @@ import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
 
+// Character limits for the form fields
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
+
 interface Params {
     setInfo: React.Dispatch<false | [FormSkillStructure]> | null;
     infoQuery: FormSkillStructure | null;
@@ -21,7 +24,15 @@ interface Params {
     getEditRecord: FormSkillStructure | null;
 }
 const userSchema = z.object({
-    skill_name: z.string().min(1, 'Skill Name is required'),
+    id: z.string().optional(),
+    skill_name: z
+        .string()
+        .min(1, 'Skill Name is required')
+        .max(
+            CHARACTER_LIMITS.skill,
+            `Cannot exceed ${CHARACTER_LIMITS.skill} characters`,
+        ),
+    skill_level: z.string().optional(), // Or whatever validation you need for skill level
 });
 
 export default function SkillsInfoForm({
@@ -251,6 +262,7 @@ export default function SkillsInfoForm({
                             error={!!formErrors.skill_name}
                             type="text"
                             name="skill_name"
+                            maxLength={CHARACTER_LIMITS.skill}
                             placeholder="e.g., JavaScript, Python, Figma"
                             onChange={(event) => {
                                 handleInputChange(
