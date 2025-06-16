@@ -9,11 +9,13 @@ import {
     FormProjectStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input, Select, Group, Text } from '@mantine/core';
+import { Button, Input, Select, Group, Text, Textarea } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
+
+import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter';
 
 // Character limits for the form fields
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
@@ -430,41 +432,52 @@ export default function ProjectsInfoForm({
                     )}
 
                     {/* Project Description Input */}
-                    <Input.Wrapper
-                        label="Project Description"
-                        error={
-                            formErrors.project_description
-                                ? formErrors.project_description
-                                : ''
-                        }
-                        classNames={{
-                            root: styles.formField,
-                            label: styles.formLabel,
-                        }}
-                    >
-                        <Input
-                            component="textarea"
-                            maxLength={CHARACTER_LIMITS.description}
-                            rows={4}
-                            classNames={{ input: styles.formInput }}
-                            error={!!formErrors.project_description}
-                            name="project_description"
-                            placeholder="Describe your project..."
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    'project_description',
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            value={
-                                getEditRecord
-                                    ? getEditRecord.project_description
+
+                    <div className={styles.inputWrapper}>
+                        <Input.Wrapper
+                            label="Project Description"
+                            error={
+                                formErrors.project_description
+                                    ? formErrors.project_description
                                     : ''
                             }
+                            classNames={{
+                                root: styles.formField,
+                                label: styles.formLabel,
+                            }}
+                        >
+                            <Input
+                                component="textarea"
+                                maxLength={CHARACTER_LIMITS.description}
+                                rows={4}
+                                classNames={{ input: styles.formInput }}
+                                // Add padding to the inner textarea element
+                                styles={{ input: { paddingBottom: '2rem' } }}
+                                error={!!formErrors.project_description}
+                                name="project_description"
+                                placeholder="Describe your project..."
+                                onChange={(event) => {
+                                    handleInputChange(
+                                        event,
+                                        'project_description',
+                                        setEditRecord,
+                                        getEditRecord,
+                                    );
+                                }}
+                                value={
+                                    getEditRecord
+                                        ? getEditRecord.project_description
+                                        : ''
+                                }
+                            />
+                        </Input.Wrapper>
+                        <CharacterCounter
+                            currentLength={
+                                getEditRecord?.project_description?.length || 0
+                            }
+                            maxLength={CHARACTER_LIMITS.description}
                         />
-                    </Input.Wrapper>
+                    </div>
 
                     {/* Action Buttons */}
                     <Group justify="flex-start" mt="xl">

@@ -51,3 +51,9 @@
 [data-mantine-color-scheme='dark'] .subTitle {
     color: var(--mantine-color-dark-2);
 }
+
+.inputWrapper {
+    position: relative;
+    height: fit-content;
+    border: 1px solid var(--mantine-color-gray-2);
+}

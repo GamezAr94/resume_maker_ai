@@ -21,6 +21,8 @@ import {
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 
+import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter';
+
 // Character limits for the form fields
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
@@ -391,22 +393,30 @@ export default function ExperienceForm({
                         }}
                     />
 
-                    <Textarea
-                        label="Description"
-                        placeholder="Describe your role and accomplishments..."
-                        value={getEditRecord?.description || ''}
-                        maxLength={CHARACTER_LIMITS.description}
-                        onChange={(event) =>
-                            handleInputChange(
-                                'description',
-                                event.currentTarget.value,
-                            )
-                        }
-                        autosize
-                        minRows={4}
-                        error={formErrors.description}
-                        required
-                    />
+                    <div className={styles.inputWrapper}>
+                        <Textarea
+                            label="Description"
+                            placeholder="Describe your role and accomplishments..."
+                            value={getEditRecord?.description || ''}
+                            onChange={(event) =>
+                                handleInputChange(
+                                    'description',
+                                    event.currentTarget.value,
+                                )
+                            }
+                            autosize
+                            minRows={4}
+                            maxLength={CHARACTER_LIMITS.description}
+                            error={formErrors.description}
+                            required
+                        />
+                        <CharacterCounter
+                            currentLength={
+                                getEditRecord?.description?.length || 0
+                            }
+                            maxLength={CHARACTER_LIMITS.description}
+                        />
+                    </div>
 
                     <Group justify="flex-start" mt="md">
                         <Button type="submit" loading={isSubmitting}>

@@ -1,0 +1,13 @@
+.counter {
+    position: absolute;
+    bottom: -22px; /* A small gap from the bottom edge */
+    right: 8px; /* A small gap from the right edge */
+
+    color: var(--mantine-color-gray-6);
+    background-color: white; /* Helps it stand out over the textarea's resize handle */
+    padding: 0 4px; /* A little breathing room */
+    border-radius: var(--mantine-radius-sm);
+
+    /* This allows the user to click "through" the counter text if needed */
+    pointer-events: none;
+}

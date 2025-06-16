@@ -23,6 +23,8 @@ import {
 // the limits for the content of each input field in the forms
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
+import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter';
+
 // creating the zod schema to validate the user data
 const userSchema = z.object({
     company_name: z
@@ -50,6 +52,7 @@ const userSchema = z.object({
 
 export default function ResumeBuilderForm() {
     const router = useRouter();
+    const [jobDescription, setJobDescription] = useState('');
     const [formErrors, setFormErrors] = useState<FormJobOfferDataStructure>(
         emptyStateJobDataOffer,
     );
@@ -228,17 +231,27 @@ export default function ResumeBuilderForm() {
                         disabled={isGenerating}
                     />
 
-                    <Textarea
-                        maxLength={CHARACTER_LIMITS.jobDescription}
-                        label="Job Description"
-                        placeholder="Paste the full job description here..."
-                        name="job_description"
-                        error={formErrors.job_description || undefined}
-                        required
-                        autosize
-                        minRows={6}
-                        disabled={isGenerating}
-                    />
+                    <div className={styles.inputWrapper}>
+                        <Textarea
+                            label="Job Description"
+                            placeholder="Paste the full job description here..."
+                            name="job_description"
+                            value={jobDescription}
+                            onChange={(event) =>
+                                setJobDescription(event.currentTarget.value)
+                            }
+                            maxLength={CHARACTER_LIMITS.jobDescription}
+                            error={formErrors.job_description || undefined}
+                            required
+                            autosize
+                            minRows={6}
+                            disabled={isGenerating}
+                        />
+                        <CharacterCounter
+                            currentLength={jobDescription.length}
+                            maxLength={CHARACTER_LIMITS.jobDescription}
+                        />
+                    </div>
 
                     <Button
                         size="lg"
