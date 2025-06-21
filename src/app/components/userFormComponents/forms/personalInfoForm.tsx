@@ -184,7 +184,7 @@ export default function PersonalInfoForm({
                     placeholder="Your first name"
                     name="first_name"
                     maxLength={CHARACTER_LIMITS.name}
-                    value={infoQuery.first_name}
+                    value={infoQuery.first_name || ''}
                     onChange={(event) =>
                         handleUserInputChange(
                             event,
@@ -201,7 +201,7 @@ export default function PersonalInfoForm({
                     placeholder="Your last name"
                     maxLength={CHARACTER_LIMITS.name}
                     name="last_name"
-                    value={infoQuery.last_name}
+                    value={infoQuery.last_name || ''}
                     onChange={(event) =>
                         handleUserInputChange(
                             event,

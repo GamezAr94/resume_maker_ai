@@ -37,13 +37,13 @@ const StatusItem = ({
 
 interface ProfileCompletionCardProps {
     onCompleteProfileClick: () => void;
+    percentage: number;
 }
 
 export function ProfileCompletionCard({
     onCompleteProfileClick,
+    percentage,
 }: ProfileCompletionCardProps) {
-    const completionPercentage = 71;
-
     // Placeholder data based on your design
     const statusItems = [
         { icon: <IconCheck size={14} />, text: '4/4 Info', label: '✓' },
@@ -73,7 +73,7 @@ export function ProfileCompletionCard({
                 </Group>
                 <div className={styles.percentage}>
                     <Text size="xl" fw={700} c="orange">
-                        {completionPercentage}%
+                        {percentage}%
                     </Text>
                     <Text size="sm" c="dimmed">
                         Complete
@@ -82,12 +82,7 @@ export function ProfileCompletionCard({
             </Group>
 
             {/* Progress Bar Section */}
-            <Progress
-                value={completionPercentage}
-                mt="lg"
-                size="lg"
-                radius="xl"
-            />
+            <Progress value={percentage} mt="lg" size="lg" radius="xl" />
 
             {/* Status Details Section */}
             <div className={styles.statusWrapper}>
