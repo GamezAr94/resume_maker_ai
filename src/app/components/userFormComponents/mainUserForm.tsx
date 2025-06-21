@@ -9,7 +9,7 @@ import {
     FormSkillStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import { getDBTableInfo } from '@/app/db/user_queries';
 import ExperienceContainerForm from './formContainers/experienceContainerForm';
 import EducationContainerForm from './formContainers/educationContainerForm';
@@ -34,7 +34,8 @@ interface Props {
     className: string;
 }
 type InputMode = 'manual' | 'ai';
-export default function MainUserForm({ className }: Props) {
+
+const MainUserForm = forwardRef<HTMLDivElement, Props>(({ className }, ref) => {
     const [refreshTrigger, setRefreshTrigger] = useState<RefreshSections>({
         experience: false,
         education: false,
@@ -211,6 +212,7 @@ export default function MainUserForm({ className }: Props) {
             withBorder={false}
             className={className}
             style={{ backgroundColor: theme.colors.gray[1] }}
+            ref={ref}
         >
             <Title order={2} ta="center" mb="md" c="gray.8">
                 Manage Your Resume Data
@@ -392,4 +394,5 @@ export default function MainUserForm({ className }: Props) {
             )}
         </Paper>
     );
-}
+});
+export default MainUserForm;

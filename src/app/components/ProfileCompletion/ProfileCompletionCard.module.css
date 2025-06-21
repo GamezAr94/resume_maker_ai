@@ -1,0 +1,31 @@
+.card {
+    background-color: var(--mantine-color-body);
+    max-width: 800px; /* Adjust as needed */
+    margin: auto;
+}
+
+.percentage {
+    text-align: right;
+}
+
+.statusWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mantine-spacing-md);
+    justify-content: space-between;
+    margin-top: var(--mantine-spacing-md);
+    padding-bottom: var(--mantine-spacing-lg);
+    border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa; /* A light background color */
+    margin: var(--mantine-spacing-lg) calc(var(--mantine-spacing-lg) * -1)
+        calc(var(--mantine-spacing-lg) * -1);
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-lg);
+    border-bottom-left-radius: var(--mantine-radius-md);
+    border-bottom-right-radius: var(--mantine-radius-md);
+}
