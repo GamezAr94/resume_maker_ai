@@ -1,27 +1,215 @@
-import { signUpAction } from "@/app/actions";
-import Link from "next/link";
-import ActionMsg from "../message";
+// src/app/(auth-pages)/sign-up/page.tsx
+'use client';
 
-export default function Login() {
+import {
+    Paper,
+    Title,
+    Text,
+    TextInput,
+    PasswordInput,
+    Button,
+    Container,
+    Group,
+    Anchor,
+    Checkbox,
+    Center,
+    Box,
+    rem,
+    ThemeIcon,
+    Divider,
+} from '@mantine/core';
+import {
+    IconArrowLeft,
+    IconBriefcase,
+    IconLock,
+    IconAt,
+    IconUser,
+} from '@tabler/icons-react';
+import Link from 'next/link';
+import { signUpAction } from '@/app/actions';
+import ActionMsg from '../message';
+
+// Reusing the same icon components for consistency.
+// You could move these to a shared 'icons.tsx' file to avoid duplication.
+const GoogleIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
+    <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        width="20px"
+        height="20px"
+    >
+        <path
+            fill="#FFC107"
+            d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12
+      c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24
+      c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+        />
+        <path
+            fill="#FF3D00"
+            d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657
+      C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+        />
+        <path
+            fill="#4CAF50"
+            d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36
+      c-5.222,0-9.582-3.333-11.127-7.962l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
+        />
+        <path
+            fill="#1976D2"
+            d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238
+      C42.022,35.638,44,30.138,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+        />
+    </svg>
+);
+
+const GithubIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
+    <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        width="20px"
+        height="20px"
+    >
+        <path
+            fill="currentColor"
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
+        />
+    </svg>
+);
+
+export default function SignUpPage() {
     return (
-        <>
-            <ActionMsg />
-            <form>
-                <h1>Sign up</h1>
-                <p>
-                    Already have an account?{" "}
-                    <Link href="/sign-in">Sign un</Link>
-                </p>
-                <div>
-                    <p>Label for email</p>
-                    <input type="email" name="email" />
-                    <p>Label for pass</p>
-                    <input type="password" name="password" />
-                    <button type="submit" formAction={signUpAction}>
-                        Submit
-                    </button>
-                </div>
-            </form>
-        </>
+        <Container size={460} my={30} style={{ width: '100%' }}>
+            <Anchor component={Link} href="/" c="dimmed" size="sm">
+                <Center inline>
+                    <IconArrowLeft
+                        style={{ width: rem(12), height: rem(12) }}
+                    />
+                    <Box ml={5}>Back to home</Box>
+                </Center>
+            </Anchor>
+            <Paper withBorder shadow="md" p={30} radius="md" mt="xl">
+                <Center>
+                    <ThemeIcon variant="light" size={60} radius="md">
+                        <IconBriefcase
+                            style={{ width: rem(32), height: rem(32) }}
+                        />
+                    </ThemeIcon>
+                </Center>
+
+                <Title ta="center" mt="md">
+                    Create your account
+                </Title>
+                <Text c="dimmed" fz="sm" ta="center">
+                    Start building professional resumes with AI
+                </Text>
+
+                <form action={signUpAction}>
+                    {/* Note: First/Last name are in the design but not handled by the current signUpAction.
+                        To add them, you would need to update the `signUpAction` server action and your database schema
+                        to accept 'first_name' and 'last_name' form data. */}
+                    <Group grow>
+                        <TextInput
+                            leftSectionPointerEvents="none"
+                            leftSection={
+                                <IconUser
+                                    style={{ width: rem(16), height: rem(16) }}
+                                />
+                            }
+                            label="First name"
+                            name="first_name"
+                            placeholder="John"
+                            required
+                        />
+                        <TextInput
+                            leftSectionPointerEvents="none"
+                            leftSection={
+                                <IconUser
+                                    style={{ width: rem(16), height: rem(16) }}
+                                />
+                            }
+                            label="Last name"
+                            name="last_name"
+                            placeholder="Doe"
+                            required
+                        />
+                    </Group>
+                    <TextInput
+                        leftSectionPointerEvents="none"
+                        leftSection={
+                            <IconAt
+                                style={{ width: rem(16), height: rem(16) }}
+                            />
+                        }
+                        label="Email"
+                        name="email"
+                        placeholder="you@example.com"
+                        required
+                        mt="md"
+                    />
+                    <PasswordInput
+                        leftSectionPointerEvents="none"
+                        leftSection={
+                            <IconLock
+                                style={{ width: rem(16), height: rem(16) }}
+                            />
+                        }
+                        label="Password"
+                        name="password"
+                        placeholder="Create a password"
+                        required
+                        mt="md"
+                    />
+                    <PasswordInput
+                        leftSectionPointerEvents="none"
+                        leftSection={
+                            <IconLock
+                                style={{ width: rem(16), height: rem(16) }}
+                            />
+                        }
+                        label="Confirm password"
+                        name="confirm_password"
+                        placeholder="Confirm your password"
+                        required
+                        mt="md"
+                    />
+                    <Checkbox
+                        label="I agree to the Terms of Service and Privacy Policy"
+                        mt="lg"
+                        required
+                    />
+
+                    {/* ActionMsg component will display any messages from the action, like errors or success messages */}
+                    <ActionMsg />
+
+                    <Button type="submit" fullWidth mt="xl">
+                        Create account
+                    </Button>
+                </form>
+
+                <Divider
+                    label="Or continue with"
+                    labelPosition="center"
+                    my="lg"
+                />
+
+                <Group grow>
+                    <Button leftSection={<GoogleIcon />} variant="default">
+                        Google
+                    </Button>
+                    <Button leftSection={<GithubIcon />} variant="default">
+                        GitHub
+                    </Button>
+                </Group>
+            </Paper>
+
+            <Text c="dimmed" size="sm" ta="center" mt="md">
+                Already have an account?{' '}
+                <Anchor size="sm" component={Link} href="/sign-in">
+                    Sign in
+                </Anchor>
+            </Text>
+        </Container>
     );
 }
