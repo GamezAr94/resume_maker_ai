@@ -4,7 +4,7 @@ import {
     emptyStateJobDataOffer,
     FormJobOfferDataStructure,
 } from '@/utils/interfaces';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { z } from 'zod';
 
 import styles from './resumeBuilderForm.module.css';
@@ -19,6 +19,8 @@ import {
     Box,
     LoadingOverlay,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IncompleteProfileModal } from './IncompleteProfileModal';
 
 // the limits for the content of each input field in the forms
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
@@ -50,11 +52,24 @@ const userSchema = z.object({
         ),
 });
 
-interface Props {
-    status: 'disabled' | 'warn' | 'ready';
+interface SectionCount {
+    current: number;
+    required: number;
+    label: string;
+    value: string;
 }
 
-export default function ResumeBuilderForm({ status }: Props) {
+interface Props {
+    status: 'disabled' | 'warn' | 'ready';
+    percentage: number;
+    sectionCounts: Record<string, SectionCount>;
+}
+
+export default function ResumeBuilderForm({
+    status,
+    percentage,
+    sectionCounts,
+}: Props) {
     const router = useRouter();
     const [jobDescription, setJobDescription] = useState('');
     const [formErrors, setFormErrors] = useState<FormJobOfferDataStructure>(
@@ -62,18 +77,16 @@ export default function ResumeBuilderForm({ status }: Props) {
     );
     // this will manage the status of the button to show the user that the resume is being generated
     const [isGenerating, setIsGenerating] = useState(false);
+    const [opened, { open, close }] = useDisclosure(false);
+    const formRef = useRef<HTMLFormElement>(null);
 
     // Function to validate the JOB OFFER data save it and GENERATE the resume
-    async function validatingAndSaving(
-        event: React.FormEvent<HTMLFormElement>,
-    ) {
-        // prevent the default form submission and fetch the data
-        event.preventDefault();
+    async function proceedToGenerate() {
         // if the isGenerating is true, we dont want to generate the resume again
-        if (isGenerating) return;
+        if (isGenerating || !formRef.current) return;
 
         // get the form data
-        const formData = new FormData(event.currentTarget);
+        const formData = new FormData(formRef.current);
         // parse the user data with the zod schema
         const parseJobOffer = userSchema.safeParse(
             Object.fromEntries(formData),
@@ -196,8 +209,35 @@ export default function ResumeBuilderForm({ status }: Props) {
             }
         }
     }
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (status === 'ready') {
+            await proceedToGenerate();
+        } else {
+            open();
+        }
+    }
+
+    const handleGenerateAnyway = async () => {
+        close();
+        await proceedToGenerate();
+    };
+
     return (
         <Box className={styles.formWrapper} pos="relative">
+            {status === 'ready' ? (
+                ''
+            ) : (
+                <IncompleteProfileModal
+                    opened={opened}
+                    onClose={close}
+                    onGenerate={handleGenerateAnyway}
+                    percentage={percentage}
+                    sectionCounts={sectionCounts}
+                    status={status}
+                />
+            )}
             <LoadingOverlay
                 visible={isGenerating}
                 zIndex={1000}
@@ -213,7 +253,7 @@ export default function ResumeBuilderForm({ status }: Props) {
                 </Text>
             </div>
 
-            <form onSubmit={validatingAndSaving}>
+            <form ref={formRef} onSubmit={handleSubmit}>
                 <Stack gap="lg">
                     <TextInput
                         label="Company Name"

@@ -63,7 +63,10 @@ export function ProfileCompletionCard({
                 ) : (
                     <IconClock size={14} />
                 ),
-                text: `${current}/${required} ${displayLabel}`,
+                text:
+                    required <= current
+                        ? `${displayLabel}`
+                        : `${current}/${required} ${displayLabel}`,
                 label: isComplete ? '✓' : '🕓',
             };
         },

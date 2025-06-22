@@ -242,8 +242,9 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                                     <IconClock size={16} />
                                                 )}
                                                 <Text component="span" fz="sm">
-                                                    {tab.label} ({tab.current}/
-                                                    {tab.required})
+                                                    {tab.current < tab.required
+                                                        ? `${tab.label} (${tab.current}/${tab.required})`
+                                                        : tab.label}
                                                 </Text>
                                             </Group>
                                         </button>

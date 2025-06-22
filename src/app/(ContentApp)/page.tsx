@@ -77,7 +77,7 @@ export default function Home() {
         },
         education: {
             current: educationInfo ? educationInfo.length : 0,
-            required: 1,
+            required: PROFILE_COMPLETION_WEIGHTS.MAX_EDUCATION_FOR_SCORE,
             label: 'Education',
             value: 'education',
         },
@@ -203,6 +203,8 @@ export default function Home() {
                 <MainJobForm
                     className={styles.container_form}
                     status={status}
+                    percentage={percentage}
+                    sectionCounts={sectionCounts}
                 />
                 <Divider my="xs" color="gray.1" />
                 <MainUserForm

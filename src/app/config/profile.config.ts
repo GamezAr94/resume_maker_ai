@@ -32,4 +32,5 @@ export const PROFILE_COMPLETION_WEIGHTS = {
 
     // Education (Max: 10 points)
     EDUCATION_ENTRY: 10, // Points for the first education entry
+    MAX_EDUCATION_FOR_SCORE: 1, // Cap points from projects after this many entries (2 * 5 = 10)
 };

@@ -11,19 +11,59 @@ import {
 } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import styles from './IncompleteProfileModal.module.css';
+import { PROFILE_COMPLETION_WEIGHTS } from '@/app/config/profile.config';
+
+interface SectionCount {
+    current: number;
+    required: number;
+    label: string;
+    value: string;
+}
 
 interface IncompleteProfileModalProps {
     opened: boolean;
     onClose: () => void;
     onGenerate: () => void;
+    percentage: number;
+    sectionCounts: Record<string, SectionCount>;
+    status: 'disabled' | 'warn' | 'ready';
 }
 
 export function IncompleteProfileModal({
     opened,
     onClose,
     onGenerate,
+    percentage,
+    sectionCounts,
+    status,
 }: IncompleteProfileModalProps) {
-    const profileCompletion = 71;
+    const missingItems = Object.values(sectionCounts)
+        .map((section) => {
+            const missing = section.required - section.current;
+            if (missing > 0) {
+                if (
+                    section.value === 'personal' ||
+                    section.value === 'education'
+                ) {
+                    if (section.current < section.required) {
+                        return (
+                            <List.Item
+                                key={section.label}
+                            >{`Add ${section.label}`}</List.Item>
+                        );
+                    }
+                } else {
+                    const plural = missing > 1 ? 's' : '';
+                    return (
+                        <List.Item
+                            key={section.label}
+                        >{`${missing} more ${section.label}${plural}`}</List.Item>
+                    );
+                }
+            }
+            return null;
+        })
+        .filter(Boolean);
 
     return (
         <Modal
@@ -43,25 +83,24 @@ export function IncompleteProfileModal({
             radius="md"
         >
             <Text c="dimmed" size="sm" mb="lg">
-                Your profile is {profileCompletion}% complete. For the best
+                Your profile is {Math.round(percentage)}% complete. For the best
                 results, we recommend completing your profile first.
             </Text>
 
-            {/* Missing Information Section */}
-            <Paper
-                withBorder
-                p="md"
-                radius="md"
-                className={styles.warningBox}
-                mb="lg"
-            >
-                <Text fw={500}>Missing Information:</Text>
-                <List spacing="xs" size="sm" mt="xs" ml="xs">
-                    <List.Item>1 more Work experiences</List.Item>
-                    <List.Item>3 more Skills</List.Item>
-                    <List.Item>1 more Projects</List.Item>
-                </List>
-            </Paper>
+            {missingItems.length > 0 && (
+                <Paper
+                    withBorder
+                    p="md"
+                    radius="md"
+                    className={styles.warningBox}
+                    mb="lg"
+                >
+                    <Text fw={500}>Missing Information:</Text>
+                    <List spacing="xs" size="sm" mt="xs" ml="xs">
+                        {missingItems}
+                    </List>
+                </Paper>
+            )}
 
             {/* Recommended Completion Section */}
             <Paper
@@ -71,20 +110,34 @@ export function IncompleteProfileModal({
                 className={styles.recommendationBox}
                 mb="xl"
             >
-                <Text fw={500}>Recommended Complete Profile:</Text>
+                <Text fw={500}>
+                    We recommend the following for a strong profile:
+                </Text>
                 <List spacing="xs" size="sm" mt="xs" ml="xs" c="dimmed">
                     <List.Item>
                         Complete personal information (name, email, phone,
                         LinkedIn)
                     </List.Item>
                     <List.Item>
-                        At least 2 work experiences with detailed descriptions
+                        At least{' '}
+                        {
+                            PROFILE_COMPLETION_WEIGHTS.MAX_EXPERIENCE_ENTRIES_FOR_SCORE
+                        }{' '}
+                        work experiences with very detailed descriptions
                     </List.Item>
                     <List.Item>
-                        8+ relevant skills for your target roles
+                        {PROFILE_COMPLETION_WEIGHTS.MAX_SKILLS_FOR_SCORE}{' '}
+                        relevant skills for your target roles
                     </List.Item>
-                    <List.Item>2+ projects showcasing your abilities</List.Item>
-                    <List.Item>Educational background</List.Item>
+                    <List.Item>
+                        {PROFILE_COMPLETION_WEIGHTS.MAX_PROJECTS_FOR_SCORE}{' '}
+                        projects showcasing your abilities with very detailed
+                        descriptions
+                    </List.Item>
+                    <List.Item>
+                        {PROFILE_COMPLETION_WEIGHTS.MAX_EDUCATION_FOR_SCORE}{' '}
+                        Educational background
+                    </List.Item>
                 </List>
             </Paper>
 
@@ -92,13 +145,17 @@ export function IncompleteProfileModal({
                 <Button variant="default" onClick={onClose} radius="md">
                     Complete Profile First
                 </Button>
-                <Button
-                    onClick={onGenerate}
-                    className={styles.generateButton}
-                    radius="md"
-                >
-                    Generate Anyway
-                </Button>
+                {status === 'disabled' ? (
+                    ''
+                ) : (
+                    <Button
+                        onClick={onGenerate}
+                        className={styles.generateButton}
+                        radius="md"
+                    >
+                        Generate Anyway
+                    </Button>
+                )}
             </Group>
         </Modal>
     );

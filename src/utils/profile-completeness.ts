@@ -75,9 +75,11 @@ export function calculateProfileCompleteness(
     score += numProjects * PROFILE_COMPLETION_WEIGHTS.PROJECT_ENTRY;
 
     // Education Score
-    if (data.educationInfo.length > 0) {
-        score += PROFILE_COMPLETION_WEIGHTS.EDUCATION_ENTRY;
-    }
+    const numEducation = Math.min(
+        data.educationInfo.length,
+        PROFILE_COMPLETION_WEIGHTS.MAX_EDUCATION_FOR_SCORE,
+    );
+    score += numEducation * PROFILE_COMPLETION_WEIGHTS.EDUCATION_ENTRY;
 
     const percentage = Math.min(100, score); // Ensure score doesn't exceed 100
 
