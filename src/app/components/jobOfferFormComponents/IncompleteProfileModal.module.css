@@ -1,0 +1,18 @@
+.warningBox {
+    background-color: var(--mantine-color-yellow-0);
+    border-color: var(--mantine-color-yellow-2);
+}
+
+.recommendationBox {
+    background-color: var(--mantine-color-gray-0);
+    border-color: var(--mantine-color-gray-2);
+}
+
+.generateButton {
+    background-color: var(--mantine-color-yellow-5);
+    color: var(--mantine-color-black);
+}
+
+.generateButton:hover {
+    background-color: var(--mantine-color-yellow-6);
+}

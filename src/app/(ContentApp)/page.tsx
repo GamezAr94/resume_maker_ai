@@ -57,6 +57,11 @@ export default function Home() {
         projectInfo: projectInfo || [],
     });
 
+    // Define the section counts for the profile completion card
+    // Each section has a current count, required count, label, and value
+    // The current count is the number of entries the user has in that section
+    // The required count is the number of entries required for that section to be considered complete
+    // The label is the name of the section, and the value is the value used to
     const sectionCounts = {
         personal: {
             current:
@@ -195,7 +200,10 @@ export default function Home() {
                     percentage={percentage}
                     sectionCounts={sectionCounts}
                 />
-                <MainJobForm className={styles.container_form} />
+                <MainJobForm
+                    className={styles.container_form}
+                    status={status}
+                />
                 <Divider my="xs" color="gray.1" />
                 <MainUserForm
                     ref={mainFormRef}

@@ -50,7 +50,11 @@ const userSchema = z.object({
         ),
 });
 
-export default function ResumeBuilderForm() {
+interface Props {
+    status: 'disabled' | 'warn' | 'ready';
+}
+
+export default function ResumeBuilderForm({ status }: Props) {
     const router = useRouter();
     const [jobDescription, setJobDescription] = useState('');
     const [formErrors, setFormErrors] = useState<FormJobOfferDataStructure>(
