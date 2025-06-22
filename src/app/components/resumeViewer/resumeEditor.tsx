@@ -36,9 +36,9 @@ export default function ResumeEditor({
     setDataResume,
 }: ResumeEditorProps) {
     // State for accordion
-    const [activeAccordion, setActiveAccordion] = useState<
-        string | string[] | null
-    >(['personalInfo']);
+    const [activeAccordion, setActiveAccordion] = useState<string | null>(
+        'personalInfo',
+    );
 
     // Your function to show/hide specific sections in the resume
     const hideShowSection = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -188,8 +188,7 @@ export default function ResumeEditor({
             </Group>
 
             <Accordion
-                multiple
-                value={activeAccordion as string[]}
+                value={activeAccordion}
                 onChange={setActiveAccordion}
                 variant="separated"
                 className={classes.customAccordionWrapper}
@@ -791,13 +790,6 @@ export default function ResumeEditor({
                         </Title>
                     </Accordion.Control>
                     <Accordion.Panel>
-                        {/* ====================================================================== */}
-                        {/* INSERT YOUR ORIGINAL code that maps over projects items HERE.      */}
-                        {/* Apply styles similarly to the Experience section.                  */}
-                        {/* ====================================================================== */}
-                        <Text c="dimmed" ta="center" p="xl">
-                            (Your Projects items and mapping logic go here)
-                        </Text>
                         {(dataResume.resume_generated?.projects || []).map(
                             (projItem, index: number) => {
                                 const isVisible =
