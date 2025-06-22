@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styles_css from './resumeViewer.module.css';
 import { PDFViewer } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
-import { Button, Text } from '@mantine/core';
+import { Button } from '@mantine/core';
 import { SectionTypes } from '@/utils/enums';
 
 // Import the templates

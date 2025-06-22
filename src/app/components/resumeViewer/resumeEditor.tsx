@@ -1,6 +1,6 @@
 'use client';
 // Import React and necessary Mantine components
-import React, { useState, Dispatch, SetStateAction, ChangeEvent } from 'react';
+import React, { useState, SetStateAction, ChangeEvent } from 'react';
 import {
     Button,
     Accordion,
