@@ -6,86 +6,180 @@ import {
     Text,
     StyleSheet,
     Font,
+    Link,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
 
-// Keep any font registration here. It will run once when the module is imported.
+// --- FONT REGISTRATION ---
+/*
+ NOTE: This is very tricky ... to set up a new font we need to go to this link: 
+ https://developers.google.com/fonts/docs/developer_api?apix_params=%7B%22family%22%3A%5B%22Roboto%22%5D%2C%22sort%22%3A%22ALPHA%22%7D
+ then we need to click on the API option on the right side of the screen, and then we can perform a query to get the font we want to use
+ for example we can sort by ALPHA and the family Roboto. then you will get a result with all the information of the font
+ you just need to copy the url from the style that you want for example the bold "900", and then you can paste that URL in the font.register
+ and then you can set the fontWeight for each of your fonts you want to use, so when you assign a fontFamily to a component you need to specify the weight to target that specific font
+*/
+// Register fonts
+Font.register({
+    family: 'Lato',
+    fonts: [
+        {
+            src: 'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHjxswWyWrFCbw7A.ttf', // The actual font file URL
+            fontWeight: 400,
+            fontStyle: 'italic', // Optional: if you have italic version. It will break if not specified
+        },
+        {
+            src: 'https://fonts.gstatic.com/s/lato/v24/S6uyw4BMUTPHvxk6XweuBCY.ttf', // The actual font file URL
+            fontWeight: 400,
+        },
+        {
+            src: 'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh6UVew-FGC_p9dw.ttf', // The actual font file URL
+            fontWeight: 700,
+        },
+    ],
+});
+
+// This prevents words from being cut off awkwardly.
 Font.registerHyphenationCallback((word) => [word]);
 
-// Define the Props interface for the template
-interface TemplateProps {
-    dataResume: FormJobOfferDataStructure;
-}
+// --- THEME & COLORS ---
+const theme = {
+    primary: '#2C3E50',
+    secondary: '#FFFFFF',
+    accent: '#3498DB',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#2C3E50',
+    textMuted: '#808080',
+};
 
-// Export the styles so they can be used by other components if needed (e.g., for the viewer's dimensions)
+// --- STYLESHEET ---
 export const styles = StyleSheet.create({
     viewer: {
         aspectRatio: '210/297',
         maxWidth: '712px',
         width: '100%',
-        fontWeight: 'bold',
     },
     page: {
-        flexDirection: 'column',
-        backgroundColor: 'white',
-        padding: 10,
-        paddingBottom: 0,
-        fontSize: '13pt',
-    },
-    section: {
-        flexGrow: 1,
-        backgroundColor: '#E4E4E4',
-    },
-    highlight: {
-        color: '#fa8072',
-    },
-    user_name: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '28pt',
-    },
-    position: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '20pt',
-    },
-    contact_section: {
-        display: 'flex',
+        fontFamily: 'Lato',
+        fontWeight: 400,
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        flexWrap: 'wrap',
-        gap: '5%',
+        backgroundColor: theme.secondary,
     },
-    section_title: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '20pt',
+    sidebar: {
+        width: '32%',
+        backgroundColor: theme.primary,
+        color: theme.textPrimary,
+        padding: 30,
     },
-    divider: {
-        borderBottom: '3px solid black',
+    mainContent: {
+        width: '65%',
+        padding: '20px 30px',
     },
-    section_subtitle: {
-        fontSize: '17pt',
-        fontFamily: 'Helvetica-Bold',
-        fontWeight: 900,
+    header: {
+        marginBottom: 0,
     },
-    subtitle_higlighted: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '13pt',
+    userName: {
+        fontSize: 32,
+        fontFamily: 'Lato',
+        fontWeight: 700,
+        color: theme.accent,
+        marginBottom: 0,
     },
-    content_resume: {
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '20px',
+    jobPosition: {
+        fontSize: 16,
+        color: theme.textSecondary,
+        marginBottom: 10,
+        fontWeight: 400,
+    },
+    sidebarSection: {
+        marginBottom: 20,
+    },
+    sidebarTitle: {
+        fontSize: 14,
+        fontWeight: 700,
+        marginBottom: 10,
+        color: theme.accent,
+        textTransform: 'uppercase',
+    },
+    contactItem: {
+        fontSize: 10,
+        marginBottom: 6,
+        fontWeight: 400,
+    },
+    contactLink: {
+        fontSize: 10,
+        color: theme.textPrimary,
+        textDecoration: 'none',
+        fontWeight: 400,
+    },
+    skill: {
+        fontSize: 10,
+        marginBottom: 5,
+        fontWeight: 400,
+    },
+    educationEntry: {
+        marginBottom: 12,
+    },
+    degree: {
+        fontSize: 11,
+        fontWeight: 700,
+    },
+    school: {
+        fontSize: 10,
+        fontWeight: 400,
+    },
+    educationDates: {
+        fontSize: 9,
+        color: theme.textMuted,
+        fontStyle: 'italic',
+        fontWeight: 400,
+    },
+    mainSection: {
+        marginBottom: 10,
+    },
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: 700,
+        color: theme.accent,
+        textTransform: 'uppercase',
+        marginBottom: 4,
+    },
+    sectionDivider: {
+        borderBottom: `1px solid ${theme.accent}`,
+        marginBottom: 8,
+    },
+    entryContainer: {
+        marginBottom: 10,
+    },
+    jobTitle: {
+        fontSize: 13,
+        fontWeight: 700,
+    },
+    companyAndDate: {
+        fontSize: 11,
+        fontStyle: 'italic',
+        color: theme.textMuted,
+        marginBottom: 6,
+        fontWeight: 400,
+    },
+    description: {
+        fontSize: 10,
+        textAlign: 'justify',
+        fontWeight: 400,
     },
 });
 
-// Export the main Document component. We've renamed it for clarity.
-export const ClassicResumeTemplate = ({ dataResume }: TemplateProps) => {
-    // You can add data validation here as well
+// --- TEMPLATE COMPONENT ---
+export const ClassicResumeTemplate = ({
+    dataResume,
+}: {
+    dataResume: FormJobOfferDataStructure;
+}) => {
     if (!dataResume || !dataResume.resume_generated) {
         return (
             <Document>
                 <Page size="A4" style={styles.page}>
-                    <View style={{ padding: 20 }}>
+                    <View style={{ padding: 30 }}>
                         <Text>Generating resume...</Text>
                     </View>
                 </Page>
@@ -93,167 +187,139 @@ export const ClassicResumeTemplate = ({ dataResume }: TemplateProps) => {
         );
     }
 
+    const { resume_generated, job_position } = dataResume;
+
     return (
-        <Document>
+        <Document
+            author={resume_generated.contact_info.name}
+            title={`Resume for ${job_position}`}
+        >
             <Page size="A4" style={styles.page}>
-                {/* ... The rest of your JSX template goes here ... */}
-                {/* I am pasting the full JSX from your example below */}
-                <View style={styles.section}>
-                    <View>
-                        <Text style={styles.user_name}>
-                            {dataResume.resume_generated.contact_info.name}
+                <View style={styles.sidebar}>
+                    <View style={styles.sidebarSection}>
+                        <Text style={styles.sidebarTitle}>Contact</Text>
+                        <Text style={styles.contactItem}>
+                            {resume_generated.contact_info.phone}
                         </Text>
-                        <Text
-                            style={{ ...styles.position, ...styles.highlight }}
+                        <Link
+                            style={styles.contactLink}
+                            src={`mailto:${resume_generated.contact_info.email}`}
                         >
-                            {dataResume.job_position}
-                        </Text>
-                        <View style={styles.contact_section}>
-                            <Text>
-                                {dataResume.resume_generated.contact_info.email}
-                            </Text>
-                            <Text>
-                                {
-                                    dataResume.resume_generated.contact_info
-                                        .linkedin
-                                }
-                            </Text>
-                            <Text>
-                                {dataResume.resume_generated.contact_info.phone}
-                            </Text>
-                        </View>
+                            {resume_generated.contact_info.email}
+                        </Link>
+                        <Link
+                            style={styles.contactLink}
+                            src={resume_generated.contact_info.linkedin}
+                        >
+                            {resume_generated.contact_info.linkedin}
+                        </Link>
                     </View>
-                    <View>
-                        <Text style={styles.section_title}>Summary</Text>
-                        <Text>
-                            {dataResume.resume_generated.selected_narrative ===
-                            'summary'
-                                ? dataResume.resume_generated.summary
-                                : dataResume.resume_generated.career_objective}
+
+                    <View style={styles.sidebarSection}>
+                        <Text style={styles.sidebarTitle}>Education</Text>
+                        {resume_generated.education.map(
+                            (edu, id) =>
+                                edu.display !== false && (
+                                    <View
+                                        key={id}
+                                        style={styles.educationEntry}
+                                    >
+                                        <Text style={styles.degree}>
+                                            {edu.degree}
+                                        </Text>
+                                        <Text style={styles.school}>
+                                            {edu.school}
+                                        </Text>
+                                        <Text style={styles.educationDates}>
+                                            {edu.start_end_dates}
+                                        </Text>
+                                    </View>
+                                ),
+                        )}
+                    </View>
+
+                    <View style={styles.sidebarSection}>
+                        <Text style={styles.sidebarTitle}>Skills</Text>
+                        {resume_generated.skills.map(
+                            (skill, id) =>
+                                skill && (
+                                    <Text key={id} style={styles.skill}>
+                                        • {skill}
+                                    </Text>
+                                ),
+                        )}
+                    </View>
+                </View>
+
+                <View style={styles.mainContent}>
+                    <View style={styles.header}>
+                        <Text style={styles.userName}>
+                            {resume_generated.contact_info.name}
+                        </Text>
+                        <Text style={styles.jobPosition}>{job_position}</Text>
+                    </View>
+
+                    <View style={styles.mainSection}>
+                        <Text style={styles.sectionTitle}>
+                            {resume_generated.selected_narrative === 'summary'
+                                ? 'Professional Summary'
+                                : 'Career Objective'}
+                        </Text>
+                        <View style={styles.sectionDivider} />
+                        <Text style={styles.description}>
+                            {resume_generated.selected_narrative === 'summary'
+                                ? resume_generated.summary
+                                : resume_generated.career_objective}
                         </Text>
                     </View>
-                    <View style={styles.content_resume}>
-                        <View style={{ width: '70%' }}>
-                            {/* Experience Section */}
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Experience
-                                </Text>
-                                {dataResume.resume_generated.experience.map(
-                                    (exp, id) =>
-                                        // This pattern is now used for all sections.
-                                        exp.display !== false && (
-                                            <View key={id}>
-                                                <Text
-                                                    style={
-                                                        styles.section_subtitle
-                                                    }
-                                                >
-                                                    {exp.title}
-                                                </Text>
-                                                <Text
-                                                    style={{
-                                                        ...styles.subtitle_higlighted,
-                                                        ...styles.highlight,
-                                                    }}
-                                                >
-                                                    {exp.company}
-                                                </Text>
-                                                <Text>
-                                                    {exp.start_end_dates}
-                                                </Text>
-                                                <Text>
-                                                    {exp.responsabilities}
-                                                </Text>
-                                            </View>
-                                        ),
-                                )}
-                            </View>
-                            {/* Projects Section */}
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Projects
-                                </Text>
-                                {dataResume.resume_generated.projects.map(
-                                    (pro, id) =>
-                                        pro.display !== false && (
-                                            <View key={id}>
-                                                <Text
-                                                    style={
-                                                        styles.section_subtitle
-                                                    }
-                                                >
-                                                    {pro.name}
-                                                </Text>
-                                                <Text>
-                                                    {pro.start_end_dates}
-                                                </Text>
-                                                <Text>{pro.description}</Text>
-                                            </View>
-                                        ),
-                                )}
-                            </View>
-                        </View>
-                        <View style={{ width: '25%' }}>
-                            {/* Education Section */}
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Education
-                                </Text>
-                                {dataResume.resume_generated.education.map(
-                                    (edu, id) =>
-                                        edu.display !== false && (
-                                            <View key={id}>
-                                                <Text
-                                                    style={{
-                                                        ...styles.subtitle_higlighted,
-                                                        ...styles.highlight,
-                                                    }}
-                                                >
-                                                    {edu.degree}
-                                                </Text>
-                                                <Text>{edu.school}</Text>
-                                                <Text>{edu.minor}</Text>
-                                                <Text>
-                                                    {edu.start_end_dates}
-                                                </Text>
-                                            </View>
-                                        ),
-                                )}
-                            </View>
-                            {/* Skills Section */}
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Skills
-                                </Text>
-                                {dataResume.resume_generated.skills.map(
-                                    (skill, id) =>
-                                        skill !== '' && (
-                                            <Text key={id}>{skill}</Text>
-                                        ),
-                                )}
-                            </View>
-                        </View>
+
+                    <View style={styles.mainSection}>
+                        <Text style={styles.sectionTitle}>Work Experience</Text>
+                        <View style={styles.sectionDivider} />
+                        {resume_generated.experience.map(
+                            (exp, id) =>
+                                exp.display !== false && (
+                                    <View
+                                        key={id}
+                                        style={styles.entryContainer}
+                                    >
+                                        <Text style={styles.jobTitle}>
+                                            {exp.title}
+                                        </Text>
+                                        <Text style={styles.companyAndDate}>
+                                            {exp.company} |{' '}
+                                            {exp.start_end_dates}
+                                        </Text>
+                                        <Text style={styles.description}>
+                                            {exp.responsabilities}
+                                        </Text>
+                                    </View>
+                                ),
+                        )}
+                    </View>
+
+                    <View style={styles.mainSection}>
+                        <Text style={styles.sectionTitle}>Projects</Text>
+                        <View style={styles.sectionDivider} />
+                        {resume_generated.projects.map(
+                            (pro, id) =>
+                                pro.display !== false && (
+                                    <View
+                                        key={id}
+                                        style={styles.entryContainer}
+                                    >
+                                        <Text style={styles.jobTitle}>
+                                            {pro.name}
+                                        </Text>
+                                        <Text style={styles.companyAndDate}>
+                                            {pro.start_end_dates}
+                                        </Text>
+                                        <Text style={styles.description}>
+                                            {pro.description}
+                                        </Text>
+                                    </View>
+                                ),
+                        )}
                     </View>
                 </View>
             </Page>
