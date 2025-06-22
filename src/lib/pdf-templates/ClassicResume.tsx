@@ -145,43 +145,33 @@ export const ClassicResumeTemplate = ({ dataResume }: TemplateProps) => {
                                     Experience
                                 </Text>
                                 {dataResume.resume_generated.experience.map(
-                                    (exp, id) => (
-                                        // **FIX #2: Simplified and standardized the conditional logic.**
+                                    (exp, id) =>
                                         // This pattern is now used for all sections.
-                                        <View key={id}>
-                                            <Text
-                                                style={styles.section_subtitle}
-                                            >
-                                                {exp.display ||
-                                                exp.display == undefined
-                                                    ? exp.title
-                                                    : ''}
-                                            </Text>
-                                            <Text
-                                                style={{
-                                                    ...styles.subtitle_higlighted,
-                                                    ...styles.highlight,
-                                                }}
-                                            >
-                                                {exp.display ||
-                                                exp.display == undefined
-                                                    ? exp.company
-                                                    : ''}
-                                            </Text>
-                                            <Text>
-                                                {exp.display ||
-                                                exp.display == undefined
-                                                    ? exp.start_end_dates
-                                                    : ''}
-                                            </Text>
-                                            <Text>
-                                                {exp.display ||
-                                                exp.display == undefined
-                                                    ? exp.responsabilities
-                                                    : ''}
-                                            </Text>
-                                        </View>
-                                    ),
+                                        exp.display !== false && (
+                                            <View key={id}>
+                                                <Text
+                                                    style={
+                                                        styles.section_subtitle
+                                                    }
+                                                >
+                                                    {exp.title}
+                                                </Text>
+                                                <Text
+                                                    style={{
+                                                        ...styles.subtitle_higlighted,
+                                                        ...styles.highlight,
+                                                    }}
+                                                >
+                                                    {exp.company}
+                                                </Text>
+                                                <Text>
+                                                    {exp.start_end_dates}
+                                                </Text>
+                                                <Text>
+                                                    {exp.responsabilities}
+                                                </Text>
+                                            </View>
+                                        ),
                                 )}
                             </View>
                             {/* Projects Section */}
@@ -195,30 +185,22 @@ export const ClassicResumeTemplate = ({ dataResume }: TemplateProps) => {
                                     Projects
                                 </Text>
                                 {dataResume.resume_generated.projects.map(
-                                    (pro, id) => (
-                                        <View key={id}>
-                                            <Text
-                                                style={styles.section_subtitle}
-                                            >
-                                                {pro.display ||
-                                                pro.display == undefined
-                                                    ? pro.name
-                                                    : ''}
-                                            </Text>
-                                            <Text>
-                                                {pro.display ||
-                                                pro.display == undefined
-                                                    ? pro.start_end_dates
-                                                    : ''}
-                                            </Text>
-                                            <Text>
-                                                {pro.display ||
-                                                pro.display == undefined
-                                                    ? pro.description
-                                                    : ''}
-                                            </Text>
-                                        </View>
-                                    ),
+                                    (pro, id) =>
+                                        pro.display !== false && (
+                                            <View key={id}>
+                                                <Text
+                                                    style={
+                                                        styles.section_subtitle
+                                                    }
+                                                >
+                                                    {pro.name}
+                                                </Text>
+                                                <Text>
+                                                    {pro.start_end_dates}
+                                                </Text>
+                                                <Text>{pro.description}</Text>
+                                            </View>
+                                        ),
                                 )}
                             </View>
                         </View>
@@ -234,39 +216,24 @@ export const ClassicResumeTemplate = ({ dataResume }: TemplateProps) => {
                                     Education
                                 </Text>
                                 {dataResume.resume_generated.education.map(
-                                    (edu, id) => (
-                                        <View key={id}>
-                                            <Text
-                                                style={{
-                                                    ...styles.subtitle_higlighted,
-                                                    ...styles.highlight,
-                                                }}
-                                            >
-                                                {edu.display ||
-                                                edu.display == undefined
-                                                    ? edu.degree
-                                                    : ''}
-                                            </Text>
-                                            <Text>
-                                                {edu.display ||
-                                                edu.display == undefined
-                                                    ? edu.school
-                                                    : ''}
-                                            </Text>
-                                            <Text>
-                                                {edu.display ||
-                                                edu.display == undefined
-                                                    ? edu.minor
-                                                    : ''}
-                                            </Text>
-                                            <Text>
-                                                {edu.display ||
-                                                edu.display == undefined
-                                                    ? edu.start_end_dates
-                                                    : ''}
-                                            </Text>
-                                        </View>
-                                    ),
+                                    (edu, id) =>
+                                        edu.display !== false && (
+                                            <View key={id}>
+                                                <Text
+                                                    style={{
+                                                        ...styles.subtitle_higlighted,
+                                                        ...styles.highlight,
+                                                    }}
+                                                >
+                                                    {edu.degree}
+                                                </Text>
+                                                <Text>{edu.school}</Text>
+                                                <Text>{edu.minor}</Text>
+                                                <Text>
+                                                    {edu.start_end_dates}
+                                                </Text>
+                                            </View>
+                                        ),
                                 )}
                             </View>
                             {/* Skills Section */}
@@ -280,9 +247,10 @@ export const ClassicResumeTemplate = ({ dataResume }: TemplateProps) => {
                                     Skills
                                 </Text>
                                 {dataResume.resume_generated.skills.map(
-                                    (skill, id) => (
-                                        <Text key={id}>{skill}</Text>
-                                    ),
+                                    (skill, id) =>
+                                        skill !== '' && (
+                                            <Text key={id}>{skill}</Text>
+                                        ),
                                 )}
                             </View>
                         </View>

@@ -26,7 +26,7 @@ import classes from './resumeEditor.module.css';
 // Interface using YOUR prop names
 interface ResumeEditorProps {
     dataResume: FormJobOfferDataStructure;
-    setDataResume: Dispatch<SetStateAction<FormJobOfferDataStructure>>;
+    setDataResume: (updater: SetStateAction<FormJobOfferDataStructure>) => void;
 }
 
 type ToggleableSectionKey = 'experience' | 'projects' | 'education';
@@ -105,10 +105,6 @@ export default function ResumeEditor({
                 display: !display,
             };
 
-            console.log('hideShowSection: Updated section items:', {
-                section,
-                updatedSectionItems,
-            });
             return {
                 ...prevDataResume,
                 resume_generated: {

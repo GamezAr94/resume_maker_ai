@@ -14,9 +14,10 @@ import {
 
 interface Props {
     dataResume: FormJobOfferDataStructure;
+    viewerKey: number;
 }
 
-export default function ResumeViewer({ dataResume }: Props) {
+export default function ResumeViewer({ dataResume, viewerKey }: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -123,8 +124,11 @@ export default function ResumeViewer({ dataResume }: Props) {
             {isFirefox && (
                 <div className={styles_css.firefox_cover_container}></div>
             )}
-            {/*<PDFViewer showToolbar={false} style={styles.viewer}>*/}
-            <PDFViewer showToolbar={false} style={pdfStyles.viewer}>
+            <PDFViewer
+                key={viewerKey}
+                showToolbar={false}
+                style={pdfStyles.viewer}
+            >
                 <ClassicResumeTemplate dataResume={dataResume} />
             </PDFViewer>
             <div className={styles_css.action_buttons_container}>

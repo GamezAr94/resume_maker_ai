@@ -6,7 +6,7 @@ import {
     FormJobOfferDataStructure,
 } from '@/utils/interfaces';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, SetStateAction } from 'react';
 import styles from './page.module.css';
 import ResumeEditor from '@/app/components/resumeViewer/resumeEditor';
 import dynamic from 'next/dynamic';
@@ -22,6 +22,8 @@ export default function Resume() {
     const [dataResume, setDataResume] = useState<FormJobOfferDataStructure>(
         emptyStateJobDataOffer,
     );
+
+    const [viewerKey, setViewerKey] = useState(0);
 
     const router = useRouter();
     const params = useParams();
@@ -96,16 +98,31 @@ export default function Resume() {
         }
     }, [router, id]);
 
+    // Function to update the resume data and remount the viewer
+    // This is useful when the user edits the resume and we want to refresh the viewer
+    // to reflect the changes immediately without having to reload the page
+    // This function is passed to the ResumeEditor component
+    // and is called when the user saves the changes in the editor
+    const updateResumeAndRemountViewer = (
+        updater: SetStateAction<FormJobOfferDataStructure>,
+    ) => {
+        setDataResume(updater);
+        setViewerKey((prevKey) => prevKey + 1);
+    };
+
     return (
         <div className={styles.main_container}>
             <div className={styles.editor_container}>
                 <ResumeEditor
-                    setDataResume={setDataResume}
+                    setDataResume={updateResumeAndRemountViewer}
                     dataResume={dataResume}
                 />
             </div>
             {dataResume.id ? (
-                <DynamicResumeViewer dataResume={dataResume} />
+                <DynamicResumeViewer
+                    dataResume={dataResume}
+                    viewerKey={viewerKey}
+                />
             ) : (
                 // Mientras carga los datos o si el ID es inválido, no muestra el viewer
                 // Puedes mostrar un mensaje más específico si quieres
