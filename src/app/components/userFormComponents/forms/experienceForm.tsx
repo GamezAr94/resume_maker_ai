@@ -196,25 +196,6 @@ export default function ExperienceForm({
             value: string;
         };
     }
-    // Function to handle the input change and also to rever the form errors
-    function handleInputChange2(
-        event: HandleInputChangeEvent,
-        type: keyof FormExperienceStructure,
-        setter: Dispatch<SetStateAction<FormExperienceStructure | null>>,
-        prevState: FormExperienceStructure | null,
-    ) {
-        if (!prevState) {
-            prevState = emptyStateExperience;
-        }
-        setter({
-            ...prevState,
-            [type]: event.target.value,
-        });
-        setFormErrors((prev) => ({
-            ...prev,
-            [type]: null,
-        }));
-    }
 
     // A new, safer function to handle all input changes
     function handleInputChange(

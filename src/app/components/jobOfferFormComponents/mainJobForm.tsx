@@ -6,7 +6,14 @@ interface Props {
     className: string;
     status: 'disabled' | 'warn' | 'ready';
     percentage: number;
-    sectionCounts: any;
+    sectionCounts: {
+        [key: string]: {
+            current: number;
+            required: number;
+            label: string;
+            value: string;
+        };
+    };
     onCompleteProfileClick: () => void;
 }
 

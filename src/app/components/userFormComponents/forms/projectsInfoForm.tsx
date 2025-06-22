@@ -9,7 +9,7 @@ import {
     FormProjectStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { Button, Input, Select, Group, Text, Textarea } from '@mantine/core';
+import { Button, Input, Select, Group, Text } from '@mantine/core';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';

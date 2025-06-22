@@ -12,7 +12,6 @@ import {
 import { useState, forwardRef } from 'react';
 import ExperienceContainerForm from './formContainers/experienceContainerForm';
 import EducationContainerForm from './formContainers/educationContainerForm';
-import { SectionTypes } from '@/utils/enums';
 import SkillContainerForm from './formContainers/skillContainerForm';
 import ProjectContainerForm from './formContainers/projectContainerForm';
 import {

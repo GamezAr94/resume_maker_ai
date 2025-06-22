@@ -4,7 +4,6 @@ import {
     IconCheck,
     IconClock,
     IconChevronDown,
-    IconSparkles,
     IconAsterisk,
 } from '@tabler/icons-react';
 import styles from './ProfileCompletionCard.module.css';
