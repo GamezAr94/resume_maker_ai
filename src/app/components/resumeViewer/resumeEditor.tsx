@@ -46,173 +46,141 @@ export default function ResumeEditor({
         const sectionNameFromAttr =
             e.currentTarget.getAttribute('data-section');
 
-        if (iterator == null || sectionNameFromAttr == null) {
-            // Added check for section as well
-            console.error(
-                'hideShowSection: Missing data-iterator or data-section',
-            );
-            return;
-        }
-        const index = parseInt(iterator, 10);
+        //TODO remove this
+        console.log(
+            `hideShowSection: iterator=${iterator}, sectionNameFromAttr=${sectionNameFromAttr}`,
+        );
+        setDataResume((prevDataResume) => {
+            if (iterator == null || sectionNameFromAttr == null) {
+                console.error(
+                    'hideShowSection: Missing data-iterator or data-section',
+                );
+                return prevDataResume;
+            }
+            const index = parseInt(iterator, 10);
 
-        // Check if the sectionNameFromAttr is one of the keys we expect for this function
-        if (
-            sectionNameFromAttr !== 'experience' &&
-            sectionNameFromAttr !== 'projects' &&
-            sectionNameFromAttr !== 'education'
-        ) {
-            console.warn(
-                `hideShowSection: Section '${sectionNameFromAttr}' is not 'experience', 'projects', or 'education'. Logic not applied.`,
-            );
-            return;
-        }
+            if (
+                sectionNameFromAttr !== 'experience' &&
+                sectionNameFromAttr !== 'projects' &&
+                sectionNameFromAttr !== 'education'
+            ) {
+                console.warn(
+                    `hideShowSection: Section '${sectionNameFromAttr}' is not 'experience', 'projects', or 'education'. Logic not applied.`,
+                );
+                return prevDataResume;
+            }
 
-        // Now TypeScript knows 'section' is one of 'experience', 'projects', or 'education'
-        const section = sectionNameFromAttr as ToggleableSectionKey;
+            const section = sectionNameFromAttr as ToggleableSectionKey;
 
-        // Assuming 'resume_generated' is a key in your FormJobOfferDataStructure
-        // And 'projects' and 'experience' are keys within 'resume_generated'
-        if (
-            !dataResume.resume_generated ||
-            !(section in dataResume.resume_generated)
-        ) {
-            console.error(
-                `hideShowSection: section '${section}' not found in dataResume.resume_generated`,
-            );
-            return;
-        }
+            if (
+                !prevDataResume.resume_generated ||
+                !prevDataResume.resume_generated[section]
+            ) {
+                console.error(
+                    `hideShowSection: section '${section}' not found in dataResume.resume_generated`,
+                );
+                return prevDataResume;
+            }
 
-        if (!dataResume.resume_generated) {
-            console.error('hideShowSection: resume_generated is missing.');
-            return;
-        }
+            const sectionArray = prevDataResume.resume_generated[section];
+            if (!Array.isArray(sectionArray) || !sectionArray[index]) {
+                console.error(
+                    `hideShowSection: ${section}[${index}] is not accessible or not an array.`,
+                );
+                return prevDataResume;
+            }
 
-        const sectionArray = dataResume.resume_generated[section];
-        if (!Array.isArray(sectionArray) || !sectionArray[index]) {
-            console.error(
-                `hideShowSection: ${section}[${index}] is not accessible or not an array.`,
-            );
-            return;
-        }
+            const updatedSectionItems = [...sectionArray];
+            const currentItem = updatedSectionItems[index];
 
-        const updatedSectionItems = [...sectionArray];
-        const currentItem = updatedSectionItems[index];
+            // if the display property is undefined, set its initial state based on what "hide/show" implies
+            // If clicking "hide", initial undefined means it's currently shown (true), so next state is false.
+            // If clicking "show", initial undefined means it's currently hidden (false), so next state is true.
+            // For simplicity, let's assume undefined means it's currently visible (true).
+            const display =
+                currentItem.display === undefined ? true : currentItem.display;
 
-        // if the display property is undefined, set its initial state based on what "hide/show" implies
-        // If clicking "hide", initial undefined means it's currently shown (true), so next state is false.
-        // If clicking "show", initial undefined means it's currently hidden (false), so next state is true.
-        // For simplicity, let's assume undefined means it's currently visible (true).
-        const display =
-            currentItem.display === undefined ? true : currentItem.display;
+            updatedSectionItems[index] = {
+                ...currentItem,
+                display: !display,
+            };
 
-        updatedSectionItems[index] = {
-            ...currentItem,
-            display: !display,
-        };
-
-        setDataResume((prevDataResume) => ({
-            ...prevDataResume,
-            resume_generated: {
-                ...prevDataResume.resume_generated,
-                [section]: updatedSectionItems,
-            },
-        }));
+            console.log('hideShowSection: Updated section items:', {
+                section,
+                updatedSectionItems,
+            });
+            return {
+                ...prevDataResume,
+                resume_generated: {
+                    ...prevDataResume.resume_generated,
+                    [section]: updatedSectionItems,
+                },
+            };
+        });
     };
 
     // funciton to handle the change of the input
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
-        const [value, name] = [e.target.value, e.target.name];
+        const { name, value } = e.target;
         const section = e.target.getAttribute('data-section');
-
         const iteratorStr = e.target.getAttribute('data-iterator');
 
-        switch (section) {
-            case 'job_position':
-                setDataResume({
-                    ...dataResume,
-                    job_position: value,
-                });
-                break;
-            case 'name':
-            case 'email':
-            case 'linkedin':
-            case 'phone':
-                setDataResume({
-                    ...dataResume,
-                    resume_generated: {
-                        ...dataResume.resume_generated,
-                        contact_info: {
-                            ...dataResume.resume_generated.contact_info,
-                            [section]: value,
-                        },
-                    },
-                });
-                break;
-            case 'summary':
-            case 'career_objective':
-                setDataResume({
-                    ...dataResume,
-                    resume_generated: {
-                        ...dataResume.resume_generated,
-                        [section]: value,
-                    },
-                });
-                break;
-            case 'projects':
-            case 'experience':
-            case 'education':
-                if (iteratorStr !== null) {
-                    const index = parseInt(iteratorStr, 10);
-                    const updatedProjects = [
-                        ...dataResume.resume_generated[section],
-                    ];
-                    updatedProjects[index] = {
-                        ...updatedProjects[index],
-                        [name]: value,
-                    };
-                    setDataResume({
-                        ...dataResume,
-                        resume_generated: {
-                            ...dataResume.resume_generated,
-                            [section]: updatedProjects,
-                        },
-                    });
-                }
-                break;
-            case 'skills':
-                if (iteratorStr !== null) {
-                    const index = parseInt(iteratorStr, 10);
+        setDataResume((prev) => {
+            // Create a deep copy to avoid mutation issues
+            const newData = JSON.parse(JSON.stringify(prev));
 
-                    // Access the skills array safely from the previous state
-                    const currentSkillsArray =
-                        dataResume.resume_generated?.skills;
+            switch (section) {
+                case 'job_position':
+                    newData.job_position = value;
+                    break;
 
-                    // Ensure it's actually an array before proceeding
-                    if (Array.isArray(currentSkillsArray)) {
-                        if (index >= 0 && index < currentSkillsArray.length) {
-                            const updatedSkillsArray = [...currentSkillsArray];
-                            updatedSkillsArray[index] = value; // Directly update the string at the given index
+                case 'name':
+                case 'email':
+                case 'linkedin':
+                case 'phone':
+                    if (newData.resume_generated?.contact_info) {
+                        newData.resume_generated.contact_info[section] = value;
+                    }
+                    break;
 
-                            setDataResume((prev) => ({
-                                ...prev,
-                                resume_generated: {
-                                    ...prev.resume_generated,
-                                    skills: updatedSkillsArray, // Set the new array of strings
-                                },
-                            }));
-                        } else {
-                            console.warn(
-                                `handleChange (skills): Index ${index} out of bounds for skills array.`,
-                            );
+                case 'summary':
+                case 'career_objective':
+                    if (newData.resume_generated) {
+                        newData.resume_generated[section] = value;
+                    }
+                    break;
+
+                case 'experience':
+                case 'projects':
+                case 'education':
+                    if (iteratorStr !== null && newData.resume_generated) {
+                        const index = parseInt(iteratorStr, 10);
+                        const sectionArray = newData.resume_generated[section];
+                        if (sectionArray && sectionArray[index]) {
+                            // `name` comes from the input's `name` attribute (e.g., "title", "description")
+                            sectionArray[index][name] = value;
                         }
                     }
-                }
-                break;
-            default:
-                return;
-        }
+                    break;
+
+                case 'skills':
+                    if (
+                        iteratorStr !== null &&
+                        newData.resume_generated?.skills
+                    ) {
+                        const index = parseInt(iteratorStr, 10);
+                        if (
+                            newData.resume_generated.skills[index] !== undefined
+                        ) {
+                            newData.resume_generated.skills[index] = value;
+                        }
+                    }
+                    break;
+            }
+            return newData;
+        });
     };
 
     return (
@@ -524,7 +492,7 @@ export default function ResumeEditor({
                                                         onChange={handleChange}
                                                         data-section="experience"
                                                         data-iterator={index.toString()}
-                                                        name="description"
+                                                        name="responsabilities"
                                                         autosize
                                                         minRows={3}
                                                         className={`${classes.inputField} ${classes.descriptionTextarea}`}

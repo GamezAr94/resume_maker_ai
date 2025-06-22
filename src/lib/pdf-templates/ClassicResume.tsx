@@ -1,0 +1,294 @@
+import React from 'react';
+import {
+    Document,
+    Page,
+    View,
+    Text,
+    StyleSheet,
+    Font,
+} from '@react-pdf/renderer';
+import { FormJobOfferDataStructure } from '@/utils/interfaces';
+
+// Keep any font registration here. It will run once when the module is imported.
+Font.registerHyphenationCallback((word) => [word]);
+
+// Define the Props interface for the template
+interface TemplateProps {
+    dataResume: FormJobOfferDataStructure;
+}
+
+// Export the styles so they can be used by other components if needed (e.g., for the viewer's dimensions)
+export const styles = StyleSheet.create({
+    viewer: {
+        aspectRatio: '210/297',
+        maxWidth: '712px',
+        width: '100%',
+        fontWeight: 'bold',
+    },
+    page: {
+        flexDirection: 'column',
+        backgroundColor: 'white',
+        padding: 10,
+        paddingBottom: 0,
+        fontSize: '13pt',
+    },
+    section: {
+        flexGrow: 1,
+        backgroundColor: '#E4E4E4',
+    },
+    highlight: {
+        color: '#fa8072',
+    },
+    user_name: {
+        fontFamily: 'Helvetica-Bold',
+        fontSize: '28pt',
+    },
+    position: {
+        fontFamily: 'Helvetica-Bold',
+        fontSize: '20pt',
+    },
+    contact_section: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        flexWrap: 'wrap',
+        gap: '5%',
+    },
+    section_title: {
+        fontFamily: 'Helvetica-Bold',
+        fontSize: '20pt',
+    },
+    divider: {
+        borderBottom: '3px solid black',
+    },
+    section_subtitle: {
+        fontSize: '17pt',
+        fontFamily: 'Helvetica-Bold',
+        fontWeight: 900,
+    },
+    subtitle_higlighted: {
+        fontFamily: 'Helvetica-Bold',
+        fontSize: '13pt',
+    },
+    content_resume: {
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '20px',
+    },
+});
+
+// Export the main Document component. We've renamed it for clarity.
+export const ClassicResumeTemplate = ({ dataResume }: TemplateProps) => {
+    // You can add data validation here as well
+    if (!dataResume || !dataResume.resume_generated) {
+        return (
+            <Document>
+                <Page size="A4" style={styles.page}>
+                    <View style={{ padding: 20 }}>
+                        <Text>Generating resume...</Text>
+                    </View>
+                </Page>
+            </Document>
+        );
+    }
+
+    return (
+        <Document>
+            <Page size="A4" style={styles.page}>
+                {/* ... The rest of your JSX template goes here ... */}
+                {/* I am pasting the full JSX from your example below */}
+                <View style={styles.section}>
+                    <View>
+                        <Text style={styles.user_name}>
+                            {dataResume.resume_generated.contact_info.name}
+                        </Text>
+                        <Text
+                            style={{ ...styles.position, ...styles.highlight }}
+                        >
+                            {dataResume.job_position}
+                        </Text>
+                        <View style={styles.contact_section}>
+                            <Text>
+                                {dataResume.resume_generated.contact_info.email}
+                            </Text>
+                            <Text>
+                                {
+                                    dataResume.resume_generated.contact_info
+                                        .linkedin
+                                }
+                            </Text>
+                            <Text>
+                                {dataResume.resume_generated.contact_info.phone}
+                            </Text>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.section_title}>Summary</Text>
+                        <Text>
+                            {dataResume.resume_generated.selected_narrative ===
+                            'summary'
+                                ? dataResume.resume_generated.summary
+                                : dataResume.resume_generated.career_objective}
+                        </Text>
+                    </View>
+                    <View style={styles.content_resume}>
+                        <View style={{ width: '70%' }}>
+                            {/* Experience Section */}
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Experience
+                                </Text>
+                                {dataResume.resume_generated.experience.map(
+                                    (exp, id) => (
+                                        // **FIX #2: Simplified and standardized the conditional logic.**
+                                        // This pattern is now used for all sections.
+                                        <View key={id}>
+                                            <Text
+                                                style={styles.section_subtitle}
+                                            >
+                                                {exp.display ||
+                                                exp.display == undefined
+                                                    ? exp.title
+                                                    : ''}
+                                            </Text>
+                                            <Text
+                                                style={{
+                                                    ...styles.subtitle_higlighted,
+                                                    ...styles.highlight,
+                                                }}
+                                            >
+                                                {exp.display ||
+                                                exp.display == undefined
+                                                    ? exp.company
+                                                    : ''}
+                                            </Text>
+                                            <Text>
+                                                {exp.display ||
+                                                exp.display == undefined
+                                                    ? exp.start_end_dates
+                                                    : ''}
+                                            </Text>
+                                            <Text>
+                                                {exp.display ||
+                                                exp.display == undefined
+                                                    ? exp.responsabilities
+                                                    : ''}
+                                            </Text>
+                                        </View>
+                                    ),
+                                )}
+                            </View>
+                            {/* Projects Section */}
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Projects
+                                </Text>
+                                {dataResume.resume_generated.projects.map(
+                                    (pro, id) => (
+                                        <View key={id}>
+                                            <Text
+                                                style={styles.section_subtitle}
+                                            >
+                                                {pro.display ||
+                                                pro.display == undefined
+                                                    ? pro.name
+                                                    : ''}
+                                            </Text>
+                                            <Text>
+                                                {pro.display ||
+                                                pro.display == undefined
+                                                    ? pro.start_end_dates
+                                                    : ''}
+                                            </Text>
+                                            <Text>
+                                                {pro.display ||
+                                                pro.display == undefined
+                                                    ? pro.description
+                                                    : ''}
+                                            </Text>
+                                        </View>
+                                    ),
+                                )}
+                            </View>
+                        </View>
+                        <View style={{ width: '25%' }}>
+                            {/* Education Section */}
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Education
+                                </Text>
+                                {dataResume.resume_generated.education.map(
+                                    (edu, id) => (
+                                        <View key={id}>
+                                            <Text
+                                                style={{
+                                                    ...styles.subtitle_higlighted,
+                                                    ...styles.highlight,
+                                                }}
+                                            >
+                                                {edu.display ||
+                                                edu.display == undefined
+                                                    ? edu.degree
+                                                    : ''}
+                                            </Text>
+                                            <Text>
+                                                {edu.display ||
+                                                edu.display == undefined
+                                                    ? edu.school
+                                                    : ''}
+                                            </Text>
+                                            <Text>
+                                                {edu.display ||
+                                                edu.display == undefined
+                                                    ? edu.minor
+                                                    : ''}
+                                            </Text>
+                                            <Text>
+                                                {edu.display ||
+                                                edu.display == undefined
+                                                    ? edu.start_end_dates
+                                                    : ''}
+                                            </Text>
+                                        </View>
+                                    ),
+                                )}
+                            </View>
+                            {/* Skills Section */}
+                            <View>
+                                <Text
+                                    style={{
+                                        ...styles.section_title,
+                                        ...styles.divider,
+                                    }}
+                                >
+                                    Skills
+                                </Text>
+                                {dataResume.resume_generated.skills.map(
+                                    (skill, id) => (
+                                        <Text key={id}>{skill}</Text>
+                                    ),
+                                )}
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Page>
+        </Document>
+    );
+};

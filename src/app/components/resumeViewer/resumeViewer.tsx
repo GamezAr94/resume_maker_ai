@@ -1,330 +1,21 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import styles_css from './resumeViewer.module.css';
-import {
-    Document,
-    Page,
-    PDFViewer,
-    Font,
-    StyleSheet,
-    Text,
-    View,
-} from '@react-pdf/renderer';
+import { Document, Page, PDFViewer, View } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
-import { Button } from '@mantine/core';
+import { Button, Text } from '@mantine/core';
 import { SectionTypes } from '@/utils/enums';
 
-// this is a hack to avoid the hyphenation of words
-Font.registerHyphenationCallback((word) => [word]);
-
-// Template for the styles for the PDF Resume
-const styles = StyleSheet.create({
-    viewer: {
-        aspectRatio: '210/297',
-        maxWidth: '712px',
-        width: '100%',
-        fontWeight: 'bold',
-    },
-    page: {
-        flexDirection: 'column',
-        backgroundColor: 'white',
-        padding: 10,
-        paddingBottom: 0,
-        fontSize: '13pt',
-    },
-    section: {
-        flexGrow: 1,
-        backgroundColor: '#E4E4E4',
-    },
-    highlight: {
-        color: '#fa8072',
-    },
-    user_name: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '28pt',
-    },
-    position: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '20pt',
-    },
-    contact_section: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        flexWrap: 'wrap',
-        gap: '5%',
-    },
-    section_title: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '20pt',
-    },
-    divider: {
-        borderBottom: '3px solid black',
-    },
-    section_subtitle: {
-        fontSize: '17pt',
-        fontFamily: 'Helvetica-Bold',
-        //fontFamily: 'Roboto',
-        fontWeight: 900,
-    },
-    subtitle_higlighted: {
-        fontFamily: 'Helvetica-Bold',
-        fontSize: '13pt',
-    },
-    content_resume: {
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '20px',
-    },
-});
+// Import the templates
+import {
+    ClassicResumeTemplate,
+    styles as pdfStyles,
+} from '@/lib/pdf-templates/ClassicResume';
 
 interface Props {
     dataResume: FormJobOfferDataStructure;
 }
-const MyDocument = ({ dataResume }: Props) => {
-    if (!dataResume.resume_generated) {
-        return (
-            <Document>
-                <Page>
-                    <View>
-                        <Text>Error: Resume data missing.</Text>
-                    </View>
-                </Page>
-            </Document>
-        );
-    }
-    return (
-        <Document>
-            <Page size="A4" style={styles.page}>
-                <View style={styles.section}>
-                    <View>
-                        <Text style={styles.user_name}>
-                            {dataResume.resume_generated.contact_info.name}
-                        </Text>
-                        <Text
-                            style={{
-                                ...styles.position,
-                                ...styles.highlight,
-                            }}
-                        >
-                            {dataResume.job_position}
-                        </Text>
-                        <View style={styles.contact_section}>
-                            <Text>
-                                {dataResume.resume_generated.contact_info.email}
-                            </Text>
-                            <Text>
-                                {
-                                    dataResume.resume_generated.contact_info
-                                        .linkedin
-                                }
-                            </Text>
-                            <Text>
-                                {dataResume.resume_generated.contact_info.phone}
-                            </Text>
-                        </View>
-                    </View>
-                    <View>
-                        <Text style={styles.section_title}>Summary</Text>
-                        <Text>
-                            {dataResume.resume_generated.selected_narrative ==
-                            'summary'
-                                ? dataResume.resume_generated.summary
-                                : dataResume.resume_generated.career_objective}
-                        </Text>
-                    </View>
 
-                    <View style={styles.content_resume}>
-                        <View style={{ width: '70%' }}>
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Experience
-                                </Text>
-                                {dataResume.resume_generated.experience.map(
-                                    (exp, id) => {
-                                        return (
-                                            <View key={id}>
-                                                <Text
-                                                    style={
-                                                        styles.section_subtitle
-                                                    }
-                                                >
-                                                    {exp.display ||
-                                                    exp.display == undefined
-                                                        ? exp.title
-                                                        : ''}
-                                                </Text>
-                                                <Text
-                                                    style={{
-                                                        ...styles.subtitle_higlighted,
-                                                        ...styles.highlight,
-                                                    }}
-                                                >
-                                                    {exp.display ||
-                                                    exp.display == undefined
-                                                        ? exp.company
-                                                        : ''}
-                                                </Text>
-                                                <Text>
-                                                    {exp.display ||
-                                                    exp.display == undefined
-                                                        ? exp.start_end_dates
-                                                        : ''}
-                                                </Text>
-                                                {/*NOTE: We also have the responsabilities key not sure why though
-                                                <Text>
-                                                    {exp.display ||
-                                                    exp.display == undefined
-                                                        ? exp.responsabilities
-                                                        : ''}
-                                                </Text>*/}
-                                                <Text>
-                                                    {exp.display ||
-                                                    exp.display == undefined
-                                                        ? exp.responsabilities
-                                                        : ''}
-                                                </Text>
-                                            </View>
-                                        );
-                                    },
-                                )}
-                            </View>
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Projects
-                                </Text>
-                                {dataResume.resume_generated.projects.map(
-                                    (pro, id) => {
-                                        return (
-                                            <View key={id}>
-                                                <Text
-                                                    style={{
-                                                        ...styles.section_subtitle,
-                                                    }}
-                                                >
-                                                    {pro.display ||
-                                                    pro.display == undefined
-                                                        ? pro.name
-                                                        : ''}
-                                                </Text>
-                                                <Text>
-                                                    {pro.display ||
-                                                    pro.display == undefined
-                                                        ? pro.start_end_dates
-                                                        : ''}
-                                                </Text>
-                                                {/*This is to explain why project is relevant to this job
-                                                <Text>
-                                                    {pro.display ||
-                                                    pro.display == undefined
-                                                        ? pro.relevance
-                                                        : ''}
-                                                </Text>*/}
-                                                <Text>
-                                                    {pro.display ||
-                                                    pro.display == undefined
-                                                        ? pro.description
-                                                        : ''}
-                                                </Text>
-                                            </View>
-                                        );
-                                    },
-                                )}
-                            </View>
-                        </View>
-                        <View
-                            style={{
-                                width: '25%',
-                            }}
-                        >
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Education
-                                </Text>
-                                {dataResume.resume_generated.education.map(
-                                    (edu, id) => {
-                                        return (
-                                            <View key={id}>
-                                                <Text
-                                                    style={{
-                                                        ...styles.subtitle_higlighted,
-                                                        ...styles.highlight,
-                                                    }}
-                                                >
-                                                    {edu.display ||
-                                                    edu.display == undefined
-                                                        ? edu.degree
-                                                        : ''}
-                                                </Text>
-                                                <Text>
-                                                    {edu.display ||
-                                                    edu.display == undefined
-                                                        ? edu.school
-                                                        : ''}
-                                                </Text>
-                                                <Text>
-                                                    {edu.display ||
-                                                    edu.display == undefined
-                                                        ? edu.minor
-                                                        : ''}
-                                                </Text>
-                                                <Text>
-                                                    {edu.display ||
-                                                    edu.display == undefined
-                                                        ? edu.start_end_dates
-                                                        : ''}
-                                                </Text>
-                                            </View>
-                                        );
-                                    },
-                                )}
-                            </View>
-                            <View>
-                                <Text
-                                    style={{
-                                        ...styles.section_title,
-                                        ...styles.divider,
-                                    }}
-                                >
-                                    Skills
-                                </Text>
-                                {dataResume.resume_generated.skills.map(
-                                    (skill, id) => {
-                                        return (
-                                            <View key={id}>
-                                                <Text>
-                                                    {skill != ''
-                                                        ? `- ${skill}`
-                                                        : ''}
-                                                </Text>
-                                            </View>
-                                        );
-                                    },
-                                )}
-                            </View>
-                        </View>
-                    </View>
-                </View>
-            </Page>
-        </Document>
-    );
-};
 export default function ResumeViewer({ dataResume }: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -426,13 +117,15 @@ export default function ResumeViewer({ dataResume }: Props) {
             setIsDownloading(false); // Reset the downloading state
         }
     }
+
     return (
         <div className={styles_css.resume_viewer_container}>
             {isFirefox && (
                 <div className={styles_css.firefox_cover_container}></div>
             )}
-            <PDFViewer showToolbar={false} style={styles.viewer}>
-                <MyDocument dataResume={dataResume} />
+            {/*<PDFViewer showToolbar={false} style={styles.viewer}>*/}
+            <PDFViewer showToolbar={false} style={pdfStyles.viewer}>
+                <ClassicResumeTemplate dataResume={dataResume} />
             </PDFViewer>
             <div className={styles_css.action_buttons_container}>
                 <Button
