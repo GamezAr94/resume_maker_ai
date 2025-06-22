@@ -10,7 +10,6 @@ import {
     Badge,
     Button,
     rem,
-    Anchor,
 } from '@mantine/core';
 import {
     IconCoinFilled,
@@ -86,7 +85,7 @@ export default function TokensModal({
                                 color="var(--mantine-color-yellow-6)"
                             />
                             <Text fw={700} size="lg" mt="sm">
-                                You're on the Free Tier
+                                You&apos;re on the Free Tier
                             </Text>
                             <Text c="dimmed" size="sm" ta="center" maw={350}>
                                 Upgrade for more monthly tokens, advanced AI

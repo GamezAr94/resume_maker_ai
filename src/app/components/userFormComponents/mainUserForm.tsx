@@ -344,4 +344,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
         );
     },
 );
+
+MainUserForm.displayName = 'MainUserForm';
+
 export default MainUserForm;

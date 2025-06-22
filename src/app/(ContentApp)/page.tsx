@@ -6,7 +6,7 @@ import MainUserForm from '../components/userFormComponents/mainUserForm';
 import MainJobForm from '../components/jobOfferFormComponents/mainJobForm';
 import { Divider } from '@mantine/core';
 import { ProfileCompletionCard } from '../components/ProfileCompletion/ProfileCompletionCard';
-import { useRef, useState, useEffect, use } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import {
     FormEducationStructure,
     FormExperienceStructure,

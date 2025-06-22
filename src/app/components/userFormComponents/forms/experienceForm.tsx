@@ -191,12 +191,6 @@ export default function ExperienceForm({
         setEditRecord(value);
     }
 
-    interface HandleInputChangeEvent {
-        target: {
-            value: string;
-        };
-    }
-
     // A new, safer function to handle all input changes
     function handleInputChange(
         type: keyof FormExperienceStructure,

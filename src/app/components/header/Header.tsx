@@ -38,7 +38,7 @@ export default function Header() {
     // === MOCK DATA FOR USER SUBSCRIPTION ===
     // Change the 'tier' value here to 'free', 'monthly', or 'yearly' to test different views
     const userSubscription = {
-        tier: 'yearly' as SubscriptionTier, // <--  TODO CHANGE THIS VALUE TO TEST
+        tier: 'free' as SubscriptionTier, // <--  TODO CHANGE THIS VALUE TO TEST
         tokensPerRefill: 500, // Example for 'monthly'
         renewalDate: new Date('2025-07-15T00:00:00Z'), // Example for 'monthly' or 'yearly'
     };
