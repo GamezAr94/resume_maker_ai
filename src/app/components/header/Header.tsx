@@ -23,6 +23,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import styles from './header.module.css'; // Use the new styles
+import { signOutAction } from '@/app/actions';
 import TokensModal, { UserSubscription } from './tokensModal';
 
 type SubscriptionTier = 'free' | 'monthly' | 'yearly';
@@ -138,11 +139,7 @@ export default function Header() {
                             >
                                 Settings
                             </Anchor>
-                            <form
-                                action="/auth/sign-out"
-                                method="post"
-                                style={{ margin: 0 }}
-                            >
+                            <form action={signOutAction} style={{ margin: 0 }}>
                                 <Button
                                     type="submit"
                                     variant="transparent"
@@ -226,8 +223,7 @@ export default function Header() {
 
                             {/* Logout button at the bottom of the drawer */}
                             <form
-                                action="/auth/sign-out"
-                                method="post"
+                                action={signOutAction}
                                 style={{ marginTop: 'auto' }}
                             >
                                 <Button
