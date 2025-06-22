@@ -195,12 +195,17 @@ export default function Home() {
     return (
         <div>
             <main className={styles.main}>
-                <ProfileCompletionCard
-                    onCompleteProfileClick={handleScrollToForm}
-                    percentage={percentage}
-                    sectionCounts={sectionCounts}
-                />
+                {status === 'ready' ? (
+                    ''
+                ) : (
+                    <ProfileCompletionCard
+                        onCompleteProfileClick={handleScrollToForm}
+                        percentage={percentage}
+                        sectionCounts={sectionCounts}
+                    />
+                )}
                 <MainJobForm
+                    onCompleteProfileClick={handleScrollToForm}
                     className={styles.container_form}
                     status={status}
                     percentage={percentage}

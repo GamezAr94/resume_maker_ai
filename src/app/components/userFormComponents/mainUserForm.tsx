@@ -133,7 +133,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                 p="md"
                 radius="lg"
                 withBorder={false}
-                className={className}
+                className={`${className} ${styles.mainUserForm}`}
                 style={{ backgroundColor: theme.colors.gray[1] }}
                 ref={ref}
             >

@@ -49,14 +49,21 @@ export default function Header() {
         <>
             <header className={styles.header}>
                 <Container size="xxl" className={styles.inner}>
-                    <Group className={styles.logoSection}>
-                        <IconBriefcase
-                            size={28}
-                            color="var(--mantine-color-blue-5)"
-                        />{' '}
-                        {/* Your Logo */}
-                        <Text className={styles.logoText}>ResumeCraft AI</Text>
-                    </Group>
+                    <Link
+                        href="/"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                        <Group className={styles.logoSection}>
+                            <IconBriefcase
+                                size={28}
+                                color="var(--mantine-color-blue-5)"
+                            />{' '}
+                            {/* Your Logo */}
+                            <Text className={styles.logoText}>
+                                ResumeCraft AI
+                            </Text>
+                        </Group>
+                    </Link>
 
                     {/* This Group will be hidden on mobile by the CSS media query */}
                     <Group className={styles.mainNav}>

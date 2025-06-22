@@ -63,12 +63,14 @@ interface Props {
     status: 'disabled' | 'warn' | 'ready';
     percentage: number;
     sectionCounts: Record<string, SectionCount>;
+    onCompleteProfileClick: () => void;
 }
 
 export default function ResumeBuilderForm({
     status,
     percentage,
     sectionCounts,
+    onCompleteProfileClick,
 }: Props) {
     const router = useRouter();
     const [jobDescription, setJobDescription] = useState('');
@@ -233,6 +235,7 @@ export default function ResumeBuilderForm({
                     opened={opened}
                     onClose={close}
                     onGenerate={handleGenerateAnyway}
+                    onCompleteProfileClick={onCompleteProfileClick}
                     percentage={percentage}
                     sectionCounts={sectionCounts}
                     status={status}

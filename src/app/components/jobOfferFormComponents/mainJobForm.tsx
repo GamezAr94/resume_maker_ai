@@ -7,6 +7,7 @@ interface Props {
     status: 'disabled' | 'warn' | 'ready';
     percentage: number;
     sectionCounts: any;
+    onCompleteProfileClick: () => void;
 }
 
 export default function MainJobForm({
@@ -14,6 +15,7 @@ export default function MainJobForm({
     status,
     percentage,
     sectionCounts,
+    onCompleteProfileClick,
 }: Props) {
     return (
         <div className={className}>
@@ -21,6 +23,7 @@ export default function MainJobForm({
                 status={status}
                 percentage={percentage}
                 sectionCounts={sectionCounts}
+                onCompleteProfileClick={onCompleteProfileClick}
             />
         </div>
     );

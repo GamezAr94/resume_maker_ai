@@ -24,6 +24,7 @@ interface IncompleteProfileModalProps {
     opened: boolean;
     onClose: () => void;
     onGenerate: () => void;
+    onCompleteProfileClick: () => void;
     percentage: number;
     sectionCounts: Record<string, SectionCount>;
     status: 'disabled' | 'warn' | 'ready';
@@ -33,6 +34,7 @@ export function IncompleteProfileModal({
     opened,
     onClose,
     onGenerate,
+    onCompleteProfileClick,
     percentage,
     sectionCounts,
     status,
@@ -142,7 +144,14 @@ export function IncompleteProfileModal({
             </Paper>
 
             <Group justify="flex-end">
-                <Button variant="default" onClick={onClose} radius="md">
+                <Button
+                    variant="default"
+                    onClick={() => {
+                        onClose();
+                        onCompleteProfileClick();
+                    }}
+                    radius="md"
+                >
                     Complete Profile First
                 </Button>
                 {status === 'disabled' ? (

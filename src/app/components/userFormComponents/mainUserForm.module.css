@@ -1,3 +1,6 @@
+.mainUserForm {
+    min-height: 900px;
+}
 .sidebarNavItem {
     display: block; /* Make it take full width for consistent clicking area */
     width: 100%;
@@ -59,7 +62,6 @@
 .contentArea {
     flex-grow: 1; /* This will be used when in flex-direction: row */
 }
-
 /* Apply side-by-side layout for screens 768px and wider (tablets and up) */
 @media (min-width: 768px) {
     .manualModeContainer {
