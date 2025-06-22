@@ -6,7 +6,7 @@ import MainUserForm from '../components/userFormComponents/mainUserForm';
 import MainJobForm from '../components/jobOfferFormComponents/mainJobForm';
 import { Divider } from '@mantine/core';
 import { ProfileCompletionCard } from '../components/ProfileCompletion/ProfileCompletionCard';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, use } from 'react';
 import {
     FormEducationStructure,
     FormExperienceStructure,
@@ -19,6 +19,7 @@ import { getDBTableInfo } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
 
 import { calculateProfileCompleteness } from '@/utils/profile-completeness';
+import { PROFILE_COMPLETION_WEIGHTS } from '../config/profile.config';
 
 export default function Home() {
     const mainFormRef = useRef<HTMLDivElement>(null);
@@ -55,6 +56,46 @@ export default function Home() {
         skillInfo: skillInfo || [],
         projectInfo: projectInfo || [],
     });
+
+    const sectionCounts = {
+        personal: {
+            current:
+                userInfo &&
+                userInfo.first_name &&
+                userInfo.last_name &&
+                userInfo.email
+                    ? 1
+                    : 0,
+            required: 1,
+            label: 'Personal Info',
+            value: 'personal',
+        },
+        education: {
+            current: educationInfo ? educationInfo.length : 0,
+            required: 1,
+            label: 'Education',
+            value: 'education',
+        },
+        job_experience: {
+            current: experienceInfo ? experienceInfo.length : 0,
+            required:
+                PROFILE_COMPLETION_WEIGHTS.MAX_EXPERIENCE_ENTRIES_FOR_SCORE,
+            label: 'Experience',
+            value: 'job_experience',
+        },
+        skills: {
+            current: skillInfo ? skillInfo.length : 0,
+            required: PROFILE_COMPLETION_WEIGHTS.MAX_SKILLS_FOR_SCORE,
+            label: 'Skills',
+            value: 'skills',
+        },
+        projects: {
+            current: projectInfo ? projectInfo.length : 0,
+            required: PROFILE_COMPLETION_WEIGHTS.MAX_PROJECTS_FOR_SCORE,
+            label: 'Projects',
+            value: 'projects',
+        },
+    };
 
     // PERSONAL: Fetch the user data when the component mounts
     useEffect(() => {
@@ -152,6 +193,7 @@ export default function Home() {
                 <ProfileCompletionCard
                     onCompleteProfileClick={handleScrollToForm}
                     percentage={percentage}
+                    sectionCounts={sectionCounts}
                 />
                 <MainJobForm className={styles.container_form} />
                 <Divider my="xs" color="gray.1" />
@@ -169,6 +211,7 @@ export default function Home() {
                     userInfo={userInfo}
                     setUserInfo={setUserInfo}
                     setRefreshTrigger={setRefreshTrigger}
+                    sectionCounts={sectionCounts}
                 />
             </main>
         </div>

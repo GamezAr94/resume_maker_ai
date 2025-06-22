@@ -38,20 +38,36 @@ const StatusItem = ({
 interface ProfileCompletionCardProps {
     onCompleteProfileClick: () => void;
     percentage: number;
+    sectionCounts: {
+        [key: string]: {
+            current: number;
+            required: number;
+            label: string;
+            value: string;
+        };
+    };
 }
 
 export function ProfileCompletionCard({
     onCompleteProfileClick,
     percentage,
+    sectionCounts,
 }: ProfileCompletionCardProps) {
-    // Placeholder data based on your design
-    const statusItems = [
-        { icon: <IconCheck size={14} />, text: '4/4 Info', label: '✓' },
-        { icon: <IconCheck size={14} />, text: '1/1 education', label: '✓' },
-        { icon: <IconClock size={14} />, text: '1/2 experience', label: '🕓' },
-        { icon: <IconClock size={14} />, text: '5/8 skills', label: '🕓' },
-        { icon: <IconClock size={14} />, text: '1/2 projects', label: '🕓' },
-    ];
+    const statusItems = Object.values(sectionCounts).map(
+        ({ current, required, label }) => {
+            const isComplete = current >= required;
+            const displayLabel = label === 'Personal Info' ? 'Info' : label;
+            return {
+                icon: isComplete ? (
+                    <IconCheck size={14} />
+                ) : (
+                    <IconClock size={14} />
+                ),
+                text: `${current}/${required} ${displayLabel}`,
+                label: isComplete ? '✓' : '🕓',
+            };
+        },
+    );
 
     return (
         <Card withBorder radius="md" p="lg" className={styles.card}>

@@ -45,7 +45,11 @@ export function calculateProfileCompleteness(
     let score = 0;
 
     // Personal Info Score
-    if (data.userInfo?.first_name && data.userInfo?.email) {
+    if (
+        data.userInfo?.last_name &&
+        data.userInfo?.first_name &&
+        data.userInfo?.email
+    ) {
         score += PROFILE_COMPLETION_WEIGHTS.PERSONAL_INFO_FILLED;
     }
 

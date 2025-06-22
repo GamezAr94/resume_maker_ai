@@ -24,6 +24,7 @@ import {
     Box, // Useful for layout and system props
     useMantineTheme, // To access theme values like colors and spacing
 } from '@mantine/core';
+import { IconCheck, IconClock } from '@tabler/icons-react';
 import PersonalContainerForm from './formContainers/personalContainerForm';
 
 import styles from './mainUserForm.module.css';
@@ -52,6 +53,14 @@ interface Props {
         React.SetStateAction<FormPersonalStructure | false>
     >;
     setRefreshTrigger: React.Dispatch<React.SetStateAction<RefreshSections>>;
+    sectionCounts: {
+        [key: string]: {
+            current: number;
+            required: number;
+            label: string;
+            value: string;
+        };
+    };
 }
 type InputMode = 'manual' | 'ai';
 
@@ -70,32 +79,13 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
             userInfo,
             setUserInfo,
             setRefreshTrigger,
+            sectionCounts,
         },
         ref,
     ) => {
         const [sectionDisplayed, setSectionDisplayed] = useState<
             'personal' | 'education' | 'job_experience' | 'skills' | 'projects'
         >('personal');
-
-        const personalCount =
-            userInfo && Object.keys(userInfo).length > 0 && userInfo.first_name
-                ? 1
-                : 0; // Adjust condition based on what defines a "filled" personal section
-        const educationCount = educationInfo ? educationInfo.length : 0;
-        const experienceCount = experienceInfo ? experienceInfo.length : 0;
-        const skillCount = skillInfo ? skillInfo.length : 0;
-        const projectCount = projectInfo ? projectInfo.length : 0;
-
-        const resumeSectionTabs = [
-            { label: `Personal Info (${personalCount})`, value: 'personal' },
-            { label: `Education (${educationCount})`, value: 'education' },
-            {
-                label: `Experience (${experienceCount})`,
-                value: 'job_experience',
-            },
-            { label: `Skills (${skillCount})`, value: 'skills' },
-            { label: `Projects (${projectCount})`, value: 'projects' },
-        ];
 
         const [inputMode, setInputMode] = useState<InputMode>('manual');
         const theme = useMantineTheme();
@@ -217,29 +207,48 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                 Resume Sections
                             </Title>
                             <Box component="nav">
-                                {resumeSectionTabs.map((tab) => (
-                                    <button // Using button for accessibility and click handling
-                                        key={tab.value}
-                                        type="button" // Important for buttons not submitting forms
-                                        className={`${styles.sidebarNavItem} ${
-                                            sectionDisplayed === tab.value
-                                                ? styles.sidebarNavItemActive
-                                                : ''
-                                        }`}
-                                        onClick={() =>
-                                            setSectionDisplayed(
-                                                tab.value as
-                                                    | 'personal'
-                                                    | 'education'
-                                                    | 'job_experience'
-                                                    | 'skills'
-                                                    | 'projects',
-                                            )
-                                        }
-                                    >
-                                        {tab.label}
-                                    </button>
-                                ))}
+                                {Object.values(sectionCounts).map((tab) => {
+                                    const isComplete =
+                                        tab.current >= tab.required;
+                                    return (
+                                        <button // Using button for accessibility and click handling
+                                            key={tab.value}
+                                            type="button" // Important for buttons not submitting forms
+                                            className={`${
+                                                styles.sidebarNavItem
+                                            } ${
+                                                sectionDisplayed === tab.value
+                                                    ? styles.sidebarNavItemActive
+                                                    : ''
+                                            }`}
+                                            onClick={() =>
+                                                setSectionDisplayed(
+                                                    tab.value as
+                                                        | 'personal'
+                                                        | 'education'
+                                                        | 'job_experience'
+                                                        | 'skills'
+                                                        | 'projects',
+                                                )
+                                            }
+                                        >
+                                            <Group wrap="nowrap" gap="xs">
+                                                {isComplete ? (
+                                                    <IconCheck
+                                                        size={16}
+                                                        color="green"
+                                                    />
+                                                ) : (
+                                                    <IconClock size={16} />
+                                                )}
+                                                <Text component="span" fz="sm">
+                                                    {tab.label} ({tab.current}/
+                                                    {tab.required})
+                                                </Text>
+                                            </Group>
+                                        </button>
+                                    );
+                                })}
                             </Box>
                         </Paper>
 
