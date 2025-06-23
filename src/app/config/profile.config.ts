@@ -23,7 +23,7 @@ export const PROFILE_COMPLETION_WEIGHTS = {
     MAX_EXPERIENCE_ENTRIES_FOR_SCORE: 2, // Cap points from experience after this many entries (2 * 15 = 30)
 
     // Skills (Max: 25 points)
-    SKILL_ENTRY: 95, // Points for EACH skill
+    SKILL_ENTRY: 5, // Points for EACH skill
     MAX_SKILLS_FOR_SCORE: 1, // Cap points from skills after this many entries (5 * 5 = 25)
 
     // Projects (Max: 10 points)

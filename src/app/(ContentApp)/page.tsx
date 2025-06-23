@@ -47,6 +47,7 @@ export default function Home() {
     const [userInfo, setUserInfo] = useState<FormPersonalStructure | false>(
         false,
     );
+    const [isLoading, setIsLoading] = useState(true);
 
     // Calculate the profile completeness percentage and status
     const { percentage, status = 'ready' } = calculateProfileCompleteness({
@@ -56,6 +57,19 @@ export default function Home() {
         skillInfo: skillInfo || [],
         projectInfo: projectInfo || [],
     });
+
+    useEffect(() => {
+        // We are waiting for all the data to be loaded before showing the profile completion card
+        if (
+            userInfo !== false &&
+            projectInfo !== false &&
+            skillInfo !== false &&
+            educationInfo !== false &&
+            experienceInfo !== false
+        ) {
+            setIsLoading(false);
+        }
+    }, [userInfo, projectInfo, skillInfo, educationInfo, experienceInfo]);
 
     // Define the section counts for the profile completion card
     // Each section has a current count, required count, label, and value
@@ -195,7 +209,7 @@ export default function Home() {
     return (
         <div>
             <main className={styles.main}>
-                {status === 'ready' ? (
+                {isLoading || status === 'ready' ? (
                     ''
                 ) : (
                     <ProfileCompletionCard

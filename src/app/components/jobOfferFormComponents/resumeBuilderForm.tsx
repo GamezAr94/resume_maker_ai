@@ -345,6 +345,7 @@ export default function ResumeBuilderForm({
                             required
                             autosize
                             minRows={6}
+                            maxRows={18}
                             disabled={isGenerating}
                         />
                         <CharacterCounter
