@@ -17,6 +17,9 @@ import {
     rem,
     ThemeIcon,
     Divider,
+    Popover,
+    Progress,
+    Alert,
 } from '@mantine/core';
 import {
     IconArrowLeft,
@@ -24,13 +27,57 @@ import {
     IconLock,
     IconAt,
     IconUser,
+    IconX,
+    IconCheck,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { signUpAction } from '@/app/actions';
 import ActionMsg from '../message';
+import { useState } from 'react';
 
-// Reusing the same icon components for consistency.
-// You could move these to a shared 'icons.tsx' file to avoid duplication.
+// --- Start of Password Strength Component ---
+function PasswordRequirement({ met, label }: { met: boolean; label: string }) {
+    return (
+        <Text
+            component="div"
+            c={met ? 'teal' : 'red'}
+            style={{ display: 'flex', alignItems: 'center' }}
+            mt={7}
+            size="sm"
+        >
+            {met ? (
+                <IconCheck style={{ width: rem(14), height: rem(14) }} />
+            ) : (
+                <IconX style={{ width: rem(14), height: rem(14) }} />
+            )}{' '}
+            <Box ml={10}>{label}</Box>
+        </Text>
+    );
+}
+
+// NOTE: this controls the client-side password strength validation
+// we need to also check the server-side password strength in /src/app/actions.ts
+const requirements = [
+    { re: /[0-9]/, label: 'Includes number' },
+    { re: /[a-z]/, label: 'Includes lowercase letter' },
+    { re: /[A-Z]/, label: 'Includes uppercase letter' },
+    //{ re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' },
+];
+
+function getStrength(password: string) {
+    let multiplier = password.length > 7 ? 0 : 1;
+
+    requirements.forEach((requirement) => {
+        if (!requirement.re.test(password)) {
+            multiplier += 1;
+        }
+    });
+
+    return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
+}
+// --- End of Password Strength Component ---
+
+// --- Social Login Icons ---
 const GoogleIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
     <svg
         {...props}
@@ -79,6 +126,54 @@ const GithubIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
 );
 
 export default function SignUpPage() {
+    const [popoverOpened, setPopoverOpened] = useState(false);
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [clientError, setClientError] = useState('');
+
+    const checks = requirements.map((requirement, index) => (
+        <PasswordRequirement
+            key={index}
+            label={requirement.label}
+            met={requirement.re.test(password)}
+        />
+    ));
+    const strength = getStrength(password);
+    const color = strength === 100 ? 'teal' : strength > 50 ? 'yellow' : 'red';
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        setClientError(''); // Reset errors on a new submission attempt
+
+        // --- CLIENT-SIDE CHECKS ---
+        // Check if the password is provided
+        if (password.length < 8) {
+            event.preventDefault(); // Stop the form submission
+            setClientError('Password must be at least 8 characters long.');
+            return;
+        }
+
+        // Check if the password meets all requirements
+        for (const requirement of requirements) {
+            if (!requirement.re.test(password)) {
+                event.preventDefault(); // Stop form submission
+                // Create an error message directly from the requirement label
+                setClientError(
+                    `Password requirement not met: ${requirement.label}.`,
+                );
+                return;
+            }
+        }
+
+        // Check if the confirm password matches the password
+        if (password !== confirmPassword) {
+            event.preventDefault(); // Stop the form submission
+            setClientError('Passwords do not match. Please try again.');
+            return;
+        }
+
+        // If all checks pass, the form will submit to the server action as normal.
+    };
+
     return (
         <Container size={460} my={30} style={{ width: '100%' }}>
             <Anchor component={Link} href="/" c="dimmed" size="sm">
@@ -105,10 +200,7 @@ export default function SignUpPage() {
                     Start building professional resumes with AI
                 </Text>
 
-                <form action={signUpAction}>
-                    {/* Note: First/Last name are in the design but not handled by the current signUpAction.
-                        To add them, you would need to update the `signUpAction` server action and your database schema
-                        to accept 'first_name' and 'last_name' form data. */}
+                <form action={signUpAction} onSubmit={handleSubmit}>
                     <Group grow>
                         <TextInput
                             leftSectionPointerEvents="none"
@@ -148,19 +240,55 @@ export default function SignUpPage() {
                         required
                         mt="md"
                     />
-                    <PasswordInput
-                        leftSectionPointerEvents="none"
-                        leftSection={
-                            <IconLock
-                                style={{ width: rem(16), height: rem(16) }}
+
+                    <Popover
+                        opened={popoverOpened}
+                        position="bottom"
+                        width="target"
+                        transitionProps={{ transition: 'pop' }}
+                    >
+                        <Popover.Target>
+                            <div
+                                onFocusCapture={() => setPopoverOpened(true)}
+                                onBlurCapture={() => setPopoverOpened(false)}
+                            >
+                                <PasswordInput
+                                    leftSectionPointerEvents="none"
+                                    leftSection={
+                                        <IconLock
+                                            style={{
+                                                width: rem(16),
+                                                height: rem(16),
+                                            }}
+                                        />
+                                    }
+                                    label="Password"
+                                    name="password"
+                                    placeholder="Create a password"
+                                    required
+                                    mt="md"
+                                    value={password}
+                                    onChange={(event) =>
+                                        setPassword(event.currentTarget.value)
+                                    }
+                                />
+                            </div>
+                        </Popover.Target>
+                        <Popover.Dropdown>
+                            <Progress
+                                color={color}
+                                value={strength}
+                                size={5}
+                                mb="xs"
                             />
-                        }
-                        label="Password"
-                        name="password"
-                        placeholder="Create a password"
-                        required
-                        mt="md"
-                    />
+                            <PasswordRequirement
+                                label="Includes at least 8 characters"
+                                met={password.length > 7}
+                            />
+                            {checks}
+                        </Popover.Dropdown>
+                    </Popover>
+
                     <PasswordInput
                         leftSectionPointerEvents="none"
                         leftSection={
@@ -172,6 +300,10 @@ export default function SignUpPage() {
                         name="confirm_password"
                         placeholder="Confirm your password"
                         required
+                        value={confirmPassword}
+                        onChange={(event) =>
+                            setConfirmPassword(event.currentTarget.value)
+                        }
                         mt="md"
                     />
                     <Checkbox
@@ -180,7 +312,19 @@ export default function SignUpPage() {
                         required
                     />
 
-                    {/* ActionMsg component will display any messages from the action, like errors or success messages */}
+                    {/* --- This section displays client-side errors --- */}
+                    {clientError && (
+                        <Alert
+                            title="Validation Error"
+                            color="red"
+                            icon={<IconX />}
+                            mt="md"
+                            withCloseButton
+                            onClose={() => setClientError('')}
+                        >
+                            {clientError}
+                        </Alert>
+                    )}
                     <ActionMsg />
 
                     <Button type="submit" fullWidth mt="xl">

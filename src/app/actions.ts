@@ -10,9 +10,11 @@ export const signUpAction = async (formData: FormData) => {
     const password = formData.get('password')?.toString();
     const firstName = formData.get('first_name')?.toString();
     const lastName = formData.get('last_name')?.toString();
+    const confirmPassword = formData.get('confirm_password')?.toString();
     const supabase = await createClient();
     const origin = (await headers()).get('origin');
 
+    // validate email
     if (!email || !password) {
         return encodedRedirect(
             'error',
@@ -20,6 +22,52 @@ export const signUpAction = async (formData: FormData) => {
             'Email and password are required',
         );
     }
+
+    // validate password length
+    if (password.length < 8) {
+        return encodedRedirect(
+            'error',
+            '/sign-up',
+            'Password must be at least 8 characters long.',
+        );
+    }
+
+    // validate confirm password
+    if (password !== confirmPassword) {
+        return encodedRedirect(
+            'error',
+            '/sign-up',
+            'Passwords do not match. Please try again.',
+        );
+    }
+
+    // validate the password requirements
+    // NOTE: this controls the server side validation of the password
+    //       the client side validation is done in the sign-up form component
+    const passwordRequirements = [
+        { re: /[0-9]/, label: 'Password must include at least one number.' },
+        {
+            re: /[a-z]/,
+            label: 'Password must include at least one lowercase letter.',
+        },
+        {
+            re: /[A-Z]/,
+            label: 'Password must include at least one uppercase letter.',
+        },
+        /*
+        {
+            re: /[$&+,:;=?@#|'<>.^*()%!-]/,
+            label: 'Password must include at least one special symbol.',
+        },
+        */
+    ];
+
+    for (const requirement of passwordRequirements) {
+        if (!password || !requirement.re.test(password)) {
+            return encodedRedirect('error', '/sign-up', requirement.label);
+        }
+    }
+
     const { error } = await supabase.auth.signUp({
         email,
         password,
