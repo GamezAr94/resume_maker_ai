@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "@mantine/core": "^8.0.1",
-    "@mantine/dates": "^8.1.0",
-    "@mantine/hooks": "^8.0.1",
+    "@mantine/core": "^8.1.1",
+    "@mantine/dates": "^8.1.1",
+    "@mantine/hooks": "^8.1.1",
+    "@mantine/notifications": "^8.1.1",
     "@react-pdf/renderer": "^4.1.6",
     "@supabase/ssr": "^0.5.2",
     "@tabler/icons-react": "^3.28.1",

@@ -8,6 +8,8 @@ import {
     RefreshSections,
 } from '@/utils/interfaces';
 import { Button, TextInput, Stack } from '@mantine/core'; // Using TextInput and Stack for consistency
+import { notifications } from '@mantine/notifications';
+import { IconCheck, IconX } from '@tabler/icons-react';
 
 // the limits for the content of each input field in the forms
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
@@ -134,21 +136,34 @@ export default function PersonalInfoForm({
 
             // show a message to the user
             if (!res.ok) {
-                // TODO ART: show an error message to the user
-                console.error(response.message);
+                notifications.show({
+                    title: 'Error Saving',
+                    message: response.message || 'An unknown error occurred.',
+                    color: 'red',
+                    icon: <IconX />,
+                });
                 return;
             }
-            // TODO ART: show a success message to the user
-            console.log('=====> RESPONSE personal');
-            console.log(res.ok);
-            console.log(response.message);
-            console.log('=====>');
 
-            // required to refresh the UI
-            setRefreshTrigger((prevTrigger) => ({
-                ...prevTrigger,
-                personal: !prevTrigger.personal,
+            // if the response is ok, update the user info in the state
+            notifications.show({
+                title: 'Success!',
+                message: 'Your personal information has been saved.',
+                color: 'teal',
+                icon: <IconCheck />,
+            });
+            setUserInfo(parseUser.data as FormPersonalStructure);
+            setRefreshTrigger((prev) => ({
+                ...prev,
+                [SectionTypes.Personal]: true,
             }));
+        } catch (error) {
+            notifications.show({
+                title: 'Error Saving',
+                message: 'An unexpected error occurred.',
+                color: 'red',
+                icon: <IconX />,
+            });
         } finally {
             setIsSubmitting(false);
         }

@@ -8,10 +8,11 @@ import {
 } from '@/utils/interfaces';
 import { Button, TextInput, Group, Text, Stack, Checkbox } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
+import { notifications } from '@mantine/notifications';
 
 // the limits for the content of each input field in the forms
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
@@ -138,8 +139,12 @@ export default function EducationInfoForm({
 
             // show a message to the user
             if (!res.ok) {
-                // TODO ART: show an error message to the user
-                console.error(response.message);
+                notifications.show({
+                    title: 'Error Saving',
+                    message: response.message || 'An unknown error occurred.',
+                    color: 'red',
+                    icon: <IconX />,
+                });
                 return;
             }
 
@@ -152,11 +157,12 @@ export default function EducationInfoForm({
                 }
                 setInfo(experienceInfoResp.data);
             }
-            // TODO ART: show a success message to the user
-            console.log('=====> RESPONSE education');
-            console.log(res.ok);
-            console.log(response.message);
-            console.log('=====>');
+            notifications.show({
+                title: 'Success!',
+                message: 'Your education has been saved.',
+                color: 'teal',
+                icon: <IconCheck />,
+            });
             // required to refresh the UI
             setRefreshTrigger((prevTrigger) => ({
                 ...prevTrigger,
@@ -177,10 +183,22 @@ export default function EducationInfoForm({
     ) {
         const response = await deleteRecord(table, column, value);
         if (!response) {
-            // TODO ART: show an error message to the user
-            console.error('Error deleting the record');
+            notifications.show({
+                title: 'Error Deleting',
+                message:
+                    'An error occurred while deleting the education entry.',
+                color: 'red',
+                icon: <IconX />,
+            });
             return;
         }
+
+        notifications.show({
+            title: 'Success!',
+            message: 'The education entry has been deleted.',
+            color: 'teal',
+            icon: <IconCheck />,
+        });
 
         // required to refresh the UI
         setRefreshTrigger((prevTrigger) => ({

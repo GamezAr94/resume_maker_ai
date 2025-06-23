@@ -10,10 +10,11 @@ import {
     RefreshSections,
 } from '@/utils/interfaces';
 import { Button, Input, Select, Group, Text } from '@mantine/core';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
+import { notifications } from '@mantine/notifications';
 
 import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter';
 
@@ -103,7 +104,6 @@ export default function ProjectsInfoForm({
             // if the user data is not valid, store the errors in the state and return
             if (!parseUser.success) {
                 const error = parseUser.error;
-                console.error('Error validating user data:', error);
                 let newErrors = emptyStateProject;
                 for (const issue of error.errors) {
                     newErrors = {
@@ -111,8 +111,6 @@ export default function ProjectsInfoForm({
                         [issue.path[0]]: issue.message,
                     };
                 }
-                console.log('=====> validatingAndSaving');
-                console.log('getEditRecord', getEditRecord);
                 // set the errors in the state to show them to the user
                 setFormErrors(newErrors);
                 return;
@@ -130,8 +128,12 @@ export default function ProjectsInfoForm({
 
             // show a message to the user
             if (!res.ok) {
-                // TODO ART: show an error message to the user
-                console.error(response.message);
+                notifications.show({
+                    title: 'Error Saving',
+                    message: response.message || 'An unknown error occurred.',
+                    color: 'red',
+                    icon: <IconX />,
+                });
                 return;
             }
 
@@ -144,11 +146,12 @@ export default function ProjectsInfoForm({
                 }
                 setInfo(projectInfoResp.data);
             }
-            // TODO ART: show a success message to the user
-            console.log('=====> RESPONSE project');
-            console.log(res.ok);
-            console.log(response.message);
-            console.log('=====>');
+            notifications.show({
+                title: 'Success!',
+                message: 'Your project has been saved.',
+                color: 'teal',
+                icon: <IconCheck />,
+            });
             // required to refresh the UI
             setRefreshTrigger((prevTrigger) => ({
                 ...prevTrigger,
@@ -170,10 +173,21 @@ export default function ProjectsInfoForm({
     ) {
         const response = await deleteRecord(table, column, value);
         if (!response) {
-            // TODO ART: show an error message to the user
-            console.error('Error deleting the record');
+            notifications.show({
+                title: 'Error Deleting',
+                message: 'An error occurred while deleting the project.',
+                color: 'red',
+                icon: <IconX />,
+            });
             return;
         }
+
+        notifications.show({
+            title: 'Success!',
+            message: 'The project has been deleted.',
+            color: 'teal',
+            icon: <IconCheck />,
+        });
 
         // required to refresh the UI
         setRefreshTrigger((prevTrigger) => ({

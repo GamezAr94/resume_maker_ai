@@ -5,3 +5,7 @@
 body {
     margin-top: 80px;
 }
+.mantine-Notifications-root {
+    /* 60px header height + 16px margin */
+    margin-top: 50px;
+}

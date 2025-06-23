@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import '@mantine/core/styles.css';
+import { Notifications } from '@mantine/notifications';
 import {
     ButtonProps,
     ColorSchemeScript,
@@ -8,6 +9,7 @@ import {
     createTheme,
     mantineHtmlProps,
 } from '@mantine/core';
+import '@mantine/notifications/styles.css';
 
 import './globals.css';
 
@@ -39,7 +41,10 @@ export default function RootLayout({
                 <ColorSchemeScript />
             </head>
             <body>
-                <MantineProvider theme={theme}>{children}</MantineProvider>
+                <MantineProvider theme={theme}>
+                    <Notifications position="top-right" zIndex={9999} />
+                    {children}
+                </MantineProvider>
             </body>
         </html>
     );

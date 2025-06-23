@@ -21,6 +21,8 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IncompleteProfileModal } from './IncompleteProfileModal';
+import { notifications } from '@mantine/notifications';
+import { IconCheck, IconX } from '@tabler/icons-react';
 
 // the limits for the content of each input field in the forms
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
@@ -115,6 +117,14 @@ export default function ResumeBuilderForm({
         // If the user data is valid, we can proceed to generate the resume
         // set the isGenerating to true to show the user that the resume is being generated
         setIsGenerating(true);
+        notifications.show({
+            id: 'generating-resume',
+            loading: true,
+            title: 'Generating Resume',
+            message: 'Please wait while we tailor your resume...',
+            autoClose: false,
+            withCloseButton: false,
+        });
 
         try {
             // Generate the resume usin Gemini
@@ -129,8 +139,17 @@ export default function ResumeBuilderForm({
             const responseGemini = await resGemini.json();
             // show a message to the user. Error generating the new resume
             if (!resGemini.ok) {
-                // TODO ART: show an error message to the user. Error processing the job offer, try again
-                console.error(responseGemini.message);
+                notifications.update({
+                    id: 'generating-resume',
+                    color: 'red',
+                    title: 'Error Generating Resume',
+                    message:
+                        responseGemini.message ||
+                        'An unknown error occurred while generating the resume.',
+                    icon: <IconX />,
+                    loading: false,
+                    autoClose: 5000,
+                });
                 // Reset the isGenerating state
                 setIsGenerating(false);
                 return;
@@ -142,8 +161,17 @@ export default function ResumeBuilderForm({
             try {
                 resumeGeneratedObject = JSON.parse(geminiJsonString);
             } catch (e) {
-                console.error("Failed to parse Gemini's JSON response:", e);
-                // Handle error - maybe show message to user
+                notifications.update({
+                    id: 'generating-resume',
+                    color: 'red',
+                    title: 'Error Processing Resume',
+                    message:
+                        'There was an issue processing the generated resume.',
+                    icon: <IconX />,
+                    loading: false,
+                    autoClose: 5000,
+                });
+                setIsGenerating(false);
                 return;
             }
 
@@ -169,17 +197,31 @@ export default function ResumeBuilderForm({
             const responseSaving = await resSaving.json();
             // show a message to the user. Error saving the new resume
             if (!resSaving.ok) {
-                // TODO ART: show an error message to the user. Error processing the job offer, try again
-                console.error(responseSaving.message);
+                notifications.update({
+                    id: 'generating-resume',
+                    color: 'red',
+                    title: 'Error Saving Resume',
+                    message:
+                        responseSaving.message ||
+                        'An unknown error occurred while saving the resume.',
+                    icon: <IconX />,
+                    loading: false,
+                    autoClose: 5000,
+                });
                 // Reset the isGenerating state
                 setIsGenerating(false);
                 return;
             }
 
-            // TODO ART: show a success message to the user
-            console.log(
-                '=====> Resume Generated and Saved Successfully <=====',
-            );
+            notifications.update({
+                id: 'generating-resume',
+                color: 'teal',
+                title: 'Success!',
+                message: 'Your new resume has been generated and saved.',
+                icon: <IconCheck />,
+                loading: false,
+                autoClose: 2000,
+            });
 
             /*
             // NOTE: Uncomment to see the response from the API
@@ -189,13 +231,15 @@ export default function ResumeBuilderForm({
 
             const idResume = +responseSaving.id;
             if (isNaN(idResume) || idResume <= 0) {
-                // TODO we can fetch the id of the newest element in the DB
-                console.error(
-                    'error getting the id of the saved data ' + idResume,
-                );
-                alert(
-                    'An error occurred after saving. Could not retrieve resume ID.',
-                );
+                notifications.update({
+                    id: 'generating-resume',
+                    color: 'red',
+                    title: 'Error Retrieving Resume',
+                    message: 'Could not retrieve the resume ID after saving.',
+                    icon: <IconX />,
+                    loading: false,
+                    autoClose: 5000,
+                });
                 // Reset the isGenerating state
                 setIsGenerating(false);
                 return;
@@ -204,11 +248,20 @@ export default function ResumeBuilderForm({
             // Redirect to Resume with data
             router.push(`/resume/${idResume}`);
         } catch (err) {
+            let errorMessage = 'An unexpected error occurred.';
             if (err instanceof Error) {
-                console.error('unexpected error: ' + err.message);
-            } else {
-                console.error('unexpected error', err);
+                errorMessage = err.message;
             }
+            notifications.update({
+                id: 'generating-resume',
+                color: 'red',
+                title: 'Unexpected Error',
+                message: errorMessage,
+                icon: <IconX />,
+                loading: false,
+                autoClose: 5000,
+            });
+            setIsGenerating(false);
         }
     }
 

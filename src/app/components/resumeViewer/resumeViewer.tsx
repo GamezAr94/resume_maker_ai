@@ -5,6 +5,8 @@ import { PDFViewer } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
 import { Button } from '@mantine/core';
 import { SectionTypes } from '@/utils/enums';
+import { notifications } from '@mantine/notifications';
+import { IconCheck, IconX } from '@tabler/icons-react';
 
 // Import the templates
 import {
@@ -36,10 +38,6 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
     async function handleSave() {
         if (isSaving || !dataResume || !dataResume.id) {
             // Don't save if already saving, or if there's no data/ID (shouldn't happen in this context)
-            console.warn(
-                'Save conditions not met. Current dataResume ID:',
-                dataResume?.id,
-            );
             return;
         }
 
@@ -62,16 +60,22 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
                 throw new Error(result.message || 'Failed to save resume.');
             }
 
-            // TODO: Show a success notification to the user (e.g., using Mantine Notifications)
-            alert('Resume saved successfully!'); // Placeholder
+            notifications.show({
+                title: 'Success!',
+                message: 'Resume saved successfully!',
+                color: 'teal',
+                icon: <IconCheck />,
+            });
         } catch (error) {
-            console.error('Error saving resume:', error);
-            // TODO: Show an error notification to the user
-            alert(
-                `Error saving resume: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            ); // Placeholder
+            notifications.show({
+                title: 'Error Saving Resume',
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : 'An unknown error occurred.',
+                color: 'red',
+                icon: <IconX />,
+            });
         } finally {
             setIsSaving(false);
         }
@@ -83,6 +87,14 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
         if (isDownloading) return;
 
         setIsDownloading(true);
+        notifications.show({
+            id: 'download-pdf',
+            loading: true,
+            title: 'Download Started...',
+            message: 'Your resume is being prepared for download.',
+            autoClose: false,
+            withCloseButton: false,
+        });
 
         try {
             const res = await fetch('../api/pdfResume', {
@@ -95,7 +107,6 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
             // verify we get a good response
             if (!res.ok) {
                 const errorData = await res.json();
-                // TODO show a proper error message to the user
                 throw new Error(errorData.message || 'Failed to download PDF');
             }
 
@@ -111,9 +122,28 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
             a.remove(); // Clean up
 
             window.URL.revokeObjectURL(url); // Release the object URL
+            notifications.update({
+                id: 'download-pdf',
+                color: 'teal',
+                title: 'Success!',
+                message: 'Your resume is downloading.',
+                icon: <IconCheck />,
+                loading: false,
+                autoClose: 5000,
+            });
         } catch (error) {
-            // TODO show a proper error message to the user
-            console.error('Error downloading PDF:', error);
+            notifications.update({
+                id: 'download-pdf',
+                color: 'red',
+                title: 'Download Failed',
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : 'An unknown error occurred.',
+                icon: <IconX />,
+                loading: false,
+                autoClose: 5000,
+            });
         } finally {
             setIsDownloading(false); // Reset the downloading state
         }

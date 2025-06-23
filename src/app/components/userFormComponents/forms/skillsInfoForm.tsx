@@ -8,10 +8,11 @@ import {
     RefreshSections,
 } from '@/utils/interfaces';
 import { Button, Input, Group, Select, Text } from '@mantine/core';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
+import { notifications } from '@mantine/notifications';
 
 // Character limits for the form fields
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
@@ -105,8 +106,12 @@ export default function SkillsInfoForm({
 
             // show a message to the user
             if (!res.ok) {
-                // TODO ART: show an error message to the user
-                console.error(response.message);
+                notifications.show({
+                    title: 'Error Saving',
+                    message: response.message || 'An unknown error occurred.',
+                    color: 'red',
+                    icon: <IconX />,
+                });
                 return;
             }
 
@@ -117,11 +122,12 @@ export default function SkillsInfoForm({
                 }
                 setInfo(skillInfoResp.data);
             }
-            // TODO ART: show a success message to the user
-            console.log('=====> RESPONSE skill');
-            console.log(res.ok);
-            console.log(response.message);
-            console.log('=====>');
+            notifications.show({
+                title: 'Success!',
+                message: 'Your skill has been saved.',
+                color: 'teal',
+                icon: <IconCheck />,
+            });
             // required to refresh the UI
             setRefreshTrigger((prevTrigger) => ({
                 ...prevTrigger,
@@ -142,11 +148,21 @@ export default function SkillsInfoForm({
     ) {
         const response = await deleteRecord(table, column, value);
         if (!response) {
-            // TODO ART: show an error message to the user
-            console.error('Error deleting the record');
+            notifications.show({
+                title: 'Error Deleting',
+                message: 'An unknown error occurred while deleting the record.',
+                color: 'red',
+                icon: <IconX />,
+            });
             return;
         }
 
+        notifications.show({
+            title: 'Success!',
+            message: 'The record has been deleted.',
+            color: 'teal',
+            icon: <IconCheck />,
+        });
         // required to refresh the UI
         setRefreshTrigger((prevTrigger) => ({
             ...prevTrigger,

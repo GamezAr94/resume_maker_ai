@@ -13,7 +13,6 @@ import {
 export async function POST(req: Request) {
     const supabase = await createClient();
     const requestJobDescBody = await req.json();
-    console.log(requestJobDescBody);
 
     const apiKey = process.env.GEMINI_API_KEY;
 

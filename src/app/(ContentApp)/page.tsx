@@ -49,7 +49,7 @@ export default function Home() {
     );
 
     // Calculate the profile completeness percentage and status
-    const { percentage, status } = calculateProfileCompleteness({
+    const { percentage, status = 'ready' } = calculateProfileCompleteness({
         userInfo: userInfo || null,
         experienceInfo: experienceInfo || [],
         educationInfo: educationInfo || [],

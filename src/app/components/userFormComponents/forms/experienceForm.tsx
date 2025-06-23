@@ -6,7 +6,7 @@ import {
     FormExperienceStructure,
     RefreshSections,
 } from '@/utils/interfaces';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
 import styles from './formContainerStyles.module.css';
@@ -20,6 +20,7 @@ import {
     Textarea,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
+import { notifications } from '@mantine/notifications';
 
 import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter';
 
@@ -133,8 +134,12 @@ export default function ExperienceForm({
 
             // show a message to the user
             if (!res.ok) {
-                // TODO ART: show an error message to the user
-                console.error(response.message);
+                notifications.show({
+                    title: 'Error Saving',
+                    message: response.message || 'An unknown error occurred.',
+                    color: 'red',
+                    icon: <IconX />,
+                });
                 return;
             }
 
@@ -147,11 +152,12 @@ export default function ExperienceForm({
                 }
                 setInfo(experienceInfoResp.data);
             }
-            // TODO ART: show a success message to the user
-            console.log('=====> RESPONSE experience');
-            console.log(res.ok);
-            console.log(response.message);
-            console.log('=====>');
+            notifications.show({
+                title: 'Success!',
+                message: 'Your experience has been saved.',
+                color: 'teal',
+                icon: <IconCheck />,
+            });
             // required to refresh the UI
             setRefreshTrigger((prevTrigger) => ({
                 ...prevTrigger,
@@ -172,10 +178,21 @@ export default function ExperienceForm({
     ) {
         const response = await deleteRecord(table, column, value);
         if (!response) {
-            // TODO ART: show an error message to the user
-            console.error('Error user is not Authenticated');
+            notifications.show({
+                title: 'Error Deleting',
+                message: 'An error occurred while deleting the experience.',
+                color: 'red',
+                icon: <IconX />,
+            });
             return;
         }
+
+        notifications.show({
+            title: 'Success!',
+            message: 'The experience has been deleted.',
+            color: 'teal',
+            icon: <IconCheck />,
+        });
 
         // required to refresh the UI
         setRefreshTrigger((prevTrigger) => ({
