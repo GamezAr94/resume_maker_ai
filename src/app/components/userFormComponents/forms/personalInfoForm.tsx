@@ -157,7 +157,7 @@ export default function PersonalInfoForm({
                 ...prev,
                 [SectionTypes.Personal]: true,
             }));
-        } catch (_error) {
+        } catch (_error: unknown) {
             notifications.show({
                 title: 'Error Saving',
                 message:

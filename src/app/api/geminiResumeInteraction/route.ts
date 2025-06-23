@@ -12,8 +12,14 @@ import {
 
 export async function POST(req: Request) {
     const supabase = await createClient();
-    // TODO Real data passed from the client
-    //const requestJobDescBody = await req.json();
+
+    // Log the request body for debugging purposes
+    // This will help us understand what data is being sent to the API
+    const requestJobDescBody = await req.json();
+    console.log(
+        'Request body for geminiResumeInteraction:',
+        requestJobDescBody,
+    );
 
     const apiKey = process.env.GEMINI_API_KEY;
 

@@ -15,7 +15,6 @@ import {
     Center,
     Box,
     rem,
-    useMantineTheme,
     Divider,
     ThemeIcon, // <--- Import ThemeIcon
 } from '@mantine/core';
