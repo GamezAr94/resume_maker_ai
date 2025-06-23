@@ -160,7 +160,9 @@ export default function ResumeBuilderForm({
             let resumeGeneratedObject;
             try {
                 resumeGeneratedObject = JSON.parse(geminiJsonString);
-            } catch (_e: unknown) {
+            } catch (e) {
+                // TODO we can enable this to log the error in the console
+                console.error('Error parsing Gemini response:', e);
                 notifications.update({
                     id: 'generating-resume',
                     color: 'red',

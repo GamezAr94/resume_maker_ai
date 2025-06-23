@@ -157,7 +157,9 @@ export default function PersonalInfoForm({
                 ...prev,
                 [SectionTypes.Personal]: true,
             }));
-        } catch (_error: unknown) {
+        } catch (error) {
+            // TODO we can show enable it to debug it
+            console.error('Error saving user info:', error);
             notifications.show({
                 title: 'Error Saving',
                 message:
