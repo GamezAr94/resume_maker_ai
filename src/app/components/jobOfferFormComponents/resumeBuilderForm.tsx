@@ -160,7 +160,7 @@ export default function ResumeBuilderForm({
             let resumeGeneratedObject;
             try {
                 resumeGeneratedObject = JSON.parse(geminiJsonString);
-            } catch (e) {
+            } catch (_e) {
                 notifications.update({
                     id: 'generating-resume',
                     color: 'red',

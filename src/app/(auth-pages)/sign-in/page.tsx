@@ -78,8 +78,6 @@ const GithubIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
 );
 
 export default function SignInPage() {
-    const theme = useMantineTheme();
-
     return (
         <Container size={460} my={30} style={{ width: '100%' }}>
             <Anchor component={Link} href="/" c="dimmed" size="sm">

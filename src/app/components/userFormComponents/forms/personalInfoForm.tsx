@@ -157,10 +157,11 @@ export default function PersonalInfoForm({
                 ...prev,
                 [SectionTypes.Personal]: true,
             }));
-        } catch (error) {
+        } catch (_error) {
             notifications.show({
                 title: 'Error Saving',
-                message: 'An unexpected error occurred.',
+                message:
+                    'An unexpected error occurred. Please try again later.',
                 color: 'red',
                 icon: <IconX />,
             });
