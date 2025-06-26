@@ -1,20 +1,11 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import {
-    GoogleGenerativeAI,
-    /*
-    HarmBlockThreshold,
-    HarmCategory,
-    */
-    SchemaType,
-} from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
 export async function POST(req: Request) {
     const supabase = await createClient();
 
-    // Log the request body for debugging purposes
-    // This will help us understand what data is being sent to the API
     const requestJobDescBody = await req.json();
     console.log(
         'Request body for geminiResumeInteraction:',
@@ -23,7 +14,6 @@ export async function POST(req: Request) {
 
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // validate the API
     if (!apiKey) {
         return new Response(
             JSON.stringify({
@@ -37,10 +27,8 @@ export async function POST(req: Request) {
         );
     }
 
-    // Get ALL the user data
     const { data: userData, error } = await supabase.rpc('get_user_data');
 
-    // If we cannot access the data or there is an error that means that the user is not authenticated, return an error response:
     if (error || !userData) {
         return new Response(
             JSON.stringify({
@@ -111,118 +99,6 @@ export async function POST(req: Request) {
         responseSchema: {
             type: 'object' as SchemaType,
             properties: {
-                summary: {
-                    type: SchemaType.STRING,
-                },
-                career_objective: {
-                    type: SchemaType.STRING,
-                },
-                experience: {
-                    type: SchemaType.ARRAY,
-                    items: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                            title: {
-                                type: SchemaType.STRING,
-                            },
-                            location: {
-                                type: SchemaType.STRING,
-                            },
-                            company: {
-                                type: SchemaType.STRING,
-                            },
-                            start_end_dates: {
-                                type: SchemaType.STRING,
-                            },
-                            display: {
-                                type: SchemaType.BOOLEAN,
-                            },
-                            responsabilities: {
-                                type: SchemaType.STRING,
-                            },
-                        },
-                        required: [
-                            'title',
-                            'location',
-                            'company',
-                            'start_end_dates',
-                            'display',
-                            'responsabilities',
-                        ],
-                    },
-                },
-                education: {
-                    type: SchemaType.ARRAY,
-                    items: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                            degree: {
-                                type: SchemaType.STRING,
-                            },
-                            major: {
-                                type: SchemaType.STRING,
-                            },
-                            minor: {
-                                type: SchemaType.STRING,
-                            },
-                            location: {
-                                type: SchemaType.STRING,
-                            },
-                            gpa: {
-                                type: SchemaType.STRING,
-                            },
-                            school: {
-                                type: SchemaType.STRING,
-                            },
-                            start_end_dates: {
-                                type: SchemaType.STRING,
-                            },
-                            honor_awards: {
-                                type: SchemaType.ARRAY,
-                                items: {
-                                    type: SchemaType.STRING,
-                                },
-                            },
-                        },
-                        required: ['degree', 'school', 'start_end_dates'],
-                    },
-                },
-                skills: {
-                    type: SchemaType.ARRAY,
-                    items: {
-                        type: SchemaType.STRING,
-                    },
-                },
-                projects: {
-                    type: SchemaType.ARRAY,
-                    items: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                            name: {
-                                type: SchemaType.STRING,
-                            },
-                            description: {
-                                type: SchemaType.STRING,
-                            },
-                            relevance: {
-                                type: SchemaType.STRING,
-                            },
-                            start_end_dates: {
-                                type: SchemaType.STRING,
-                            },
-                            display: {
-                                type: SchemaType.BOOLEAN,
-                            },
-                        },
-                        required: [
-                            'name',
-                            'description',
-                            'relevance',
-                            'start_end_dates',
-                            'display',
-                        ],
-                    },
-                },
                 keywords: {
                     type: SchemaType.ARRAY,
                     items: {
@@ -235,58 +111,180 @@ export async function POST(req: Request) {
                 explanation: {
                     type: SchemaType.STRING,
                 },
-                languages: {
-                    type: SchemaType.ARRAY,
-                    items: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                            language: {
-                                type: SchemaType.STRING,
+                layout: {
+                    type: SchemaType.OBJECT,
+                    properties: {
+                        narrative: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                title: {
+                                    type: SchemaType.STRING,
+                                },
+                                display: {
+                                    type: SchemaType.BOOLEAN,
+                                },
+                                items: {
+                                    type: SchemaType.ARRAY,
+                                    items: {
+                                        type: SchemaType.STRING,
+                                    },
+                                },
                             },
-                            proficiency: {
-                                type: SchemaType.STRING,
-                            },
+                            required: ['display', 'content'],
                         },
-                        required: ['language'],
-                    },
-                },
-                certifications: {
-                    type: SchemaType.ARRAY,
-                    items: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                            name: {
-                                type: SchemaType.STRING,
+                        experience: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                title: {
+                                    type: SchemaType.STRING,
+                                },
+                                display: {
+                                    type: SchemaType.BOOLEAN,
+                                },
+                                items: {
+                                    type: SchemaType.ARRAY,
+                                    items: {
+                                        type: SchemaType.OBJECT,
+                                        properties: {
+                                            company: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            display: {
+                                                type: SchemaType.BOOLEAN,
+                                            },
+                                            start_end_dates: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            title: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            responsabilities: {
+                                                type: SchemaType.ARRAY,
+                                                items: {
+                                                    type: SchemaType.STRING,
+                                                },
+                                            },
+                                        },
+                                        required: [
+                                            'company',
+                                            'display',
+                                            'start_end_dates',
+                                            'title',
+                                            'responsabilities',
+                                        ],
+                                    },
+                                },
                             },
-                            issuing_organization: {
-                                type: SchemaType.STRING,
-                            },
-                            issue_date: {
-                                type: SchemaType.STRING,
-                            },
-                            expiration_date: {
-                                type: SchemaType.STRING,
-                            },
+                            required: ['display', 'items'],
                         },
-                        required: [
-                            'name',
-                            'issuing_organization',
-                            'issue_date',
-                        ],
+                        education: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                title: {
+                                    type: SchemaType.STRING,
+                                },
+                                display: {
+                                    type: SchemaType.BOOLEAN,
+                                },
+                                items: {
+                                    type: SchemaType.ARRAY,
+                                    items: {
+                                        type: SchemaType.OBJECT,
+                                        properties: {
+                                            degree: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            school: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            start_end_dates: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            display: {
+                                                type: SchemaType.BOOLEAN,
+                                            },
+                                        },
+                                        required: [
+                                            'degree',
+                                            'school',
+                                            'start_end_dates',
+                                            'display',
+                                        ],
+                                    },
+                                },
+                            },
+                            required: ['display', 'items'],
+                        },
+                        skills: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                title: {
+                                    type: SchemaType.STRING,
+                                },
+                                display: {
+                                    type: SchemaType.BOOLEAN,
+                                },
+                                items: {
+                                    type: SchemaType.ARRAY,
+                                    items: {
+                                        type: SchemaType.STRING,
+                                    },
+                                },
+                            },
+                            required: ['display', 'items'],
+                        },
+                        projects: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                title: {
+                                    type: SchemaType.STRING,
+                                },
+                                display: {
+                                    type: SchemaType.BOOLEAN,
+                                },
+                                items: {
+                                    type: SchemaType.ARRAY,
+                                    items: {
+                                        type: SchemaType.OBJECT,
+                                        properties: {
+                                            name: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            description: {
+                                                type: SchemaType.ARRAY,
+                                                items: {
+                                                    type: SchemaType.STRING,
+                                                },
+                                            },
+                                            display: {
+                                                type: SchemaType.BOOLEAN,
+                                            },
+                                            start_end_dates: {
+                                                type: SchemaType.STRING,
+                                            },
+                                        },
+                                        required: [
+                                            'name',
+                                            'description',
+                                            'display',
+                                            'start_end_dates',
+                                        ],
+                                    },
+                                },
+                            },
+                            required: ['display', 'items'],
+                        },
                     },
+                    required: [
+                        'narrative',
+                        'experience',
+                        'education',
+                        'skills',
+                        'projects',
+                    ],
                 },
             },
-            required: [
-                'summary',
-                'career_objective',
-                'experience',
-                'education',
-                'skills',
-                'projects',
-                'keywords',
-                'recommendations',
-                'explanation',
-            ],
+            required: ['keywords', 'recommendations', 'explanation', 'layout'],
         },
     };
 

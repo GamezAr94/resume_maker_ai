@@ -2,34 +2,41 @@
 // Import React and necessary Mantine components
 import React, { useState, SetStateAction, ChangeEvent } from 'react';
 import {
-    Button,
     Accordion,
     Box,
     Group,
     Paper,
     Title,
-    Text,
     Stack,
     TextInput,
     Textarea,
-    ActionIcon,
-    SegmentedControl,
+    Text,
 } from '@mantine/core';
-import { IconPlus, IconEye, IconEyeOff } from '@tabler/icons-react';
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
-import { FormJobOfferDataStructure } from '@/utils/interfaces';
+import {
+    EducationSection,
+    ExperienceSection,
+    FormJobOfferDataStructure,
+    NarrativeSection,
+    ProjectsSection,
+    SkillsSection,
+} from '@/utils/interfaces';
 
 // Import the CSS module
 import classes from './resumeEditor.module.css';
+import { SectionCard } from './SectionCard';
+import { ExperienceItemCard } from './ItemsCards/ExperienceItemCard';
+import { ProjectItemCard } from './ItemsCards/ProjectItemCard';
+import { EducationItemCard } from './ItemsCards/EducationItemCard';
+import { SkillsPanel } from './ItemsCards/SkillsPanel';
+import { NarrativePanel } from './ItemsCards/NarrativePanel';
 
 // Interface using YOUR prop names
 interface ResumeEditorProps {
     dataResume: FormJobOfferDataStructure;
     setDataResume: (updater: SetStateAction<FormJobOfferDataStructure>) => void;
 }
-
-type ToggleableSectionKey = 'experience' | 'projects' | 'education';
 
 export default function ResumeEditor({
     dataResume,
@@ -40,16 +47,27 @@ export default function ResumeEditor({
         'personalInfo',
     );
 
+    const [activeNestedAccordions, setActiveNestedAccordions] = useState<
+        Record<string, string[]>
+    >({});
+
+    // Handler for the nested accordions
+    const handleNestedAccordionChange = (
+        sectionId: string,
+        value: string[],
+    ) => {
+        setActiveNestedAccordions((prev) => ({
+            ...prev,
+            [sectionId]: value,
+        }));
+    };
+
     // Your function to show/hide specific sections in the resume
     const hideShowSection = (e: React.MouseEvent<HTMLButtonElement>) => {
         const iterator = e.currentTarget.getAttribute('data-iterator');
         const sectionNameFromAttr =
             e.currentTarget.getAttribute('data-section');
 
-        //TODO remove this
-        console.log(
-            `hideShowSection: iterator=${iterator}, sectionNameFromAttr=${sectionNameFromAttr}`,
-        );
         setDataResume((prevDataResume) => {
             if (iterator == null || sectionNameFromAttr == null) {
                 console.error(
@@ -62,7 +80,9 @@ export default function ResumeEditor({
             if (
                 sectionNameFromAttr !== 'experience' &&
                 sectionNameFromAttr !== 'projects' &&
-                sectionNameFromAttr !== 'education'
+                sectionNameFromAttr !== 'education' &&
+                sectionNameFromAttr !== 'skills' &&
+                sectionNameFromAttr !== 'narrative'
             ) {
                 console.warn(
                     `hideShowSection: Section '${sectionNameFromAttr}' is not 'experience', 'projects', or 'education'. Logic not applied.`,
@@ -70,22 +90,21 @@ export default function ResumeEditor({
                 return prevDataResume;
             }
 
-            const section = sectionNameFromAttr as ToggleableSectionKey;
-
             if (
                 !prevDataResume.resume_generated ||
-                !prevDataResume.resume_generated[section]
+                !prevDataResume.resume_generated.layout ||
+                !prevDataResume.resume_generated.layout[index]
             ) {
                 console.error(
-                    `hideShowSection: section '${section}' not found in dataResume.resume_generated`,
+                    `hideShowSection: resume_generated.layout[${index}] is not accessible.`,
                 );
                 return prevDataResume;
             }
 
-            const sectionArray = prevDataResume.resume_generated[section];
-            if (!Array.isArray(sectionArray) || !sectionArray[index]) {
+            const sectionArray = prevDataResume.resume_generated.layout;
+            if (!Array.isArray(sectionArray)) {
                 console.error(
-                    `hideShowSection: ${section}[${index}] is not accessible or not an array.`,
+                    `hideShowSection: [${index}] is not accessible or not an array.`,
                 );
                 return prevDataResume;
             }
@@ -109,7 +128,7 @@ export default function ResumeEditor({
                 ...prevDataResume,
                 resume_generated: {
                     ...prevDataResume.resume_generated,
-                    [section]: updatedSectionItems,
+                    layout: updatedSectionItems,
                 },
             };
         });
@@ -120,12 +139,36 @@ export default function ResumeEditor({
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
         const { name, value } = e.target;
-        const section = e.target.getAttribute('data-section');
+        // Use `data-section` to determine which part of the resume to update
+        const section = e.target.getAttribute('data-section')?.toLowerCase();
+        // Use `data-iterator` to determine the index in the array (if applicable)
+        // This is useful for sections like experience, projects, education, etc.
+        // If the section is not an array, `data-iterator` will be null
+        // and we can ignore it.
         const iteratorStr = e.target.getAttribute('data-iterator');
+        const layoutPosition = e.target.getAttribute('data-layout-position');
 
         setDataResume((prev) => {
             // Create a deep copy to avoid mutation issues
             const newData = JSON.parse(JSON.stringify(prev));
+
+            // If the input is a title, we update the section's title
+            // This is determined by the `is-title` attribute
+            // If `is-title` is '1', we assume it's a title input
+            // and we update the title in the layout array at the specified position
+            if (name === 'title' && layoutPosition !== null) {
+                // Ensure layoutPosition is a valid number
+                const layoutPositionNum = parseInt(layoutPosition, 10);
+                if (
+                    newData.resume_generated &&
+                    newData.resume_generated.layout &&
+                    newData.resume_generated.layout[layoutPositionNum]
+                ) {
+                    newData.resume_generated.layout[layoutPositionNum].title =
+                        value;
+                    return newData;
+                }
+            }
 
             switch (section) {
                 case 'job_position':
@@ -151,6 +194,8 @@ export default function ResumeEditor({
                 case 'experience':
                 case 'projects':
                 case 'education':
+                    // If the section is an array, we need to find the correct index
+                    // using the iteratorStr (which is the index in the array)
                     if (iteratorStr !== null && newData.resume_generated) {
                         const index = parseInt(iteratorStr, 10);
                         const sectionArray = newData.resume_generated[section];
@@ -205,14 +250,6 @@ export default function ResumeEditor({
                     </Accordion.Control>
                     <Accordion.Panel>
                         <Paper p="md" className={classes.sectionPaper}>
-                            {/* ====================================================================== */}
-                            {/* INSERT YOUR ORIGINAL <TextInput>, <Textarea>, etc. for       */}
-                            {/* Personal Information HERE.                                     */}
-                            {/* Apply `className={classes.inputField}` to each input/textarea. */}
-                            {/* ====================================================================== */}
-                            <Text c="dimmed" ta="center" p="xl">
-                                (Your Personal Information fields go here)
-                            </Text>
                             <Stack gap="md">
                                 <TextInput
                                     label="Full Name"
@@ -272,670 +309,194 @@ export default function ResumeEditor({
                                     data-field="linkedin"
                                     className={classes.inputField}
                                 />
-                                <Box mt="lg" mb="sm">
-                                    {' '}
-                                    {/* Added some margin for spacing */}
-                                    <Text size="sm" fw={500} mb={4}>
-                                        Personal Description:
-                                    </Text>
-                                    <SegmentedControl
-                                        value={
-                                            dataResume.resume_generated
-                                                ?.selected_narrative ||
-                                            'summary'
-                                        } // Default to 'summary' if nothing is selected
-                                        onChange={(value) => {
-                                            // Inline handler for simplicity
-                                            setDataResume((prevDataResume) => ({
-                                                ...prevDataResume,
-                                                resume_generated: {
-                                                    ...prevDataResume.resume_generated,
-                                                    selected_narrative:
-                                                        value as
-                                                            | 'summary'
-                                                            | 'career_objective',
-                                                },
-                                            }));
-                                        }}
-                                        data={[
-                                            {
-                                                label: 'Career Objective',
-                                                value: 'career_objective',
-                                            },
-                                            {
-                                                label: 'Summary',
-                                                value: 'summary',
-                                            },
-                                        ]}
-                                        fullWidth
-                                        color="blue" // Optional: add some color
-                                    />
-                                </Box>
-                                {(() => {
-                                    const activeNarrative =
-                                        dataResume.resume_generated
-                                            ?.selected_narrative || 'summary';
-
-                                    if (activeNarrative === 'summary') {
-                                        return (
-                                            <Textarea
-                                                label="Summary"
-                                                placeholder="Brief professional summary or career objective..."
-                                                value={
-                                                    dataResume.resume_generated
-                                                        ?.summary || ''
-                                                }
-                                                onChange={handleChange}
-                                                data-section="summary"
-                                                data-field="summary"
-                                                name="summary"
-                                                autosize
-                                                minRows={3}
-                                                className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                            />
-                                        );
-                                    } else {
-                                        return (
-                                            <Textarea
-                                                label="Career Objective"
-                                                placeholder="Brief professional summary or career objective..."
-                                                value={
-                                                    dataResume.resume_generated
-                                                        ?.career_objective || ''
-                                                }
-                                                onChange={handleChange}
-                                                data-section="career_objective"
-                                                data-field="career_objective"
-                                                name="career_objective"
-                                                autosize
-                                                minRows={3}
-                                                className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                            />
-                                        );
-                                    }
-                                })()}
                             </Stack>
                         </Paper>
                     </Accordion.Panel>
                 </Accordion.Item>
 
-                {/* Experience Section */}
-                <Accordion.Item
-                    value="experience"
-                    className={classes.accordionItem}
-                >
-                    <Accordion.Control>
-                        <Title order={4} className={classes.sectionTitle}>
-                            Work Experience
-                        </Title>
-                    </Accordion.Control>
-                    <Accordion.Panel>
-                        {/* ====================================================================== */}
-                        {/* INSERT YOUR ORIGINAL code that maps over experience items HERE.    */}
-                        {/* For each item, wrap it in a <Paper className={classes.sectionPaper}> */}
-                        {/* Apply `className={classes.inputField}` to each input/textarea. */}
-                        {/* Add your original Remove button (<ActionIcon>).                  */}
-                        {/* ====================================================================== */}
-                        <Text c="dimmed" ta="center" p="xl">
-                            (Your Experience items and mapping logic go here)
-                        </Text>
+                {dataResume.resume_generated?.layout?.map((section, idx) => {
+                    // Check if the section is
+                    // The isVisible logic is now inside the component that needs it.
+                    return (
+                        <SectionCard
+                            key={`${section.id}-${idx}`}
+                            section={section}
+                            idx={idx}
+                            onVisibilityToggle={hideShowSection}
+                        >
+                            {/* Title Editor - Common to all sections */}
+                            <Textarea
+                                label="Section Title"
+                                value={section.title || ''}
+                                onChange={handleChange}
+                                name="title"
+                                data-section={section.id}
+                                data-iterator={idx}
+                                autosize
+                                minRows={1}
+                                className={classes.inputField}
+                            />
+                            <Box mt="md">
+                                {(() => {
+                                    switch (section.id) {
+                                        // Render the new NarrativePanel
+                                        case 'narrative':
+                                            return (
+                                                <NarrativePanel
+                                                    section={
+                                                        section as NarrativeSection
+                                                    }
+                                                    onSectionChange={
+                                                        handleChange
+                                                    }
+                                                    sectionIndex={idx}
+                                                />
+                                            );
 
-                        {/*dataResume.resume_generated.projects.map((pro, id) => (*/}
-                        {(dataResume.resume_generated?.experience || []).map(
-                            (expItem, index) => {
-                                const isVisible =
-                                    expItem.display === undefined
-                                        ? true
-                                        : expItem.display;
-                                return (
-                                    <Paper
-                                        key={index}
-                                        p="md"
-                                        mt="md"
-                                        className={classes.sectionPaper}
-                                    >
-                                        <Stack gap="md">
-                                            <Group justify="space-between">
-                                                <Text fw={500}>
-                                                    Experience #{index + 1}
-                                                </Text>
-                                                <ActionIcon
-                                                    variant="subtle"
-                                                    onClick={hideShowSection}
-                                                    data-section="experience"
-                                                    data-iterator={index.toString()}
-                                                    title={
-                                                        isVisible
-                                                            ? 'Hide this experience'
-                                                            : 'Show this experience'
+                                        // Render the new SkillsPanel
+                                        case 'skills':
+                                            return (
+                                                <SkillsPanel
+                                                    section={
+                                                        section as SkillsSection
+                                                    }
+                                                    onSectionChange={
+                                                        handleChange
+                                                    }
+                                                    sectionIndex={idx}
+                                                />
+                                            );
+
+                                        // Render nested accordion for Experience
+                                        case 'experience':
+                                            return (
+                                                <Accordion
+                                                    multiple
+                                                    variant="contained"
+                                                    radius="md"
+                                                    mt="lg"
+                                                    value={
+                                                        activeNestedAccordions[
+                                                            section.id
+                                                        ] || []
+                                                    }
+                                                    onChange={(value) =>
+                                                        handleNestedAccordionChange(
+                                                            section.id,
+                                                            value,
+                                                        )
                                                     }
                                                 >
-                                                    {isVisible ? (
-                                                        <IconEyeOff size={18} />
-                                                    ) : (
-                                                        <IconEye size={18} />
+                                                    {(
+                                                        section as ExperienceSection
+                                                    ).items.map(
+                                                        (item, itemIdx) => (
+                                                            <ExperienceItemCard
+                                                                key={itemIdx}
+                                                                item={item}
+                                                                sectionId={
+                                                                    section.id
+                                                                }
+                                                                itemIndex={
+                                                                    itemIdx
+                                                                }
+                                                            />
+                                                        ),
                                                     )}
-                                                </ActionIcon>
-                                            </Group>
-                                            {isVisible && (
-                                                <>
-                                                    <TextInput
-                                                        label="Job Title"
-                                                        placeholder="e.g., Software Engineer"
-                                                        value={
-                                                            expItem.title || ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="experience"
-                                                        data-iterator={index.toString()}
-                                                        name="title"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    <TextInput
-                                                        label="Company"
-                                                        placeholder="e.g., Tech Solutions Inc."
-                                                        value={
-                                                            expItem.company ||
-                                                            ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="experience"
-                                                        data-iterator={index.toString()}
-                                                        name="company"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    {/* // TODO MAybe later 
-                                        <TextInput
-                                            label="Location"
-                                            placeholder="e.g., San Francisco, CA"
-                                            value={expItem.location || ''}
-                                            onChange={handleChange}
-                                            data-section="job_position"
-                                            name=''
-                                            data-iterator={index.toString()}
-                                            className={classes.inputField}
-                                        />
-                                        // */}
-                                                    <TextInput
-                                                        label="Start Date"
-                                                        placeholder="Enter a date"
-                                                        value={
-                                                            expItem.start_end_dates ||
-                                                            ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="experience"
-                                                        data-iterator={index.toString()}
-                                                        name="start_end_dates"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    {/* NOTE: we also have the responsabilities tag not sure why though */}
-                                                    {/* TODO check why I dont have responsabilities here.. in the DB is called Description and it is not empty */}
-                                                    <Textarea
-                                                        label="Description & Responsibilities"
-                                                        placeholder="Describe your role and achievements..."
-                                                        value={
-                                                            expItem.responsabilities ||
-                                                            ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="experience"
-                                                        data-iterator={index.toString()}
-                                                        name="responsabilities"
-                                                        autosize
-                                                        minRows={3}
-                                                        className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                                    />
-                                                </>
-                                            )}
-                                            {/* Optional: Hide/Show button if you implement this logic for individual items */}
-                                            {/* <Button onClick={hideShowSection} data-section="experience" data-iterator={index.toString()}>
-                       {expItem.display !== false ? 'Hide' : 'Show'} in Resume
-                   </Button> */}
-                                        </Stack>
-                                    </Paper>
-                                );
-                            },
-                        )}
-                        {/* Your Add Button - Styled */}
-                        <Button
-                            leftSection={<IconPlus size={18} />}
-                            // onClick={/* YOUR ORIGINAL add experience function */}
-                            mt="lg"
-                            variant="light"
-                            fullWidth
-                            className={classes.addItemButton}
-                        >
-                            Add Experience
-                        </Button>
-                    </Accordion.Panel>
-                </Accordion.Item>
+                                                </Accordion>
+                                            );
 
-                {/* Education Section */}
-                <Accordion.Item
-                    value="education"
-                    className={classes.accordionItem}
-                >
-                    <Accordion.Control>
-                        <Title order={4} className={classes.sectionTitle}>
-                            Education
-                        </Title>
-                    </Accordion.Control>
-                    <Accordion.Panel>
-                        {/* ====================================================================== */}
-                        {/* INSERT YOUR ORIGINAL code that maps over education items HERE.     */}
-                        {/* Apply styles similarly to the Experience section.                  */}
-                        {/* ====================================================================== */}
-                        <Text c="dimmed" ta="center" p="xl">
-                            (Your Education items and mapping logic go here)
-                        </Text>
-                        {(dataResume.resume_generated?.education || []).map(
-                            (eduItem, index: number) => {
-                                const isVisible =
-                                    eduItem.display === undefined
-                                        ? true
-                                        : eduItem.display;
-                                return (
-                                    <Paper
-                                        key={index}
-                                        p="md"
-                                        mt="md"
-                                        className={classes.sectionPaper}
-                                    >
-                                        <Stack gap="md">
-                                            <Group justify="space-between">
-                                                <Text fw={500}>
-                                                    Education #{index + 1}
-                                                </Text>
-                                                <ActionIcon
-                                                    variant="subtle"
-                                                    onClick={hideShowSection}
-                                                    data-section="education"
-                                                    data-iterator={index.toString()}
-                                                    title={
-                                                        isVisible
-                                                            ? 'Hide this education'
-                                                            : 'Show this education'
+                                        // Render nested accordion for Projects
+                                        case 'projects':
+                                            return (
+                                                <Accordion
+                                                    multiple
+                                                    variant="contained"
+                                                    radius="md"
+                                                    mt="lg"
+                                                    value={
+                                                        activeNestedAccordions[
+                                                            section.id
+                                                        ] || []
+                                                    }
+                                                    onChange={(value) =>
+                                                        handleNestedAccordionChange(
+                                                            section.id,
+                                                            value,
+                                                        )
                                                     }
                                                 >
-                                                    {isVisible ? (
-                                                        <IconEyeOff size={18} />
-                                                    ) : (
-                                                        <IconEye size={18} />
+                                                    {(
+                                                        section as ProjectsSection
+                                                    ).items.map(
+                                                        (item, itemIdx) => (
+                                                            <ProjectItemCard
+                                                                key={itemIdx}
+                                                                item={item}
+                                                                sectionId={
+                                                                    section.id
+                                                                }
+                                                                itemIndex={
+                                                                    itemIdx
+                                                                }
+                                                            />
+                                                        ),
                                                     )}
-                                                </ActionIcon>
-                                                {/*
-                                            TODO implement the button or remove it 
-                                            <ActionIcon
-                                                color="red"
-                                                variant="subtle"
-                                                onClick={() =>
-                                                    removeItemFromSection(
-                                                        'education',
-                                                        index,
-                                                    )
-                                                }
-                                            >
-                                                <IconTrash size={18} />
-                                            </ActionIcon>
-                                                */}
-                                            </Group>
-                                            {isVisible && (
-                                                <>
-                                                    <TextInput
-                                                        label="Degree / Certificate"
-                                                        placeholder="e.g., B.S. Computer Science"
-                                                        value={
-                                                            eduItem.degree || ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="education"
-                                                        data-iterator={index.toString()}
-                                                        name="degree"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    <TextInput
-                                                        label="Institution"
-                                                        placeholder="e.g., University of Example"
-                                                        value={
-                                                            eduItem.school || ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="education"
-                                                        data-iterator={index.toString()}
-                                                        name="school"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    <TextInput
-                                                        label="Location (Optional)"
-                                                        placeholder="e.g., City, State"
-                                                        value={
-                                                            eduItem.location ||
-                                                            ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="education"
-                                                        data-iterator={index.toString()}
-                                                        name="location"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    <Textarea
-                                                        label="Graduation Date / Expected"
-                                                        placeholder="Specify the date"
-                                                        value={
-                                                            eduItem.start_end_dates ||
-                                                            ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="education"
-                                                        data-iterator={index.toString()}
-                                                        name="start_end_dates"
-                                                        autosize
-                                                        minRows={2}
-                                                        className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                                    />
-                                                </>
-                                            )}
-                                            {/*
-                                        <Textarea
-                                            label="Relevant Coursework / Details (Optional)"
-                                            placeholder="e.g., Thesis, GPA, Honors..."
-                                            value={eduItem.description || ''}
-                                            onChange={handleChange}
-                                            data-section="education"
-                                            data-iterator={index.toString()}
-                                            data-field="description"
-                                            autosize
-                                            minRows={2}
-                                            className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                        />
-                                        */}
-                                        </Stack>
-                                    </Paper>
-                                );
-                            },
-                        )}
-                        <Button
-                            leftSection={<IconPlus size={18} />}
-                            /* onClick={YOUR_ADD_FUNCTION} */ mt="lg"
-                            variant="light"
-                            fullWidth
-                            className={classes.addItemButton}
-                        >
-                            Add Education
-                        </Button>
-                    </Accordion.Panel>
-                </Accordion.Item>
+                                                </Accordion>
+                                            );
 
-                {/* Skills Section */}
-                <Accordion.Item
-                    value="skills"
-                    className={classes.accordionItem}
-                >
-                    <Accordion.Control>
-                        <Title order={4} className={classes.sectionTitle}>
-                            Skills
-                        </Title>
-                    </Accordion.Control>
-                    <Accordion.Panel>
-                        {/* ====================================================================== */}
-                        {/* INSERT YOUR ORIGINAL code that maps over skills items HERE.        */}
-                        {/* Apply styles similarly to the Experience section.                  */}
-                        {/* ====================================================================== */}
-                        <Text c="dimmed" ta="center" p="xl">
-                            (Your Skills items and mapping logic go here)
-                        </Text>
-                        {(dataResume.resume_generated?.skills || []).map(
-                            (skillItem, index: number) => (
-                                <Paper
-                                    key={index}
-                                    p="md"
-                                    mt="md"
-                                    className={classes.sectionPaper}
-                                >
-                                    <Stack gap="md">
-                                        <Group
-                                            justify="space-between"
-                                            align="flex-end"
-                                        >
-                                            <TextInput
-                                                label={`Skill #${index + 1}`}
-                                                placeholder="e.g., JavaScript"
-                                                value={skillItem || ''}
-                                                onChange={handleChange}
-                                                data-section="skills"
-                                                data-iterator={index.toString()}
-                                                name="name"
-                                                className={classes.inputField}
-                                                style={{ flexGrow: 1 }}
-                                            />
-                                            {/*
-                                            <Select
-                                                label="Proficiency"
-                                                placeholder="Select level"
-                                                value={
-                                                    skillItem.level ||
-                                                    'Intermediate'
-                                                }
-                                                onChange={(value) =>
-                                                    handleComplexInputChange(
-                                                        'skills',
-                                                        'level',
-                                                        value,
-                                                        index,
-                                                    )
-                                                }
-                                                data={[
-                                                    'Beginner',
-                                                    'Intermediate',
-                                                    'Advanced',
-                                                    'Expert',
-                                                ]}
-                                                className={classes.inputField}
-                                                style={{ minWidth: '150px' }}
-                                            />
-                                            TODO implement the button or remove it 
-                                            <ActionIcon
-                                                color="red"
-                                                variant="subtle"
-                                                onClick={() =>
-                                                    removeItemFromSection(
-                                                        'skills',
-                                                        index,
-                                                    )
-                                                }
-                                                mb={4}
-                                            >
-                                                {' '}
-                                                <IconTrash size={18} />
-                                            </ActionIcon>
-                                            */}
-                                        </Group>
-                                    </Stack>
-                                </Paper>
-                            ),
-                        )}
-                        <Button
-                            leftSection={<IconPlus size={18} />}
-                            /* onClick={YOUR_ADD_FUNCTION} */ mt="lg"
-                            variant="light"
-                            fullWidth
-                            className={classes.addItemButton}
-                        >
-                            Add Skill
-                        </Button>
-                    </Accordion.Panel>
-                </Accordion.Item>
-
-                {/* Projects Section */}
-                <Accordion.Item
-                    value="projects"
-                    className={classes.accordionItem}
-                >
-                    <Accordion.Control>
-                        <Title order={4} className={classes.sectionTitle}>
-                            Projects
-                        </Title>
-                    </Accordion.Control>
-                    <Accordion.Panel>
-                        {(dataResume.resume_generated?.projects || []).map(
-                            (projItem, index: number) => {
-                                const isVisible =
-                                    projItem.display === undefined
-                                        ? true
-                                        : projItem.display;
-                                return (
-                                    <Paper
-                                        key={index}
-                                        p="md"
-                                        mt="md"
-                                        className={classes.sectionPaper}
-                                    >
-                                        {/*Maybe show the relevance in a info button so that the user can read if the project is relevant or not*/}
-                                        <Text c="dimmed" ta="center" p="xl">
-                                            ({projItem.relevance || ''})
-                                        </Text>
-                                        <Stack gap="md">
-                                            <Group justify="space-between">
-                                                <Text fw={500}>
-                                                    Project #{index + 1}
-                                                </Text>
-                                                <ActionIcon
-                                                    variant="subtle"
-                                                    onClick={hideShowSection}
-                                                    data-section="projects"
-                                                    data-iterator={index.toString()}
-                                                    title={
-                                                        isVisible
-                                                            ? 'Hide this project'
-                                                            : 'Show this project'
+                                        // Render nested accordion for Education
+                                        case 'education':
+                                            return (
+                                                <Accordion
+                                                    multiple
+                                                    variant="contained"
+                                                    radius="md"
+                                                    mt="lg"
+                                                    value={
+                                                        activeNestedAccordions[
+                                                            section.id
+                                                        ] || []
+                                                    }
+                                                    onChange={(value) =>
+                                                        handleNestedAccordionChange(
+                                                            section.id,
+                                                            value,
+                                                        )
                                                     }
                                                 >
-                                                    {isVisible ? (
-                                                        <IconEyeOff size={18} />
-                                                    ) : (
-                                                        <IconEye size={18} />
+                                                    {(
+                                                        section as EducationSection
+                                                    ).items.map(
+                                                        (item, itemIdx) => (
+                                                            <EducationItemCard
+                                                                key={itemIdx}
+                                                                item={item}
+                                                                sectionId={
+                                                                    section.id
+                                                                }
+                                                                itemIndex={
+                                                                    itemIdx
+                                                                }
+                                                            />
+                                                        ),
                                                     )}
-                                                </ActionIcon>
-                                                {/*
-                                            TODO implement the button or remove it 
-                                            <ActionIcon
-                                                color="red"
-                                                variant="subtle"
-                                                onClick={() =>
-                                                    removeItemFromSection(
-                                                        'projects',
-                                                        index,
-                                                    )
-                                                }
-                                            >
-                                                <IconTrash size={18} />
-                                            </ActionIcon>
-                                            */}
-                                            </Group>
-                                            {isVisible && (
-                                                <>
-                                                    <TextInput
-                                                        label="Project Name"
-                                                        placeholder="e.g., Portfolio Website"
-                                                        value={
-                                                            projItem.name || ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="projects"
-                                                        data-iterator={index.toString()}
-                                                        name="name"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    <TextInput
-                                                        label="Project Duration"
-                                                        placeholder="Enter a date range"
-                                                        value={
-                                                            projItem.start_end_dates ||
-                                                            ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="projects"
-                                                        data-iterator={index.toString()}
-                                                        name="start_end_dates"
-                                                        className={
-                                                            classes.inputField
-                                                        }
-                                                    />
-                                                    {/*
-                                        <TextInput
-                                            label="Technologies Used"
-                                            placeholder="e.g., React, Node.js, Firebase"
-                                            value={projItem.technologies || ''}
-                                            onChange={handleChange}
-                                            data-section="projects"
-                                            data-iterator={index.toString()}
-                                            data-field="technologies"
-                                            className={classes.inputField}
-                                        />
-                                        
-                                        <TextInput
-                                            label="Project URL (Optional)"
-                                            placeholder="https://yourproject.com"
-                                            value={projItem.url || ''}
-                                            onChange={handleChange}
-                                            data-section="projects"
-                                            data-iterator={index.toString()}
-                                            data-field="url"
-                                            className={classes.inputField}
-                                        />
-                                        */}
-                                                    <Textarea
-                                                        label="Description"
-                                                        placeholder="Describe your project, its features, and your role..."
-                                                        value={
-                                                            projItem.description ||
-                                                            ''
-                                                        }
-                                                        onChange={handleChange}
-                                                        data-section="projects"
-                                                        data-iterator={index.toString()}
-                                                        name="description"
-                                                        autosize
-                                                        minRows={3}
-                                                        className={`${classes.inputField} ${classes.descriptionTextarea}`}
-                                                    />
-                                                </>
-                                            )}
-                                            {/* Optional: Hide/Show button */}
-                                            {/* <Button onClick={hideShowSection} data-section="projects" data-iterator={index.toString()}>
-                      {projItem.display !== false ? 'Hide' : 'Show'} in Resume
-                  </Button> */}
-                                        </Stack>
-                                    </Paper>
-                                );
-                            },
-                        )}
-                        <Button
-                            leftSection={<IconPlus size={18} />}
-                            /* onClick={YOUR_ADD_FUNCTION} */ mt="lg"
-                            variant="light"
-                            fullWidth
-                            className={classes.addItemButton}
-                        >
-                            Add Project
-                        </Button>
-                    </Accordion.Panel>
-                </Accordion.Item>
+                                                </Accordion>
+                                            );
+
+                                        default:
+                                            return (
+                                                <Text c="dimmed" size="sm">
+                                                    No editor available for this
+                                                    section type.
+                                                </Text>
+                                            );
+                                    }
+                                })()}
+                            </Box>
+                        </SectionCard>
+                    );
+                })}
             </Accordion>
         </Box>
     );

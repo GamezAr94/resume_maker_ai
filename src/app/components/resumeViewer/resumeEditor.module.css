@@ -31,70 +31,31 @@
     border-bottom: 2px solid var(--mantine-color-blue-1);
 }
 
-/* Scoped global styles for Accordion Control */
-.customAccordionWrapper :global(.mantine-Accordion-control) {
-    padding: var(--mantine-spacing-md) !important;
-    border-radius: var(--mantine-radius-md) var(--mantine-radius-md) 0 0;
-    background-color: var(--mantine-color-gray-1); /* Light mode header */
-}
-
-.customAccordionWrapper
-    :global(.mantine-Accordion-control[data-active='true']) {
-    background-color: var(
-        --mantine-color-blue-0
-    ); /* Light mode active header */
-    border-bottom: 1px solid var(--mantine-color-gray-3);
-}
-
-/* Styles for .sectionTitle, which is a local class, when inside an active global control */
-.customAccordionWrapper
-    :global(.mantine-Accordion-control[data-active='true'])
-    .sectionTitle {
-    color: var(--mantine-color-blue-8); /* Light mode active title text */
-}
-
-/* Scoped global styles for Accordion Panel's direct child .sectionPaper */
-.customAccordionWrapper :global(.mantine-Accordion-panel) > .sectionPaper {
-    margin-bottom: var(--mantine-spacing-md);
-}
-
+/* Styles for each accordion item to look like a card */
 .accordionItem {
-    /* This is a local class, applied to Accordion.Item */
     background-color: var(--mantine-color-white);
+    border: 1px solid var(--mantine-color-gray-2); /* A light border for separation */
     border-radius: var(--mantine-radius-md);
-    margin-bottom: var(--mantine-spacing-lg);
-    border: 1px solid var(--mantine-color-gray-3);
+    margin-bottom: var(--mantine-spacing-md); /* Space between cards */
     transition: box-shadow 0.2s ease-in-out;
+    box-shadow: var(--mantine-shadow-xs); /* A subtle shadow by default */
 }
 
 .accordionItem:hover {
-    box-shadow: var(--mantine-shadow-md);
+    box-shadow: var(
+        --mantine-shadow-md
+    ); /* A more pronounced shadow on hover */
 }
 
-.sectionTitle {
-    /* This is a local class, used inside Accordion.Control */
-    font-weight: 600;
-    color: var(--mantine-color-dark-6); /* Light mode title text */
+/* Override Mantine's default Accordion control styles */
+.accordionItem :global(.mantine-Accordion-control) {
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
 }
 
 .sectionPaper {
-    /* This is a local class, used inside Accordion.Panel */
-    background-color: var(
-        --mantine-color-white
-    ); /* Light mode paper background */
+    /* This is the panel content area */
     padding: var(--mantine-spacing-lg);
-    border: none;
-    box-shadow: none;
-    border-top: 1px solid var(--mantine-color-gray-2); /* Light mode separator */
-    border-radius: 0;
-    margin-top: 0;
-    margin-bottom: var(
-        --mantine-spacing-md
-    ); /* Default margin, overridden if direct child of panel */
-}
-
-.sectionPaper:first-of-type {
-    border-top: none;
+    border-top: 1px solid var(--mantine-color-gray-2); /* Separator line */
 }
 
 .inputField {
@@ -105,20 +66,18 @@
     font-weight: 500;
     margin-bottom: 4px;
     font-size: var(--mantine-font-size-sm);
-    color: var(--mantine-color-dark-4); /* Light mode label text */
+    color: var(--mantine-color-dark-4);
 }
 
 .descriptionTextarea {
-    border: 1px solid var(--mantine-color-gray-4); /* Light mode border */
+    border: 1px solid var(--mantine-color-gray-4);
     border-radius: var(--mantine-radius-sm);
     min-height: 100px;
     padding: var(--mantine-spacing-sm);
     font-size: var(--mantine-font-size-sm);
     line-height: 1.5;
-    background-color: var(
-        --mantine-color-white
-    ); /* Ensure textarea bg matches paper */
-    color: var(--mantine-color-black); /* Explicit text color for textarea */
+    background-color: var(--mantine-color-white);
+    color: var(--mantine-color-black);
 }
 
 .descriptionTextarea:focus {
@@ -126,119 +85,12 @@
     outline: none;
 }
 
-.addItemButton {
-    margin-top: var(--mantine-spacing-lg);
-    background-color: var(--mantine-color-green-0); /* Light mode bg */
-    color: var(--mantine-color-green-8); /* Light mode text */
-    border: 1px dashed var(--mantine-color-green-3); /* Light mode border */
+/* New styles for the custom elements in the card header */
+.dragHandle {
+    color: var(--mantine-color-gray-5);
+    cursor: grab;
 }
 
-.addItemButton:hover {
-    background-color: var(--mantine-color-green-1); /* Light mode hover bg */
-    border-color: var(--mantine-color-green-5); /* Light mode hover border */
-}
-
-/* Scoped global styles for ActionIcon within the editor container */
-.editorContainer :global(.mantine-ActionIcon-root[color='red']) {
-    color: var(--mantine-color-red-6) !important; /* Light mode icon color */
-}
-.editorContainer :global(.mantine-ActionIcon-root[color='red']:hover) {
-    background-color: var(
-        --mantine-color-red-0
-    ) !important; /* Light mode icon hover bg */
-}
-
-/* Dark Mode Overrides */
-[data-mantine-color-scheme='dark'] .editorContainer {
-    background-color: var(--mantine-color-dark-8);
-    border-color: var(--mantine-color-dark-5);
-}
-
-[data-mantine-color-scheme='dark'] .editorContainer::-webkit-scrollbar-track {
-    background: var(--mantine-color-dark-7);
-}
-[data-mantine-color-scheme='dark'] .editorContainer::-webkit-scrollbar-thumb {
-    background: var(--mantine-color-dark-4);
-}
-[data-mantine-color-scheme='dark']
-    .editorContainer::-webkit-scrollbar-thumb:hover {
-    background: var(--mantine-color-dark-3);
-}
-
-[data-mantine-color-scheme='dark'] .mainTitle {
-    color: var(--mantine-color-blue-4);
-    border-bottom-color: var(--mantine-color-blue-9);
-}
-
-[data-mantine-color-scheme='dark'] .accordionItem {
-    background-color: var(--mantine-color-dark-7);
-    border-color: var(--mantine-color-dark-5);
-}
-
-/* Scoped global styles for Accordion Control in dark mode */
-[data-mantine-color-scheme='dark']
-    .customAccordionWrapper
-    :global(.mantine-Accordion-control) {
-    background-color: var(--mantine-color-dark-6); /* Dark mode header */
-}
-
-[data-mantine-color-scheme='dark']
-    .customAccordionWrapper
-    :global(.mantine-Accordion-control[data-active='true']) {
-    background-color: var(--mantine-color-dark-5); /* Dark mode active header */
-    border-bottom-color: var(--mantine-color-dark-4);
-}
-
-[data-mantine-color-scheme='dark'] .sectionTitle {
-    color: var(--mantine-color-gray-0); /* Dark mode title text */
-}
-
-/* Styles for .sectionTitle (local class) in dark mode when inside an active global control */
-[data-mantine-color-scheme='dark']
-    .customAccordionWrapper
-    :global(.mantine-Accordion-control[data-active='true'])
-    .sectionTitle {
-    color: var(--mantine-color-blue-3); /* Dark mode active title text */
-}
-
-[data-mantine-color-scheme='dark'] .sectionPaper {
-    background-color: var(
-        --mantine-color-dark-7
-    ); /* Dark mode paper background */
-    border-top-color: var(--mantine-color-dark-5); /* Dark mode separator */
-}
-
-[data-mantine-color-scheme='dark'] .inputField label {
-    color: var(--mantine-color-dark-0); /* Dark mode label text */
-}
-
-[data-mantine-color-scheme='dark'] .descriptionTextarea {
-    background-color: var(--mantine-color-dark-6); /* Dark mode textarea bg */
-    border-color: var(--mantine-color-dark-4); /* Dark mode border */
-    color: var(--mantine-color-gray-0); /* Dark mode text color for textarea */
-}
-
-[data-mantine-color-scheme='dark'] .addItemButton {
-    background-color: var(--mantine-color-green-9); /* Dark mode bg */
-    color: var(--mantine-color-green-2); /* Dark mode text */
-    border-color: var(--mantine-color-green-7); /* Dark mode border */
-}
-
-[data-mantine-color-scheme='dark'] .addItemButton:hover {
-    background-color: var(--mantine-color-green-8); /* Dark mode hover bg */
-    border-color: var(--mantine-color-green-6); /* Dark mode hover border */
-}
-
-/* Scoped global styles for ActionIcon in dark mode */
-[data-mantine-color-scheme='dark']
-    .editorContainer
-    :global(.mantine-ActionIcon-root[color='red']) {
-    color: var(--mantine-color-red-4) !important; /* Dark mode icon color */
-}
-[data-mantine-color-scheme='dark']
-    .editorContainer
-    :global(.mantine-ActionIcon-root[color='red']:hover) {
-    background-color: var(
-        --mantine-color-dark-6
-    ) !important; /* Dark mode icon hover bg */
+.chevron {
+    color: var(--mantine-color-gray-6);
 }

@@ -215,6 +215,87 @@ export const ClassicResumeTemplate = ({
                         </Link>
                     </View>
 
+                    {resume_generated?.layout?.map((section, idx) => {
+                        // Use a switch on the 'id' property as a type guard
+                        switch (section.id) {
+                            case 'education':
+                                return section.display ? (
+                                    <View
+                                        key={`education-title-${idx}`}
+                                        style={styles.sidebarSection}
+                                    >
+                                        <Text style={styles.sidebarTitle}>
+                                            {section.title}
+                                        </Text>
+                                    </View>
+                                ) : null;
+                            case 'skills':
+                                return section.display ? (
+                                    <View
+                                        key={`skills-title-${idx}`}
+                                        style={styles.sidebarSection}
+                                    >
+                                        <Text style={styles.sidebarTitle}>
+                                            {section.title}
+                                        </Text>
+                                    </View>
+                                ) : null;
+                            default:
+                                return null; // Or some fallback UI
+                        }
+                    })}
+                </View>
+                <View style={styles.mainContent}>
+                    <View style={styles.header}>
+                        <Text style={styles.userName}>
+                            {resume_generated.contact_info.name}
+                        </Text>
+                        <Text style={styles.jobPosition}>{job_position}</Text>
+                    </View>
+                    {resume_generated?.layout?.map((section, idx) => {
+                        // Use a switch on the 'id' property as a type guard
+                        switch (section.id) {
+                            case 'narrative':
+                                return section.display ? (
+                                    <View
+                                        key={`narrative-title-${idx}`}
+                                        style={styles.mainSection}
+                                    >
+                                        <Text style={styles.sectionTitle}>
+                                            {section.title}
+                                        </Text>
+                                    </View>
+                                ) : null;
+                            case 'experience':
+                                return section.display ? (
+                                    <View
+                                        key={`experience-title-${idx}`}
+                                        style={styles.mainSection}
+                                    >
+                                        <Text style={styles.sectionTitle}>
+                                            {section.title}
+                                        </Text>
+                                    </View>
+                                ) : null;
+                            case 'projects':
+                                return section.display ? (
+                                    <View
+                                        key={`projects-title-${idx}`}
+                                        style={styles.mainSection}
+                                    >
+                                        <Text style={styles.sectionTitle}>
+                                            {section.title}
+                                        </Text>
+                                    </View>
+                                ) : null;
+                            default:
+                                return null; // Or some fallback UI
+                        }
+                    })}
+                </View>
+
+                {/*
+
                     <View style={styles.sidebarSection}>
                         <Text style={styles.sidebarTitle}>Education</Text>
                         {resume_generated.education.map(
@@ -322,6 +403,7 @@ export const ClassicResumeTemplate = ({
                         )}
                     </View>
                 </View>
+                */}
             </Page>
         </Document>
     );

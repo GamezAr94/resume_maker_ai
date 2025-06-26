@@ -10,6 +10,7 @@ import { useEffect, useState, SetStateAction } from 'react';
 import styles from './page.module.css';
 import ResumeEditor from '@/app/components/resumeViewer/resumeEditor';
 import dynamic from 'next/dynamic';
+import { ensureLayoutIsOrderedArray } from '@/utils/utils';
 const DynamicResumeViewer = dynamic(
     () => import('@/app/components/resumeViewer/resumeViewer'),
     {
@@ -67,12 +68,33 @@ export default function Resume() {
                 }
                 // TODO validate the response of this request
                 const userInfo = await getDBTableInfo('');
+                // TODO we dont need to fetch the supabase_id from the user info
+
+                // IMPORTANT: The order of the layout items is important for the viewer
+                // We want to reorder the layout items to match the desired order
+                // The desired order is:
+                const desiredSectionsOrder = {
+                    narrative: 0,
+                    experience: 1,
+                    projects: 2,
+                    education: 3,
+                    skills: 4,
+                };
+
+                // TODO we also need to sort the items in the experience and projects sections
+                const reorderedLayoutArray = ensureLayoutIsOrderedArray(
+                    resumeData.layout,
+                    desiredSectionsOrder,
+                    'id',
+                );
+
                 // set the data returned from the database to the state and prepare
                 // it to set the data for the resumeViewer and the resumeEditor
                 setDataResume({
                     ...data.data[0],
                     resume_generated: {
-                        ...resumeData,
+                        layout: reorderedLayoutArray,
+                        // TODO: hmm not sure if this is the best way to do it using the selected_narrative
                         selected_narrative:
                             resumeData.selected_narrative || 'summary',
                         contact_info: {
