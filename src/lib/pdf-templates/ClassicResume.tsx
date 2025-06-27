@@ -227,6 +227,42 @@ export const ClassicResumeTemplate = ({
                                         <Text style={styles.sidebarTitle}>
                                             {section.title}
                                         </Text>
+
+                                        {section.items.map(
+                                            (edu, id) =>
+                                                edu.display !== false && (
+                                                    <View
+                                                        key={id}
+                                                        style={
+                                                            styles.educationEntry
+                                                        }
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                styles.degree
+                                                            }
+                                                        >
+                                                            {edu.degree}
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.school
+                                                            }
+                                                        >
+                                                            {edu.school}
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.educationDates
+                                                            }
+                                                        >
+                                                            {
+                                                                edu.start_end_dates
+                                                            }
+                                                        </Text>
+                                                    </View>
+                                                ),
+                                        )}
                                     </View>
                                 ) : null;
                             case 'skills':
@@ -238,6 +274,18 @@ export const ClassicResumeTemplate = ({
                                         <Text style={styles.sidebarTitle}>
                                             {section.title}
                                         </Text>
+
+                                        {section.items.map(
+                                            (skill, id) =>
+                                                skill && (
+                                                    <Text
+                                                        key={id}
+                                                        style={styles.skill}
+                                                    >
+                                                        • {skill}
+                                                    </Text>
+                                                ),
+                                        )}
                                     </View>
                                 ) : null;
                             default:
@@ -252,6 +300,8 @@ export const ClassicResumeTemplate = ({
                         </Text>
                         <Text style={styles.jobPosition}>{job_position}</Text>
                     </View>
+
+                    <View style={styles.sectionDivider} />
                     {resume_generated?.layout?.map((section, idx) => {
                         // Use a switch on the 'id' property as a type guard
                         switch (section.id) {
@@ -264,6 +314,10 @@ export const ClassicResumeTemplate = ({
                                         <Text style={styles.sectionTitle}>
                                             {section.title}
                                         </Text>
+
+                                        <Text style={styles.description}>
+                                            {section.items[0]}
+                                        </Text>
                                     </View>
                                 ) : null;
                             case 'experience':
@@ -275,6 +329,45 @@ export const ClassicResumeTemplate = ({
                                         <Text style={styles.sectionTitle}>
                                             {section.title}
                                         </Text>
+
+                                        {section.items.map(
+                                            (exp, id) =>
+                                                exp.display !== false && (
+                                                    <View
+                                                        key={id}
+                                                        style={
+                                                            styles.entryContainer
+                                                        }
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                styles.jobTitle
+                                                            }
+                                                        >
+                                                            {exp.title}
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.companyAndDate
+                                                            }
+                                                        >
+                                                            {exp.company} |{' '}
+                                                            {
+                                                                exp.start_end_dates
+                                                            }
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.description
+                                                            }
+                                                        >
+                                                            {
+                                                                exp.responsabilities
+                                                            }
+                                                        </Text>
+                                                    </View>
+                                                ),
+                                        )}
                                     </View>
                                 ) : null;
                             case 'projects':
@@ -286,6 +379,42 @@ export const ClassicResumeTemplate = ({
                                         <Text style={styles.sectionTitle}>
                                             {section.title}
                                         </Text>
+
+                                        {section.items.map(
+                                            (pro, id) =>
+                                                pro.display !== false && (
+                                                    <View
+                                                        key={id}
+                                                        style={
+                                                            styles.entryContainer
+                                                        }
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                styles.jobTitle
+                                                            }
+                                                        >
+                                                            {pro.name}
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.companyAndDate
+                                                            }
+                                                        >
+                                                            {
+                                                                pro.start_end_dates
+                                                            }
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.description
+                                                            }
+                                                        >
+                                                            {pro.description}
+                                                        </Text>
+                                                    </View>
+                                                ),
+                                        )}
                                     </View>
                                 ) : null;
                             default:

@@ -69,17 +69,6 @@
     color: var(--mantine-color-dark-4);
 }
 
-.descriptionTextarea {
-    border: 1px solid var(--mantine-color-gray-4);
-    border-radius: var(--mantine-radius-sm);
-    min-height: 100px;
-    padding: var(--mantine-spacing-sm);
-    font-size: var(--mantine-font-size-sm);
-    line-height: 1.5;
-    background-color: var(--mantine-color-white);
-    color: var(--mantine-color-black);
-}
-
 .descriptionTextarea:focus {
     border-color: var(--mantine-primary-color-filled);
     outline: none;

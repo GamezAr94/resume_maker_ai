@@ -1,7 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { Textarea } from '@mantine/core';
 import type { NarrativeSection } from '@/utils/interfaces';
-import classes from './resumeEditor.module.css';
 
 interface NarrativePanelProps {
     section: NarrativeSection;
@@ -36,7 +35,6 @@ export function NarrativePanel({
             name="items" // We are editing the 'items' array of the section
             autosize
             minRows={5}
-            className={classes.descriptionTextarea}
         />
     );
 }

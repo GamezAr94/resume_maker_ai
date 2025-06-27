@@ -52,11 +52,6 @@
     padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
 }
 
-/* Hide the default chevron icon from Mantine's Accordion */
-.accordionItem :global(.mantine-Accordion-chevron) {
-    /* We don't hide it anymore for the main section, but will for nested */
-}
-
 .sectionPaper {
     /* This is the panel content area */
     padding: var(--mantine-spacing-lg);
@@ -72,17 +67,6 @@
     margin-bottom: 4px;
     font-size: var(--mantine-font-size-sm);
     color: var(--mantine-color-dark-4);
-}
-
-.descriptionTextarea {
-    border: 1px solid var(--mantine-color-gray-4);
-    border-radius: var(--mantine-radius-sm);
-    min-height: 100px;
-    padding: var(--mantine-spacing-sm);
-    font-size: var(--mantine-font-size-sm);
-    line-height: 1.5;
-    background-color: var(--mantine-color-white);
-    color: var(--mantine-color-black);
 }
 
 .descriptionTextarea:focus {

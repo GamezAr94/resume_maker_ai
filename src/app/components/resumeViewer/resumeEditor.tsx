@@ -15,10 +15,13 @@ import {
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
 import {
+    Education,
     EducationSection,
+    Experience,
     ExperienceSection,
     FormJobOfferDataStructure,
     NarrativeSection,
+    Project,
     ProjectsSection,
     SkillsSection,
 } from '@/utils/interfaces';
@@ -56,79 +59,103 @@ export default function ResumeEditor({
         sectionId: string,
         value: string[],
     ) => {
-        setActiveNestedAccordions((prev) => ({
-            ...prev,
-            [sectionId]: value,
-        }));
+        setActiveNestedAccordions((prev) => ({ ...prev, [sectionId]: value }));
     };
 
-    // Your function to show/hide specific sections in the resume
-    const hideShowSection = (e: React.MouseEvent<HTMLButtonElement>) => {
-        const iterator = e.currentTarget.getAttribute('data-iterator');
-        const sectionNameFromAttr =
-            e.currentTarget.getAttribute('data-section');
+    /**
+     * A single, unified function to handle toggling visibility for both
+     * main sections and nested items within those sections.
+     */
+    const handleVisibilityToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+        // Stop the click from opening/closing the accordion
+        e.stopPropagation();
 
-        setDataResume((prevDataResume) => {
-            if (iterator == null || sectionNameFromAttr == null) {
-                console.error(
-                    'hideShowSection: Missing data-iterator or data-section',
-                );
-                return prevDataResume;
-            }
-            const index = parseInt(iterator, 10);
+        const { section, iterator, subitemIndex } = e.currentTarget.dataset;
 
-            if (
-                sectionNameFromAttr !== 'experience' &&
-                sectionNameFromAttr !== 'projects' &&
-                sectionNameFromAttr !== 'education' &&
-                sectionNameFromAttr !== 'skills' &&
-                sectionNameFromAttr !== 'narrative'
-            ) {
-                console.warn(
-                    `hideShowSection: Section '${sectionNameFromAttr}' is not 'experience', 'projects', or 'education'. Logic not applied.`,
-                );
-                return prevDataResume;
+        setDataResume((prev) => {
+            // Basic validation
+            if (!section || !iterator || !prev.resume_generated?.layout) {
+                return prev;
             }
 
-            if (
-                !prevDataResume.resume_generated ||
-                !prevDataResume.resume_generated.layout ||
-                !prevDataResume.resume_generated.layout[index]
-            ) {
-                console.error(
-                    `hideShowSection: resume_generated.layout[${index}] is not accessible.`,
-                );
-                return prevDataResume;
+            const sectionIndex = parseInt(iterator, 10);
+
+            // Create a new copy of the layout array to modify safely
+            const newLayout = [...prev.resume_generated.layout];
+
+            // --- Case 1: Toggling a NESTED item (e.g., a single job) ---
+            if (subitemIndex !== undefined) {
+                const itemIndex = parseInt(subitemIndex, 10);
+                const sectionToUpdate = newLayout[sectionIndex];
+
+                // Check if the section has items and the item exists
+                if (
+                    'items' in sectionToUpdate &&
+                    Array.isArray(sectionToUpdate.items) &&
+                    sectionToUpdate.items[itemIndex]
+                ) {
+                    // Narrow the type of items based on section id
+                    let newItems;
+                    switch (sectionToUpdate.id) {
+                        case 'experience':
+                            newItems = [
+                                ...(sectionToUpdate.items as Experience[]),
+                            ];
+                            break;
+                        case 'education':
+                            newItems = [
+                                ...(sectionToUpdate.items as Education[]),
+                            ];
+                            break;
+                        case 'projects':
+                            newItems = [
+                                ...(sectionToUpdate.items as Project[]),
+                            ];
+                            break;
+                        default:
+                            newItems = Array.isArray(
+                                (sectionToUpdate as any).items,
+                            )
+                                ? [
+                                      ...(sectionToUpdate as { items: any[] })
+                                          .items,
+                                  ]
+                                : [];
+                    }
+                    const itemToUpdate = newItems[itemIndex];
+                    if (itemToUpdate && typeof itemToUpdate === 'object') {
+                        newItems[itemIndex] = {
+                            ...itemToUpdate,
+                            display: !(itemToUpdate.display !== false),
+                        };
+                        newLayout[sectionIndex] = {
+                            ...sectionToUpdate,
+                            items: newItems,
+                        };
+                    } else if (typeof itemToUpdate === 'string') {
+                        // For narrative/skills, just toggle a string item if needed (optional)
+                        newLayout[sectionIndex] = {
+                            ...sectionToUpdate,
+                            items: newItems,
+                        };
+                    }
+                }
+            }
+            // --- Case 2: Toggling a MAIN section (e.g., the whole "Experience" block) ---
+            else {
+                const sectionToUpdate = newLayout[sectionIndex];
+                newLayout[sectionIndex] = {
+                    ...sectionToUpdate,
+                    display: !(sectionToUpdate.display !== false),
+                };
             }
 
-            const sectionArray = prevDataResume.resume_generated.layout;
-            if (!Array.isArray(sectionArray)) {
-                console.error(
-                    `hideShowSection: [${index}] is not accessible or not an array.`,
-                );
-                return prevDataResume;
-            }
-
-            const updatedSectionItems = [...sectionArray];
-            const currentItem = updatedSectionItems[index];
-
-            // if the display property is undefined, set its initial state based on what "hide/show" implies
-            // If clicking "hide", initial undefined means it's currently shown (true), so next state is false.
-            // If clicking "show", initial undefined means it's currently hidden (false), so next state is true.
-            // For simplicity, let's assume undefined means it's currently visible (true).
-            const display =
-                currentItem.display === undefined ? true : currentItem.display;
-
-            updatedSectionItems[index] = {
-                ...currentItem,
-                display: !display,
-            };
-
+            // Return the new state with the updated layout array
             return {
-                ...prevDataResume,
+                ...prev,
                 resume_generated: {
-                    ...prevDataResume.resume_generated,
-                    layout: updatedSectionItems,
+                    ...prev.resume_generated,
+                    layout: newLayout,
                 },
             };
         });
@@ -138,88 +165,34 @@ export default function ResumeEditor({
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
-        const { name, value } = e.target;
-        // Use `data-section` to determine which part of the resume to update
-        const section = e.target.getAttribute('data-section')?.toLowerCase();
-        // Use `data-iterator` to determine the index in the array (if applicable)
-        // This is useful for sections like experience, projects, education, etc.
-        // If the section is not an array, `data-iterator` will be null
-        // and we can ignore it.
-        const iteratorStr = e.target.getAttribute('data-iterator');
-        const layoutPosition = e.target.getAttribute('data-layout-position');
+        const { name, value } = e.currentTarget;
+        const sectionId = e.currentTarget.getAttribute('data-section');
+        const iteratorIndex = e.currentTarget.getAttribute('data-iterator');
 
         setDataResume((prev) => {
-            // Create a deep copy to avoid mutation issues
             const newData = JSON.parse(JSON.stringify(prev));
+            if (
+                !sectionId ||
+                !iteratorIndex ||
+                !newData.resume_generated?.layout
+            )
+                return newData;
 
-            // If the input is a title, we update the section's title
-            // This is determined by the `is-title` attribute
-            // If `is-title` is '1', we assume it's a title input
-            // and we update the title in the layout array at the specified position
-            if (name === 'title' && layoutPosition !== null) {
-                // Ensure layoutPosition is a valid number
-                const layoutPositionNum = parseInt(layoutPosition, 10);
-                if (
-                    newData.resume_generated &&
-                    newData.resume_generated.layout &&
-                    newData.resume_generated.layout[layoutPositionNum]
-                ) {
-                    newData.resume_generated.layout[layoutPositionNum].title =
-                        value;
-                    return newData;
+            const index = parseInt(iteratorIndex, 10);
+            const sectionToUpdate = newData.resume_generated.layout[index];
+
+            if (name === 'items' && 'items' in sectionToUpdate) {
+                if (sectionId === 'narrative') {
+                    sectionToUpdate.items = value.split('\n\n');
+                } else {
+                    // Assumes skills and other simple lists
+                    sectionToUpdate.items = value.split('\n');
                 }
+            } else if (name === 'title') {
+                sectionToUpdate.title = value;
             }
+            // Add more specific logic for nested items (experience, projects, etc.) here later
 
-            switch (section) {
-                case 'job_position':
-                    newData.job_position = value;
-                    break;
-
-                case 'name':
-                case 'email':
-                case 'linkedin':
-                case 'phone':
-                    if (newData.resume_generated?.contact_info) {
-                        newData.resume_generated.contact_info[section] = value;
-                    }
-                    break;
-
-                case 'summary':
-                case 'career_objective':
-                    if (newData.resume_generated) {
-                        newData.resume_generated[section] = value;
-                    }
-                    break;
-
-                case 'experience':
-                case 'projects':
-                case 'education':
-                    // If the section is an array, we need to find the correct index
-                    // using the iteratorStr (which is the index in the array)
-                    if (iteratorStr !== null && newData.resume_generated) {
-                        const index = parseInt(iteratorStr, 10);
-                        const sectionArray = newData.resume_generated[section];
-                        if (sectionArray && sectionArray[index]) {
-                            // `name` comes from the input's `name` attribute (e.g., "title", "description")
-                            sectionArray[index][name] = value;
-                        }
-                    }
-                    break;
-
-                case 'skills':
-                    if (
-                        iteratorStr !== null &&
-                        newData.resume_generated?.skills
-                    ) {
-                        const index = parseInt(iteratorStr, 10);
-                        if (
-                            newData.resume_generated.skills[index] !== undefined
-                        ) {
-                            newData.resume_generated.skills[index] = value;
-                        }
-                    }
-                    break;
-            }
             return newData;
         });
     };
@@ -244,9 +217,7 @@ export default function ResumeEditor({
                     className={classes.accordionItem}
                 >
                     <Accordion.Control>
-                        <Title order={4} className={classes.sectionTitle}>
-                            Personal Information
-                        </Title>
+                        <Text>Personal Information</Text>
                     </Accordion.Control>
                     <Accordion.Panel>
                         <Paper p="md" className={classes.sectionPaper}>
@@ -322,7 +293,7 @@ export default function ResumeEditor({
                             key={`${section.id}-${idx}`}
                             section={section}
                             idx={idx}
-                            onVisibilityToggle={hideShowSection}
+                            onVisibilityToggle={handleVisibilityToggle}
                         >
                             {/* Title Editor - Common to all sections */}
                             <Textarea
@@ -334,7 +305,7 @@ export default function ResumeEditor({
                                 data-iterator={idx}
                                 autosize
                                 minRows={1}
-                                className={classes.inputField}
+                                className={classes.descriptionTextarea}
                             />
                             <Box mt="md">
                                 {(() => {
@@ -394,11 +365,15 @@ export default function ResumeEditor({
                                                             <ExperienceItemCard
                                                                 key={itemIdx}
                                                                 item={item}
+                                                                idx={idx}
                                                                 sectionId={
                                                                     section.id
                                                                 }
                                                                 itemIndex={
                                                                     itemIdx
+                                                                }
+                                                                onVisibilityToggle={
+                                                                    handleVisibilityToggle
                                                                 }
                                                             />
                                                         ),
@@ -436,8 +411,12 @@ export default function ResumeEditor({
                                                                 sectionId={
                                                                     section.id
                                                                 }
+                                                                idx={idx}
                                                                 itemIndex={
                                                                     itemIdx
+                                                                }
+                                                                onVisibilityToggle={
+                                                                    handleVisibilityToggle
                                                                 }
                                                             />
                                                         ),
@@ -475,8 +454,12 @@ export default function ResumeEditor({
                                                                 sectionId={
                                                                     section.id
                                                                 }
+                                                                idx={idx}
                                                                 itemIndex={
                                                                     itemIdx
+                                                                }
+                                                                onVisibilityToggle={
+                                                                    handleVisibilityToggle
                                                                 }
                                                             />
                                                         ),

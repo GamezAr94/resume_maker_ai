@@ -7,13 +7,7 @@ import {
     Stack,
     TextInput,
 } from '@mantine/core';
-import {
-    IconEye,
-    IconEyeOff,
-    IconTrash,
-    IconChevronRight,
-    IconGridDots,
-} from '@tabler/icons-react';
+import { IconEye, IconEyeOff, IconGridDots } from '@tabler/icons-react';
 import type { Education } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
 
@@ -21,12 +15,16 @@ interface EducationItemCardProps {
     item: Education;
     sectionId: string;
     itemIndex: number;
+    idx: number;
+    onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export function EducationItemCard({
     item,
     sectionId,
     itemIndex,
+    idx,
+    onVisibilityToggle,
 }: EducationItemCardProps) {
     const isVisible = item.display !== false;
     const key = `${sectionId}-item-${itemIndex}`;
@@ -47,7 +45,15 @@ export function EducationItemCard({
                             variant="subtle"
                             color="gray"
                             title={isVisible ? `Hide` : `Show`}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                // Prevent the click from also toggling the accordion open/closed
+                                e.stopPropagation();
+                                // Call the handler function passed from the parent component
+                                onVisibilityToggle(e as any);
+                            }}
+                            data-section={sectionId.toString()}
+                            data-iterator={idx.toString()}
+                            data-subitem-index={itemIndex.toString()}
                         >
                             {isVisible ? (
                                 <IconEye size={16} />

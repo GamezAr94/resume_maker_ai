@@ -16,12 +16,16 @@ interface ProjectItemCardProps {
     item: Project;
     sectionId: string;
     itemIndex: number;
+    onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    idx: number;
 }
 
 export function ProjectItemCard({
     item,
     sectionId,
     itemIndex,
+    onVisibilityToggle,
+    idx,
 }: ProjectItemCardProps) {
     const isVisible = item.display !== false;
     const key = `${sectionId}-item-${itemIndex}`;
@@ -42,7 +46,15 @@ export function ProjectItemCard({
                             variant="subtle"
                             color="gray"
                             title={isVisible ? `Hide` : `Show`}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                // Prevent the click from also toggling the accordion open/closed
+                                e.stopPropagation();
+                                // Call the handler function passed from the parent component
+                                onVisibilityToggle(e as any);
+                            }}
+                            data-section={sectionId.toString()}
+                            data-iterator={idx.toString()}
+                            data-subitem-index={itemIndex.toString()}
                         >
                             {isVisible ? (
                                 <IconEye size={16} />

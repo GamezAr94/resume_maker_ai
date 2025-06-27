@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 import {
     Accordion,
     Group,
@@ -19,6 +19,8 @@ interface ExperienceItemCardProps {
     item: Experience;
     sectionId: string;
     itemIndex: number;
+    idx: number;
+    onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
     // We'll add functions to handle changes and deletion later
     // onUpdate: (itemIndex: number, field: string, value: any) => void;
     // onDelete: (itemIndex: number) => void;
@@ -35,6 +37,8 @@ export function ExperienceItemCard({
     item,
     sectionId,
     itemIndex,
+    idx,
+    onVisibilityToggle,
 }: ExperienceItemCardProps) {
     const isVisible = item.display !== false;
     const key = `${sectionId}-item-${itemIndex}`;
@@ -56,9 +60,14 @@ export function ExperienceItemCard({
                             color="gray"
                             title={isVisible ? `Hide` : `Show`}
                             onClick={(e) => {
+                                // Prevent the click from also toggling the accordion open/closed
                                 e.stopPropagation();
-                                // TODO: Implement item-specific hide/show logic
+                                // Call the handler function passed from the parent component
+                                onVisibilityToggle(e as any);
                             }}
+                            data-section={sectionId.toString()}
+                            data-iterator={idx.toString()}
+                            data-subitem-index={itemIndex.toString()}
                         >
                             {isVisible ? (
                                 <IconEye size={16} />
