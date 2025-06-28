@@ -17,6 +17,12 @@ interface EducationItemCardProps {
     itemIndex: number;
     idx: number;
     onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    onItemChange: (
+        sectionIndex: number,
+        itemIndex: number,
+        fieldName: string,
+        value: any,
+    ) => void;
 }
 
 export function EducationItemCard({
@@ -25,6 +31,7 @@ export function EducationItemCard({
     itemIndex,
     idx,
     onVisibilityToggle,
+    onItemChange,
 }: EducationItemCardProps) {
     const isVisible = item.display !== false;
     const key = `${sectionId}-item-${itemIndex}`;
@@ -66,8 +73,30 @@ export function EducationItemCard({
             </Accordion.Control>
             <Accordion.Panel>
                 <Stack>
-                    <TextInput label="Degree" defaultValue={item.degree} />
-                    <TextInput label="School" defaultValue={item.school} />
+                    <TextInput
+                        label="Degree"
+                        defaultValue={item.degree}
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'degree',
+                                e.currentTarget.value,
+                            )
+                        }
+                    />
+                    <TextInput
+                        label="School"
+                        defaultValue={item.school}
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'school',
+                                e.currentTarget.value,
+                            )
+                        }
+                    />
                 </Stack>
             </Accordion.Panel>
         </Accordion.Item>

@@ -18,6 +18,12 @@ interface ProjectItemCardProps {
     itemIndex: number;
     onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
     idx: number;
+    onItemChange: (
+        sectionIndex: number,
+        itemIndex: number,
+        fieldName: string,
+        value: any,
+    ) => void;
 }
 
 export function ProjectItemCard({
@@ -25,6 +31,7 @@ export function ProjectItemCard({
     sectionId,
     itemIndex,
     onVisibilityToggle,
+    onItemChange,
     idx,
 }: ProjectItemCardProps) {
     const isVisible = item.display !== false;
@@ -67,7 +74,18 @@ export function ProjectItemCard({
             </Accordion.Control>
             <Accordion.Panel>
                 <Stack>
-                    <TextInput label="Project Name" defaultValue={item.name} />
+                    <TextInput
+                        label="Project Name"
+                        defaultValue={item.name}
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'name',
+                                e.currentTarget.value,
+                            )
+                        }
+                    />
                     {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
                     <Textarea
                         label="Description"
@@ -78,6 +96,14 @@ export function ProjectItemCard({
                         }
                         autosize
                         minRows={4}
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'description',
+                                e.currentTarget.value.split('\n'),
+                            )
+                        }
                     />
                 </Stack>
             </Accordion.Panel>

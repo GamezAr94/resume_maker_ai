@@ -197,6 +197,43 @@ export default function ResumeEditor({
         });
     };
 
+    /**
+     * Handles changes for fields inside a nested item (e.g., a specific job's title).
+     */
+    const handleItemChange = (
+        sectionIndex: number,
+        itemIndex: number,
+        fieldName: string,
+        value: any,
+    ) => {
+        setDataResume((prev) => {
+            // Create deep copies to ensure immutability
+            const newLayout = JSON.parse(
+                JSON.stringify(prev.resume_generated.layout),
+            );
+            const sectionToUpdate = newLayout[sectionIndex];
+
+            // Check if the item exists before trying to update it
+            if (
+                sectionToUpdate &&
+                'items' in sectionToUpdate &&
+                Array.isArray(sectionToUpdate.items) &&
+                sectionToUpdate.items[itemIndex]
+            ) {
+                // Update the specific field on the specific item
+                sectionToUpdate.items[itemIndex][fieldName] = value;
+            }
+
+            // Return the updated state
+            return {
+                ...prev,
+                resume_generated: {
+                    ...prev.resume_generated,
+                    layout: newLayout,
+                },
+            };
+        });
+    };
     return (
         <Box className={classes.editorContainer}>
             <Group justify="space-between" mb="xl">
@@ -375,6 +412,9 @@ export default function ResumeEditor({
                                                                 onVisibilityToggle={
                                                                     handleVisibilityToggle
                                                                 }
+                                                                onItemChange={
+                                                                    handleItemChange
+                                                                }
                                                             />
                                                         ),
                                                     )}
@@ -418,6 +458,9 @@ export default function ResumeEditor({
                                                                 onVisibilityToggle={
                                                                     handleVisibilityToggle
                                                                 }
+                                                                onItemChange={
+                                                                    handleItemChange
+                                                                }
                                                             />
                                                         ),
                                                     )}
@@ -457,6 +500,9 @@ export default function ResumeEditor({
                                                                 idx={idx}
                                                                 itemIndex={
                                                                     itemIdx
+                                                                }
+                                                                onItemChange={
+                                                                    handleItemChange
                                                                 }
                                                                 onVisibilityToggle={
                                                                     handleVisibilityToggle

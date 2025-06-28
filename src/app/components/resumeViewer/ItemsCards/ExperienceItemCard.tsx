@@ -11,16 +11,18 @@ import {
 import { IconEye, IconEyeOff, IconGridDots } from '@tabler/icons-react';
 import type { Experience } from '@/utils/interfaces';
 
-// Using 'any' for now as the specific item type might vary (Experience, Project, etc.)
-// In a stricter setup, you would use a generic type.
-type Item = any;
-
 interface ExperienceItemCardProps {
     item: Experience;
     sectionId: string;
     itemIndex: number;
     idx: number;
     onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    onItemChange: (
+        sectionIndex: number,
+        itemIndex: number,
+        fieldName: string,
+        value: any,
+    ) => void;
     // We'll add functions to handle changes and deletion later
     // onUpdate: (itemIndex: number, field: string, value: any) => void;
     // onDelete: (itemIndex: number) => void;
@@ -39,6 +41,7 @@ export function ExperienceItemCard({
     itemIndex,
     idx,
     onVisibilityToggle,
+    onItemChange,
 }: ExperienceItemCardProps) {
     const isVisible = item.display !== false;
     const key = `${sectionId}-item-${itemIndex}`;
@@ -83,12 +86,26 @@ export function ExperienceItemCard({
                     <TextInput
                         label="Job Title"
                         defaultValue={item.title}
-                        // Add onChange handler
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'title',
+                                e.currentTarget.value,
+                            )
+                        }
                     />
                     <TextInput
                         label="Company"
                         defaultValue={item.company}
-                        // Add onChange handler
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'company',
+                                e.currentTarget.value,
+                            )
+                        }
                     />
                     {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
                     <Textarea
@@ -100,7 +117,14 @@ export function ExperienceItemCard({
                         }
                         autosize
                         minRows={4}
-                        // Add onChange handler
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'responsabilities',
+                                e.currentTarget.value.split('\n'),
+                            )
+                        }
                     />
                 </Stack>
             </Accordion.Panel>
