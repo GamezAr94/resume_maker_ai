@@ -31,7 +31,7 @@ export const emptyStateExperience: FormExperienceStructure = {
     title: '',
     start_date: '',
     end_date: '',
-    responsabilities: [],
+    responsabilities: '',
     is_current: false,
     display: true, // Optional field to control visibility in the UI
 };
@@ -42,7 +42,7 @@ export interface FormExperienceStructure {
     title: string;
     start_date: Date | string;
     end_date: Date | string | null;
-    responsabilities: string[];
+    responsabilities: string;
     is_current?: boolean | null; // Optional field to indicate if the job is current
     display?: boolean; // Optional field to control visibility in the UI
 }
@@ -153,7 +153,7 @@ export interface NarrativeSection {
     type: 'narrative';
     title: string;
     display: boolean;
-    items: string[];
+    items: string;
 }
 
 export interface ExperienceSection {

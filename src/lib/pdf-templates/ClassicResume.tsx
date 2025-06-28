@@ -316,7 +316,7 @@ export const ClassicResumeTemplate = ({
                                         </Text>
 
                                         <Text style={styles.description}>
-                                            {section.items[0]}
+                                            {section.items}
                                         </Text>
                                     </View>
                                 ) : null;

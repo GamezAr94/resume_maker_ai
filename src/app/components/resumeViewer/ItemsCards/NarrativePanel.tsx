@@ -17,18 +17,11 @@ export function NarrativePanel({
     onSectionChange,
     sectionIndex,
 }: NarrativePanelProps) {
-    /* TODO this array is not to make an union, it is to show multiple options to the user to choose */
-    // The 'content' from your data structure is mapped to the 'items' property in the interface.
-    // We join the array elements to create a single string for the textarea.
-    const narrativeText = Array.isArray(section.items)
-        ? section.items.join('\n\n')
-        : '';
-
     return (
         <Textarea
             label="Summary Content"
             placeholder="Write your professional summary here..."
-            value={narrativeText}
+            defaultValue={section.items}
             onChange={onSectionChange}
             data-section={section.id}
             data-iterator={sectionIndex} // Pass the index for the parent handler

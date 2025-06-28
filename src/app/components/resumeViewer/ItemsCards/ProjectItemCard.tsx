@@ -89,11 +89,7 @@ export function ProjectItemCard({
                     {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
                     <Textarea
                         label="Description"
-                        defaultValue={
-                            Array.isArray(item.description)
-                                ? item.description.join('\n')
-                                : ''
-                        }
+                        defaultValue={item.description}
                         autosize
                         minRows={4}
                         onChange={(e) =>
@@ -101,7 +97,7 @@ export function ProjectItemCard({
                                 idx,
                                 itemIndex,
                                 'description',
-                                e.currentTarget.value.split('\n'),
+                                e.currentTarget.value,
                             )
                         }
                     />

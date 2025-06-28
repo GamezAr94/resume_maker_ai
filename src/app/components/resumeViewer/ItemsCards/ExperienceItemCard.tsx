@@ -110,11 +110,7 @@ export function ExperienceItemCard({
                     {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
                     <Textarea
                         label="Responsibilities"
-                        defaultValue={
-                            Array.isArray(item.responsabilities)
-                                ? item.responsabilities.join('\n')
-                                : ''
-                        }
+                        value={item.responsabilities}
                         autosize
                         minRows={4}
                         onChange={(e) =>
@@ -122,7 +118,7 @@ export function ExperienceItemCard({
                                 idx,
                                 itemIndex,
                                 'responsabilities',
-                                e.currentTarget.value.split('\n'),
+                                e.currentTarget.value,
                             )
                         }
                     />

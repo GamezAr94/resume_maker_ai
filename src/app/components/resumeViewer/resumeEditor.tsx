@@ -67,90 +67,45 @@ export default function ResumeEditor({
      * main sections and nested items within those sections.
      */
     const handleVisibilityToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
-        // Stop the click from opening/closing the accordion
         e.stopPropagation();
-
         const { section, iterator, subitemIndex } = e.currentTarget.dataset;
 
         setDataResume((prev) => {
-            // Basic validation
             if (!section || !iterator || !prev.resume_generated?.layout) {
                 return prev;
             }
 
             const sectionIndex = parseInt(iterator, 10);
+            const newLayout = JSON.parse(
+                JSON.stringify(prev.resume_generated.layout),
+            );
 
-            // Create a new copy of the layout array to modify safely
-            const newLayout = [...prev.resume_generated.layout];
-
-            // --- Case 1: Toggling a NESTED item (e.g., a single job) ---
             if (subitemIndex !== undefined) {
+                // Logic for a nested item (like a single job experience)
                 const itemIndex = parseInt(subitemIndex, 10);
                 const sectionToUpdate = newLayout[sectionIndex];
 
-                // Check if the section has items and the item exists
                 if (
                     'items' in sectionToUpdate &&
-                    Array.isArray(sectionToUpdate.items) &&
-                    sectionToUpdate.items[itemIndex]
+                    Array.isArray(sectionToUpdate.items)
                 ) {
-                    // Narrow the type of items based on section id
-                    let newItems;
-                    switch (sectionToUpdate.id) {
-                        case 'experience':
-                            newItems = [
-                                ...(sectionToUpdate.items as Experience[]),
-                            ];
-                            break;
-                        case 'education':
-                            newItems = [
-                                ...(sectionToUpdate.items as Education[]),
-                            ];
-                            break;
-                        case 'projects':
-                            newItems = [
-                                ...(sectionToUpdate.items as Project[]),
-                            ];
-                            break;
-                        default:
-                            newItems = Array.isArray(
-                                (sectionToUpdate as any).items,
-                            )
-                                ? [
-                                      ...(sectionToUpdate as { items: any[] })
-                                          .items,
-                                  ]
-                                : [];
-                    }
-                    const itemToUpdate = newItems[itemIndex];
-                    if (itemToUpdate && typeof itemToUpdate === 'object') {
-                        newItems[itemIndex] = {
-                            ...itemToUpdate,
-                            display: !(itemToUpdate.display !== false),
-                        };
-                        newLayout[sectionIndex] = {
-                            ...sectionToUpdate,
-                            items: newItems,
-                        };
-                    } else if (typeof itemToUpdate === 'string') {
-                        // For narrative/skills, just toggle a string item if needed (optional)
-                        newLayout[sectionIndex] = {
-                            ...sectionToUpdate,
-                            items: newItems,
-                        };
+                    const itemToUpdate = sectionToUpdate.items[itemIndex];
+                    if (itemToUpdate) {
+                        itemToUpdate.display = !(
+                            itemToUpdate.display !== false
+                        );
                     }
                 }
-            }
-            // --- Case 2: Toggling a MAIN section (e.g., the whole "Experience" block) ---
-            else {
+            } else {
+                // Logic for a main section (like the entire "Experience" block)
                 const sectionToUpdate = newLayout[sectionIndex];
-                newLayout[sectionIndex] = {
-                    ...sectionToUpdate,
-                    display: !(sectionToUpdate.display !== false),
-                };
+                if (sectionToUpdate) {
+                    sectionToUpdate.display = !(
+                        sectionToUpdate.display !== false
+                    );
+                }
             }
 
-            // Return the new state with the updated layout array
             return {
                 ...prev,
                 resume_generated: {
@@ -168,15 +123,36 @@ export default function ResumeEditor({
         const { name, value } = e.currentTarget;
         const sectionId = e.currentTarget.getAttribute('data-section');
         const iteratorIndex = e.currentTarget.getAttribute('data-iterator');
+        console.log(
+            `Handling change for section: ${sectionId}, iterator: ${iteratorIndex}, name: ${name}, value: ${value}`,
+        );
 
         setDataResume((prev) => {
             const newData = JSON.parse(JSON.stringify(prev));
+
+            if (name === 'personalInfo') {
+                // Update the entire personal info object
+                if (sectionId === 'name') {
+                    newData.resume_generated.contact_info.name = value;
+                } else if (sectionId === 'job_position') {
+                    newData.job_position = value;
+                } else if (sectionId === 'email') {
+                    newData.resume_generated.contact_info.email = value;
+                } else if (sectionId === 'phone') {
+                    newData.resume_generated.contact_info.phone = value;
+                } else if (sectionId === 'linkedin') {
+                    newData.resume_generated.contact_info.linkedin = value;
+                }
+                return newData;
+            }
+
             if (
                 !sectionId ||
                 !iteratorIndex ||
                 !newData.resume_generated?.layout
-            )
+            ) {
                 return newData;
+            }
 
             const index = parseInt(iteratorIndex, 10);
             const sectionToUpdate = newData.resume_generated.layout[index];
@@ -266,6 +242,7 @@ export default function ResumeEditor({
                                         dataResume.resume_generated
                                             ?.contact_info.name || ''
                                     }
+                                    name="personalInfo"
                                     onChange={handleChange}
                                     data-section="name" // Key in resume_generated
                                     data-field="name" // Field within personalInfo object
@@ -275,6 +252,7 @@ export default function ResumeEditor({
                                     label="Position Applied For"
                                     placeholder="Position you are applying for"
                                     value={dataResume.job_position}
+                                    name="personalInfo"
                                     onChange={handleChange}
                                     data-section="job_position" // Key in resume_generated
                                     data-field="job_position" // Field within personalInfo object
@@ -284,6 +262,7 @@ export default function ResumeEditor({
                                     label="Email Address"
                                     placeholder="your.email@example.com"
                                     type="email"
+                                    name="personalInfo"
                                     value={
                                         dataResume.resume_generated
                                             ?.contact_info?.email || ''
@@ -296,6 +275,7 @@ export default function ResumeEditor({
                                 <TextInput
                                     label="Phone Number"
                                     placeholder="(123) 456-7890"
+                                    name="personalInfo"
                                     value={
                                         dataResume.resume_generated
                                             ?.contact_info?.phone || ''
@@ -308,6 +288,7 @@ export default function ResumeEditor({
                                 <TextInput
                                     label="LinkedIn Profile URL"
                                     placeholder="linkedin.com/in/yourprofile"
+                                    name="personalInfo"
                                     value={
                                         dataResume.resume_generated
                                             ?.contact_info?.linkedin || ''
