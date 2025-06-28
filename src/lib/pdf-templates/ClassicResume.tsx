@@ -69,10 +69,10 @@ export const styles = StyleSheet.create({
         width: '32%',
         backgroundColor: theme.primary,
         color: theme.textPrimary,
-        padding: 30,
+        padding: 20,
     },
     mainContent: {
-        width: '65%',
+        width: '67%',
         padding: '20px 30px',
     },
     header: {

@@ -358,6 +358,16 @@ export default function ResumeEditor({
 
                                         // Render nested accordion for Experience
                                         case 'experience':
+                                            // TODO: Maybe we can show the number of hidden items in the section title
+                                            /*
+                                            const count = section.items.filter(
+                                                (item) =>
+                                                    item.display === false,
+                                            ).length;
+                                            console.log(
+                                                `Experience section has ${count} hidden items`,
+                                            );
+                                            */
                                             return (
                                                 <Accordion
                                                     multiple

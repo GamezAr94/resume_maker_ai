@@ -52,6 +52,74 @@ export async function POST(req: Request) {
         model: 'gemini-1.5-flash',
         // NOTE I checked on the gemini studio the number of tokens used on this set of instruction, it was around 450 tokens
         systemInstruction: `
+        You are a world-class AI-powered career counselor and a master resume writer, specializing in creating highly specific and ATS-optimized resumes that secure interviews. Your expertise lies in meticulously analyzing a candidate's professional history and a target job description to forge a compelling narrative that perfectly aligns the candidate with the opportunity.
+
+        Remember to find a good balance between lean and high quality content, avoiding unnecessary verbosity while ensuring the resume is rich in relevant details.
+
+Given a user's comprehensive professional profile from our database and the details of a target job opportunity, your task is to generate a JSON object that will be used to construct a tailored resume. You must populate all fields of the provided JSON structure.
+Primary Directives:
+
+    Analyze and Extract:
+        Thoroughly dissect the provided job description to identify all critical keywords, core competencies, required skills, and essential qualifications.
+        From the user's complete profile, strategically select the most relevant and impactful information that directly addresses the job requirements.
+
+    Content Generation and Tailoring:
+        Rewrite and refine the user's information to be concise, powerful, and rich with the identified keywords.
+        Focus on accomplishments and quantifiable results. For every responsibility and project description, use action verbs and include metrics where possible (e.g., "Increased revenue by 15%," "Reduced processing time by 25%").
+
+JSON Field-by-Field Instructions:
+
+    keywords (Array of Strings):
+        Compile a comprehensive list of the most critical keywords and phrases extracted from the job description. This list should be used to tailor the rest of the resume content for ATS optimization.
+
+    recommendations (String):
+        Provide actionable and constructive recommendations for the user. This should not be part of the resume itself but rather feedback for the user.
+        Suggest specific ways they could further enhance their profile or resume, such as additional skills to acquire, certifications to pursue, or experiences to highlight in an interview.
+
+    explanation (String):
+        Generate a concise, well-reasoned explanation for your content choices. This is for user feedback, not for the resume.
+        Justify why the selected experiences and projects are the most relevant to the target job, referencing the job description's requirements.
+
+    layout (Object):
+
+        This object will contain the visual and textual content of the resume itself.
+
+        narrative (Object):
+            title: Use a professional title like "Professional Summary" or "Objective."
+            display: Set to true.
+            items: Craft a compelling 2-4 sentence summary. Crucially, this summary must be tailored to the specific role and company, mentioning either the job title or the company name to immediately capture the recruiter's attention.
+
+        experience (Object):
+            title: Use a standard title like "Work Experience" or "Professional Experience."
+            display: Set to true.
+            items (Array of Objects):
+                Select up to four of the most relevant job experiences from the user's profile, ordered from most to least relevant to the target job.
+                For each item, set display to true. You must ensure at least three experiences are set to true if available and if available up to 3 more with display false.
+                responsabilities: This is the most critical part. Re-write the responsibilities as a series of impactful, bulleted accomplishments. Each bullet point should start with a strong action verb and, where possible, include quantifiable achievements. Format this as a single string with newline characters (\n-) separating the bullet points.
+
+        education (Object):
+            title: Use the title "Education."
+            display: Set to true.
+            items (Array of Objects):
+                List the user's relevant educational background.
+                show if available 3 with display true and up to 5 with display false
+                For each item, set display to true.
+
+        skills (Object):
+            title: Use the title "Skills."
+            display: Set to true.
+            items (Array of Strings):
+                Compile a list of skills from the user's profile that are most relevant to the job description. Include a mix of hard and soft skills identified as important for the role.
+
+        projects (Object):
+            title: Use a title like "Projects" or "Key Projects."
+            display: Set to true.
+            items (Array of Objects):
+                Select up to four of the most relevant projects, ordered from most to least relevant.
+                For each item, set display to true. You must ensure at least TWO projects are set to true if available and if possible 3 with display false.
+                description: Rewrite the project description to highlight the skills and technologies used, and the outcomes or results of the project, ensuring it aligns with the target job's requirements.
+        `,
+        /* `
             You are a highly skilled career counselor and resume writer. You excel at crafting compelling and 
             tailored resumes that highlight a candidate's most relevant skills and experiences for specific job opportunities with very specific resumes for each job offer.
             Given a user's complete professional profile and details about a target job, your task is to:
@@ -85,6 +153,7 @@ export async function POST(req: Request) {
              Include a separate section listing the keywords used in the resume to improve Applicant Tracking System 
             (ATS) compatibility.
                     `,
+                    */
     });
 
     // with this configuration you can configure the responses of gemini
@@ -124,13 +193,10 @@ export async function POST(req: Request) {
                                     type: SchemaType.BOOLEAN,
                                 },
                                 items: {
-                                    type: SchemaType.ARRAY,
-                                    items: {
-                                        type: SchemaType.STRING,
-                                    },
+                                    type: SchemaType.STRING,
                                 },
                             },
-                            required: ['display', 'content'],
+                            required: ['display', 'items'],
                         },
                         experience: {
                             type: SchemaType.OBJECT,
@@ -159,10 +225,7 @@ export async function POST(req: Request) {
                                                 type: SchemaType.STRING,
                                             },
                                             responsabilities: {
-                                                type: SchemaType.ARRAY,
-                                                items: {
-                                                    type: SchemaType.STRING,
-                                                },
+                                                type: SchemaType.STRING,
                                             },
                                         },
                                         required: [
@@ -207,7 +270,6 @@ export async function POST(req: Request) {
                                         required: [
                                             'degree',
                                             'school',
-                                            'start_end_dates',
                                             'display',
                                         ],
                                     },
@@ -251,10 +313,7 @@ export async function POST(req: Request) {
                                                 type: SchemaType.STRING,
                                             },
                                             description: {
-                                                type: SchemaType.ARRAY,
-                                                items: {
-                                                    type: SchemaType.STRING,
-                                                },
+                                                type: SchemaType.STRING,
                                             },
                                             display: {
                                                 type: SchemaType.BOOLEAN,
@@ -414,178 +473,157 @@ function jobOfferDummyData() {
 }
 function userDummyData() {
     return {
-        contact_info: {
-            name: 'Arturo',
-            email: 'arturo@linuxmagic.com',
-            phone: '1234567890',
-            linkedin: 'https://www.linkedin.com/in/arturo/',
+        userId: 'user-123',
+        profile_data: {
+            personal_info: {
+                full_name: 'Elena Petrova',
+                email: 'elena.petrova.dev@email.com',
+                phone: '778-555-0101',
+                linkedin: 'linkedin.com/in/elenapetrovadev',
+                github: 'github.com/elenapetrova',
+                website: 'elenapetrova.dev',
+            },
+            professional_summary:
+                'A highly motivated and experienced Senior Full-Stack Engineer with over 8 years of experience in designing, developing, and deploying scalable web applications. Proficient in JavaScript, Python, and various modern frameworks like React and Django. Passionate about creating clean, efficient code and leading development teams to success.',
+            work_experience: [
+                {
+                    job_title: 'Senior Software Engineer',
+                    company: 'Innovatech Solutions Inc.',
+                    location: 'Vancouver, BC',
+                    start_date: '2021-06-01',
+                    end_date: 'Present',
+                    responsibilities: [
+                        'Led a team of 5 engineers in the development of a new SaaS platform for enterprise clients.',
+                        'Architected and implemented a microservices-based backend using Python (Django) and Docker, improving system scalability.',
+                        'Developed and maintained the front-end application using React, Redux, and TypeScript, resulting in a 30% improvement in load times.',
+                        'Established CI/CD pipelines using Jenkins and AWS, automating the deployment process and reducing deployment failures by 40%.',
+                        'Mentored junior developers, providing code reviews and guidance on best practices.',
+                    ],
+                },
+                {
+                    job_title: 'Full-Stack Developer',
+                    company: 'DataWeaver Analytics',
+                    location: 'Toronto, ON',
+                    start_date: '2018-01-15',
+                    end_date: '2021-05-28',
+                    responsibilities: [
+                        'Developed user-facing features for a data analytics dashboard using React and D3.js.',
+                        'Built and maintained RESTful APIs with Node.js and Express to serve data to the front-end.',
+                        'Managed a PostgreSQL database, including schema design and query optimization.',
+                        'Collaborated with product managers and designers in an Agile environment to define feature requirements.',
+                        'Wrote unit and integration tests using Jest and Cypress to ensure code quality.',
+                    ],
+                },
+                {
+                    job_title: 'Junior Web Developer',
+                    company: 'Creative Web Agency',
+                    location: 'Toronto, ON',
+                    start_date: '2016-05-01',
+                    end_date: '2017-12-30',
+                    responsibilities: [
+                        'Built and styled responsive websites for clients using HTML, CSS, and jQuery.',
+                        'Assisted senior developers in building custom WordPress themes and plugins.',
+                        'Helped with website maintenance and bug fixes.',
+                    ],
+                },
+                {
+                    job_title: 'Software Development Intern',
+                    company: 'TechGenius Labs',
+                    location: 'Toronto, ON',
+                    start_date: '2015-05-01',
+                    end_date: '2015-08-31',
+                    responsibilities: [
+                        'Assisted the mobile development team with developing a new feature for their Android application using Java.',
+                        'Wrote and executed test cases to ensure software quality.',
+                        'Participated in daily stand-ups and sprint planning meetings.',
+                    ],
+                },
+            ],
+            education: [
+                {
+                    school: 'University of British Columbia',
+                    degree: 'Master of Science in Computer Science',
+                    start_date: '2016-09-01',
+                    end_date: '2018-05-30',
+                    details: 'Specialization in Human-Computer Interaction.',
+                },
+                {
+                    school: 'University of Toronto',
+                    degree: 'Bachelor of Science in Computer Science',
+                    start_date: '2012-09-01',
+                    end_date: '2016-04-30',
+                    details:
+                        'Graduated with High Distinction, Minor in Mathematics.',
+                },
+            ],
+            skills: {
+                programming_languages: [
+                    'JavaScript (ES6+)',
+                    'Python',
+                    'TypeScript',
+                    'Java',
+                    'HTML5',
+                    'CSS3/SASS',
+                ],
+                frameworks_libraries: [
+                    'React',
+                    'Redux',
+                    'Node.js',
+                    'Express.js',
+                    'Django',
+                    'jQuery',
+                    'D3.js',
+                ],
+                databases: ['PostgreSQL', 'MongoDB', 'Redis', 'MySQL'],
+                tools_platforms: [
+                    'AWS (EC2, S3, RDS)',
+                    'Docker',
+                    'Kubernetes',
+                    'Jenkins',
+                    'Git',
+                    'Webpack',
+                    'Android Studio',
+                ],
+                methodologies: [
+                    'Agile/Scrum',
+                    'Microservices Architecture',
+                    'Test-Driven Development (TDD)',
+                ],
+            },
+            projects: [
+                {
+                    name: 'Real-Time Collaborative Code Editor',
+                    description:
+                        'A web-based application that allows multiple users to edit code in real-time. Built using WebSockets for live collaboration and a Monaco Editor instance for the text editing experience.',
+                    technologies_used: [
+                        'React',
+                        'Node.js',
+                        'WebSockets',
+                        'Redis',
+                        'Docker',
+                    ],
+                    start_end_dates: '2023-01-01 to 2023-04-01',
+                },
+                {
+                    name: 'E-commerce Analytics Dashboard',
+                    description:
+                        'A personal project to analyze sales data from a mock e-commerce store. The dashboard features various charts and data visualizations to track sales trends, top products, and customer behavior.',
+                    technologies_used: [
+                        'Python (Flask)',
+                        'Pandas',
+                        'Chart.js',
+                        'PostgreSQL',
+                    ],
+                    start_end_dates: '2022-05-01 to 2022-07-01',
+                },
+                {
+                    name: 'Open Source Contribution - D3.js Library',
+                    description:
+                        'Contributed to the popular data visualization library D3.js. Fixed a bug related to axis label rendering on Safari and added a new feature for creating Sankey diagrams.',
+                    technologies_used: ['JavaScript', 'D3.js', 'Git'],
+                    start_end_dates: '2021-08-01 to 2021-10-31',
+                },
+            ],
         },
-
-        projects: [
-            {
-                project_name: 'A* pathfinding algorithm',
-                project_type: 'personal',
-                project_description:
-                    'I have created an algorithm to find the shortest path from point a to point b avoiding obstacles in a 2d grid system',
-            },
-            {
-                project_name: 'E-commerce Website',
-                project_type: 'professional',
-                project_description:
-                    'Developed a full-stack e-commerce website using React, Node.js, and MongoDB, including user authentication, product browsing, shopping cart, and payment integration.',
-            },
-            {
-                project_name: 'Machine Learning Model for Image Recognition',
-                project_type: 'personal',
-                project_description:
-                    'Built a machine learning model using TensorFlow and Keras to classify images into different categories with high accuracy.',
-            },
-            {
-                project_name: 'Mobile App for Task Management',
-                project_type: 'freelance',
-                project_description:
-                    'Designed and developed a cross-platform mobile app using Flutter for managing tasks, setting reminders, and tracking progress.',
-            },
-            {
-                project_name: 'Data Analysis of Social Media Trends',
-                project_type: 'academic',
-                project_description:
-                    'Conducted a data analysis project using Python and Pandas to identify and visualize trends in social media data collected from Twitter API.',
-            },
-            {
-                project_name: 'Portfolio Website',
-                project_type: 'personal',
-                project_description:
-                    'Created a responsive personal portfolio website using HTML, CSS, and JavaScript to showcase my projects and skills.',
-            },
-            {
-                project_name: 'Real-time Chat Application',
-                project_type: 'personal',
-                project_description:
-                    'Developed a real-time chat application using Socket.IO, Node.js, and React, allowing users to communicate instantly in different chat rooms.',
-            },
-            {
-                project_name: 'Inventory Management System',
-                project_type: 'professional',
-                project_description:
-                    'Built a web-based inventory management system using Django and PostgreSQL to track stock levels, manage orders, and generate reports.',
-            },
-            {
-                project_name: 'Weather App',
-                project_type: 'personal',
-                project_description:
-                    'Developed a weather application that fetches data from a weather API and displays current weather conditions and forecasts for a given location using JavaScript.',
-            },
-            {
-                project_name: 'Blog Platform',
-                project_type: 'personal',
-                project_description:
-                    'Created a simple blog platform using Ruby on Rails where users can create accounts, write posts, and comment on other posts.',
-            },
-        ],
-        education: [
-            {
-                school_name: 'BCIT',
-                field_of_study: 'Computer Information Systems',
-            },
-            {
-                school_name: 'University of California, Berkeley',
-                field_of_study: 'Computer Science',
-            },
-            {
-                school_name: 'Massachusetts Institute of Technology (MIT)',
-                field_of_study: 'Electrical Engineering and Computer Science',
-            },
-            {
-                school_name: 'Stanford University',
-                field_of_study: 'Data Science',
-            },
-            {
-                school_name: 'University of Waterloo',
-                field_of_study: 'Software Engineering',
-            },
-            {
-                school_name: 'Harvard University',
-                field_of_study: 'Applied Mathematics',
-            },
-            {
-                school_name: 'California Institute of Technology (Caltech)',
-                field_of_study: 'Mechanical Engineering',
-            },
-            {
-                school_name: 'University of Toronto',
-                field_of_study: 'Computer Engineering',
-            },
-            {
-                school_name: 'Oxford University',
-                field_of_study: 'Mathematics and Computer Science',
-            },
-            {
-                school_name: 'Carnegie Mellon University',
-                field_of_study: 'Information Systems Management',
-            },
-        ],
-        experience: [
-            {
-                job_title: 'Software Developer',
-                company_name: 'Amazon',
-                description:
-                    "Developed and maintained features for Amazon's retail website. Worked on improving the performance of the product recommendation engine and implemented A/B testing frameworks.",
-            },
-            {
-                job_title: 'Frontend Engineer',
-                company_name: 'Google',
-                description:
-                    "Built and optimized user interfaces for Google's search engine results page. Implemented responsive design and improved page load times by 20%.",
-            },
-            {
-                job_title: 'Data Scientist',
-                company_name: 'Facebook',
-                description:
-                    'Developed machine learning models to improve ad targeting and content recommendation algorithms. Conducted data analysis to identify key user engagement metrics.',
-            },
-            {
-                job_title: 'Full Stack Developer',
-                company_name: 'Netflix',
-                description:
-                    "Worked on the development of Netflix's streaming platform. Built RESTful APIs using Node.js and developed user interfaces using React.",
-            },
-            {
-                job_title: 'Backend Engineer',
-                company_name: 'Microsoft',
-                description:
-                    'Developed and maintained backend services for Microsoft Azure. Implemented scalable and reliable cloud solutions using microservices architecture.',
-            },
-            {
-                job_title: 'Mobile App Developer',
-                company_name: 'Uber',
-                description:
-                    "Developed and maintained features for Uber's iOS and Android applications. Implemented location-based services and improved app performance.",
-            },
-            {
-                job_title: 'DevOps Engineer',
-                company_name: 'Airbnb',
-                description:
-                    "Managed and optimized Airbnb's cloud infrastructure. Implemented CI/CD pipelines and automated deployment processes.",
-            },
-            {
-                job_title: 'Machine Learning Engineer',
-                company_name: 'Tesla',
-                description:
-                    "Developed and deployed machine learning models for Tesla's Autopilot system. Worked on object detection and path planning algorithms.",
-            },
-            {
-                job_title: 'UI/UX Designer',
-                company_name: 'Spotify',
-                description:
-                    "Designed user interfaces and experiences for Spotify's web and mobile applications. Conducted user research and created wireframes and prototypes.",
-            },
-            {
-                job_title: 'Database Administrator',
-                company_name: 'Oracle',
-                description:
-                    "Managed and maintained Oracle's database systems. Optimized database performance and ensured data integrity and security.",
-            },
-        ],
     };
 }
