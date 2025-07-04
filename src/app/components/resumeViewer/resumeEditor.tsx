@@ -15,13 +15,10 @@ import {
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
 import {
-    Education,
     EducationSection,
-    Experience,
     ExperienceSection,
     FormJobOfferDataStructure,
     NarrativeSection,
-    Project,
     ProjectsSection,
     SkillsSection,
 } from '@/utils/interfaces';
@@ -116,6 +113,24 @@ export default function ResumeEditor({
         });
     };
 
+    // Function to change the theme of the resume
+    // This function updates the theme in the dataResume state
+    // and can be called from a button or dropdown in the UI
+    // It checks if the theme is already set to avoid unnecessary updates
+    const changeTheme = (theme: string) => {
+        // Check if the theme is already set to avoid unnecessary updates
+        if (dataResume.resume_generated.styles.theme === theme) {
+            return;
+        }
+        console.log(`Changing template to: ${theme}`);
+        // Update the theme in the dataResume state
+        setDataResume((prev) => {
+            const newData = JSON.parse(JSON.stringify(prev));
+            newData.resume_generated.styles.theme = theme;
+            return newData;
+        });
+    };
+
     // funciton to handle the change of the input
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -123,9 +138,6 @@ export default function ResumeEditor({
         const { name, value } = e.currentTarget;
         const sectionId = e.currentTarget.getAttribute('data-section');
         const iteratorIndex = e.currentTarget.getAttribute('data-iterator');
-        console.log(
-            `Handling change for section: ${sectionId}, iterator: ${iteratorIndex}, name: ${name}, value: ${value}`,
-        );
 
         setDataResume((prev) => {
             const newData = JSON.parse(JSON.stringify(prev));
@@ -216,6 +228,33 @@ export default function ResumeEditor({
                 <Title order={2} className={classes.mainTitle}>
                     Edit Your Resume
                 </Title>
+            </Group>
+
+            <Group justify="space-between" mb="xl">
+                <Text>Select a template to start editing:</Text>
+                <Group>
+                    {
+                        // TODO this is a very rustic way to handle the template selection, consider using a more robust method
+                    }
+                    <button
+                        onClick={() => changeTheme('classic')}
+                        className={classes.templateButton}
+                    >
+                        Classic{' '}
+                        {dataResume.resume_generated.styles.theme === 'classic'
+                            ? '✓'
+                            : ''}
+                    </button>
+                    <button
+                        onClick={() => changeTheme('modern')}
+                        className={classes.templateButton}
+                    >
+                        Modern{' '}
+                        {dataResume.resume_generated.styles.theme === 'modern'
+                            ? '✓'
+                            : ''}
+                    </button>
+                </Group>
             </Group>
 
             <Accordion

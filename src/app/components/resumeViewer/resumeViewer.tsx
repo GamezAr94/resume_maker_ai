@@ -13,6 +13,7 @@ import {
     ClassicResumeTemplate,
     styles as pdfStyles,
 } from '@/lib/pdf-templates/ClassicResume';
+import { ModernResumeTemplate } from '@/lib/pdf-templates/ModernResume';
 
 interface Props {
     dataResume: FormJobOfferDataStructure;
@@ -159,7 +160,12 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
                 showToolbar={false}
                 style={pdfStyles.viewer}
             >
-                <ClassicResumeTemplate dataResume={dataResume} />
+                {dataResume &&
+                dataResume.resume_generated.styles.theme === 'classic' ? (
+                    <ClassicResumeTemplate dataResume={dataResume} />
+                ) : (
+                    <ModernResumeTemplate dataResume={dataResume} />
+                )}
             </PDFViewer>
             <div className={styles_css.action_buttons_container}>
                 <Button

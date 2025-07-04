@@ -113,6 +113,9 @@ export default function Resume() {
                                 ? resumeData.contact_info.linkedin
                                 : 'LINKEDIN',
                         },
+                        styles: {
+                            theme: resumeData.styles?.theme || 'classic',
+                        },
                     },
                 });
             };

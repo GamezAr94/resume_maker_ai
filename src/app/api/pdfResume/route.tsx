@@ -4,6 +4,7 @@ import ReactPDF from '@react-pdf/renderer';
 import { NextResponse } from 'next/server';
 
 import { ClassicResumeTemplate } from '@/lib/pdf-templates/ClassicResume';
+import { ModernResumeTemplate } from '@/lib/pdf-templates/ModernResume';
 
 export async function POST(req: Request) {
     const requestBody = await req.json();
@@ -21,7 +22,12 @@ export async function POST(req: Request) {
 
     try {
         const stream = await ReactPDF.renderToStream(
-            <ClassicResumeTemplate dataResume={pdfData} />,
+            // TODO this is a very rustic way to handle the template selection, consider using a more robust method
+            pdfData.resume_generated.styles.theme === 'classic' ? (
+                <ClassicResumeTemplate dataResume={pdfData} />
+            ) : (
+                <ModernResumeTemplate dataResume={pdfData} />
+            ),
         );
 
         return new NextResponse(stream as unknown as ReadableStream, {
