@@ -21,7 +21,7 @@ export function encodedRedirect(
  */
 interface SortableItem {
     id: string;
-    [key: string]: any; // This index signature allows for any other properties.
+    [key: string]: string; // This index signature allows for any other properties.
 }
 
 /**
@@ -66,11 +66,24 @@ export function ensureLayoutIsOrderedArray<T extends SortableItem>(
 
         // Apply the default sort.
         normalizedArray.sort((a, b) => {
-            const numericPriorityA =
-                priorityMap[a[priorityKey]] ?? defaultPriority;
-            const numericPriorityB =
-                priorityMap[b[priorityKey]] ?? defaultPriority;
-            return numericPriorityA - numericPriorityB;
+            const priorityValueA = a[priorityKey];
+            const priorityValueB = b[priorityKey];
+
+            // It checks if the values are strings
+            // before trying to use them as keys for the priorityMap.
+            if (
+                typeof priorityValueA === 'string' &&
+                typeof priorityValueB === 'string'
+            ) {
+                const numericPriorityA =
+                    priorityMap[priorityValueA] ?? defaultPriority;
+                const numericPriorityB =
+                    priorityMap[priorityValueB] ?? defaultPriority;
+                return numericPriorityA - numericPriorityB;
+            }
+
+            // If the values aren't strings, don't try to sort them.
+            return 0;
         });
 
         return normalizedArray;

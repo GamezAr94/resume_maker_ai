@@ -40,14 +40,13 @@ export function SectionCard({
                     </Group>
                     <Group>
                         <ActionIcon
-                            component="div" // Use div to prevent nested button issues
                             variant="subtle"
                             color="gray"
                             onClick={(e) => {
                                 // Prevent the click from also toggling the accordion open/closed
                                 e.stopPropagation();
                                 // Call the handler function passed from the parent component
-                                onVisibilityToggle(e as any);
+                                onVisibilityToggle(e);
                             }}
                             data-section={section.id}
                             data-iterator={idx.toString()}

@@ -16,12 +16,12 @@ interface EducationItemCardProps {
     sectionId: string;
     itemIndex: number;
     idx: number;
-    onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    onVisibilityToggle: (e: React.MouseEvent<HTMLElement>) => void;
     onItemChange: (
         sectionIndex: number,
         itemIndex: number,
         fieldName: string,
-        value: any,
+        value: string,
     ) => void;
 }
 
@@ -48,7 +48,6 @@ export function EducationItemCard({
                     </Group>
                     <Group gap="xs">
                         <ActionIcon
-                            component="div"
                             variant="subtle"
                             color="gray"
                             title={isVisible ? `Hide` : `Show`}
@@ -56,7 +55,7 @@ export function EducationItemCard({
                                 // Prevent the click from also toggling the accordion open/closed
                                 e.stopPropagation();
                                 // Call the handler function passed from the parent component
-                                onVisibilityToggle(e as any);
+                                onVisibilityToggle(e);
                             }}
                             data-section={sectionId.toString()}
                             data-iterator={idx.toString()}

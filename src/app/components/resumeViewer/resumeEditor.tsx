@@ -45,7 +45,7 @@ export default function ResumeEditor({
      * A single, unified function to handle toggling visibility for both
      * main sections and nested items within those sections.
      */
-    const handleVisibilityToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleVisibilityToggle = (e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         const { section, iterator, subitemIndex } = e.currentTarget.dataset;
 
@@ -174,7 +174,7 @@ export default function ResumeEditor({
         sectionIndex: number,
         itemIndex: number,
         fieldName: string,
-        value: any,
+        value: string,
     ) => {
         setDataResume((prev) => {
             // Create deep copies to ensure immutability
