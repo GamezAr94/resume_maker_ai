@@ -1,0 +1,32 @@
+/* src/components/StylesForm.module.css */
+
+.themeCard {
+    width: 100%;
+    padding: var(--mantine-spacing-md);
+    border-radius: var(--mantine-radius-md);
+    border: 1px solid var(--mantine-color-gray-3);
+    background-color: var(--mantine-color-white);
+    transition: border-color 0.2s ease, background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.themeCard:hover {
+    border-color: var(--mantine-color-blue-5);
+}
+
+/* Styles for the active card */
+.themeCard[data-active] {
+    background-color: var(--mantine-color-dark-6);
+    border-color: var(--mantine-color-dark-6);
+}
+
+/* When the card is active, we want the text inside to be white */
+.themeCard[data-active] * {
+    color: var(--mantine-color-white);
+}
+
+.themeColorSwatch {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--mantine-radius-sm);
+}

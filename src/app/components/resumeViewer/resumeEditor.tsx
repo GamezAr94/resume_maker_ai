@@ -1,36 +1,15 @@
 'use client';
 // Import React and necessary Mantine components
 import React, { useState, SetStateAction, ChangeEvent } from 'react';
-import {
-    Accordion,
-    Box,
-    Group,
-    Paper,
-    Title,
-    Stack,
-    TextInput,
-    Textarea,
-    Text,
-} from '@mantine/core';
+import { Box, Group, Paper, Stack, Text, Tabs } from '@mantine/core';
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
-import {
-    EducationSection,
-    ExperienceSection,
-    FormJobOfferDataStructure,
-    NarrativeSection,
-    ProjectsSection,
-    SkillsSection,
-} from '@/utils/interfaces';
+import { FormJobOfferDataStructure } from '@/utils/interfaces';
 
 // Import the CSS module
 import classes from './resumeEditor.module.css';
-import { SectionCard } from './SectionCard';
-import { ExperienceItemCard } from './ItemsCards/ExperienceItemCard';
-import { ProjectItemCard } from './ItemsCards/ProjectItemCard';
-import { EducationItemCard } from './ItemsCards/EducationItemCard';
-import { SkillsPanel } from './ItemsCards/SkillsPanel';
-import { NarrativePanel } from './ItemsCards/NarrativePanel';
+import { DataForm } from './DataForm';
+import StylesForm from './StylesForm';
 
 // Interface using YOUR prop names
 interface ResumeEditorProps {
@@ -46,6 +25,9 @@ export default function ResumeEditor({
     const [activeAccordion, setActiveAccordion] = useState<string | null>(
         'personalInfo',
     );
+
+    // State to manage which tab ('Data' or 'Styles') is active
+    const [activeTab, setActiveTab] = useState<string | null>('data');
 
     const [activeNestedAccordions, setActiveNestedAccordions] = useState<
         Record<string, string[]>
@@ -224,339 +206,44 @@ export default function ResumeEditor({
     };
     return (
         <Box className={classes.editorContainer}>
-            <Group justify="space-between" mb="xl">
-                <Title order={2} className={classes.mainTitle}>
-                    Edit Your Resume
-                </Title>
-            </Group>
-
-            <Group justify="space-between" mb="xl">
-                <Text>Select a template to start editing:</Text>
-                <Group>
-                    {
-                        // TODO this is a very rustic way to handle the template selection, consider using a more robust method
-                    }
-                    <button
-                        onClick={() => changeTheme('classic')}
-                        className={classes.templateButton}
-                    >
-                        Classic{' '}
-                        {dataResume.resume_generated.styles.theme === 'classic'
-                            ? '✓'
-                            : ''}
-                    </button>
-                    <button
-                        onClick={() => changeTheme('modern')}
-                        className={classes.templateButton}
-                    >
-                        Modern{' '}
-                        {dataResume.resume_generated.styles.theme === 'modern'
-                            ? '✓'
-                            : ''}
-                    </button>
-                </Group>
-            </Group>
-
-            <Accordion
-                value={activeAccordion}
-                onChange={setActiveAccordion}
-                variant="separated"
-                className={classes.customAccordionWrapper}
+            <Tabs
+                value={activeTab}
+                onChange={setActiveTab}
+                classNames={{
+                    root: classes.tabsRoot,
+                    list: classes.tabsList,
+                    tab: classes.tab,
+                }}
             >
-                {/* Personal Info Section */}
-                <Accordion.Item
-                    value="personalInfo"
-                    className={classes.accordionItem}
-                >
-                    <Accordion.Control>
-                        <Text>Personal Information</Text>
-                    </Accordion.Control>
-                    <Accordion.Panel>
-                        <Paper p="md" className={classes.sectionPaper}>
-                            <Stack gap="md">
-                                <TextInput
-                                    label="Full Name"
-                                    placeholder="Your full name"
-                                    value={
-                                        dataResume.resume_generated
-                                            ?.contact_info.name || ''
-                                    }
-                                    name="personalInfo"
-                                    onChange={handleChange}
-                                    data-section="name" // Key in resume_generated
-                                    data-field="name" // Field within personalInfo object
-                                    className={classes.inputField}
-                                />
-                                <TextInput
-                                    label="Position Applied For"
-                                    placeholder="Position you are applying for"
-                                    value={dataResume.job_position}
-                                    name="personalInfo"
-                                    onChange={handleChange}
-                                    data-section="job_position" // Key in resume_generated
-                                    data-field="job_position" // Field within personalInfo object
-                                    className={classes.inputField}
-                                />
-                                <TextInput
-                                    label="Email Address"
-                                    placeholder="your.email@example.com"
-                                    type="email"
-                                    name="personalInfo"
-                                    value={
-                                        dataResume.resume_generated
-                                            ?.contact_info?.email || ''
-                                    }
-                                    onChange={handleChange}
-                                    data-section="email"
-                                    data-field="email"
-                                    className={classes.inputField}
-                                />
-                                <TextInput
-                                    label="Phone Number"
-                                    placeholder="(123) 456-7890"
-                                    name="personalInfo"
-                                    value={
-                                        dataResume.resume_generated
-                                            ?.contact_info?.phone || ''
-                                    }
-                                    onChange={handleChange}
-                                    data-section="phone"
-                                    data-field="phone"
-                                    className={classes.inputField}
-                                />
-                                <TextInput
-                                    label="LinkedIn Profile URL"
-                                    placeholder="linkedin.com/in/yourprofile"
-                                    name="personalInfo"
-                                    value={
-                                        dataResume.resume_generated
-                                            ?.contact_info?.linkedin || ''
-                                    }
-                                    onChange={handleChange}
-                                    data-section="linkedin"
-                                    data-field="linkedin"
-                                    className={classes.inputField}
-                                />
-                            </Stack>
-                        </Paper>
-                    </Accordion.Panel>
-                </Accordion.Item>
+                <Tabs.List>
+                    <Tabs.Tab value="data">Data</Tabs.Tab>
+                    <Tabs.Tab value="styles">Styles</Tabs.Tab>
+                </Tabs.List>
 
-                {dataResume.resume_generated?.layout?.map((section, idx) => {
-                    // Check if the section is
-                    // The isVisible logic is now inside the component that needs it.
-                    return (
-                        <SectionCard
-                            key={`${section.id}-${idx}`}
-                            section={section}
-                            idx={idx}
-                            onVisibilityToggle={handleVisibilityToggle}
-                        >
-                            {/* Title Editor - Common to all sections */}
-                            <Textarea
-                                label="Section Title"
-                                value={section.title || ''}
-                                onChange={handleChange}
-                                name="title"
-                                data-section={section.id}
-                                data-iterator={idx}
-                                autosize
-                                minRows={1}
-                                className={classes.descriptionTextarea}
-                            />
-                            <Box mt="md">
-                                {(() => {
-                                    switch (section.id) {
-                                        // Render the new NarrativePanel
-                                        case 'narrative':
-                                            return (
-                                                <NarrativePanel
-                                                    section={
-                                                        section as NarrativeSection
-                                                    }
-                                                    onSectionChange={
-                                                        handleChange
-                                                    }
-                                                    sectionIndex={idx}
-                                                />
-                                            );
+                {/* Data Panel: Contains all the form fields */}
+                <Tabs.Panel value="data" pt="xs">
+                    <DataForm
+                        dataResume={dataResume}
+                        activeAccordion={activeAccordion}
+                        setActiveAccordion={setActiveAccordion}
+                        handleChange={handleChange}
+                        handleVisibilityToggle={handleVisibilityToggle}
+                        activeNestedAccordions={activeNestedAccordions}
+                        handleNestedAccordionChange={
+                            handleNestedAccordionChange
+                        }
+                        handleItemChange={handleItemChange}
+                    />
+                </Tabs.Panel>
 
-                                        // Render the new SkillsPanel
-                                        case 'skills':
-                                            return (
-                                                <SkillsPanel
-                                                    section={
-                                                        section as SkillsSection
-                                                    }
-                                                    onSectionChange={
-                                                        handleChange
-                                                    }
-                                                    sectionIndex={idx}
-                                                />
-                                            );
-
-                                        // Render nested accordion for Experience
-                                        case 'experience':
-                                            // TODO: Maybe we can show the number of hidden items in the section title
-                                            /*
-                                            const count = section.items.filter(
-                                                (item) =>
-                                                    item.display === false,
-                                            ).length;
-                                            console.log(
-                                                `Experience section has ${count} hidden items`,
-                                            );
-                                            */
-                                            return (
-                                                <Accordion
-                                                    multiple
-                                                    variant="contained"
-                                                    radius="md"
-                                                    mt="lg"
-                                                    value={
-                                                        activeNestedAccordions[
-                                                            section.id
-                                                        ] || []
-                                                    }
-                                                    onChange={(value) =>
-                                                        handleNestedAccordionChange(
-                                                            section.id,
-                                                            value,
-                                                        )
-                                                    }
-                                                >
-                                                    {(
-                                                        section as ExperienceSection
-                                                    ).items.map(
-                                                        (item, itemIdx) => (
-                                                            <ExperienceItemCard
-                                                                key={itemIdx}
-                                                                item={item}
-                                                                idx={idx}
-                                                                sectionId={
-                                                                    section.id
-                                                                }
-                                                                itemIndex={
-                                                                    itemIdx
-                                                                }
-                                                                onVisibilityToggle={
-                                                                    handleVisibilityToggle
-                                                                }
-                                                                onItemChange={
-                                                                    handleItemChange
-                                                                }
-                                                            />
-                                                        ),
-                                                    )}
-                                                </Accordion>
-                                            );
-
-                                        // Render nested accordion for Projects
-                                        case 'projects':
-                                            return (
-                                                <Accordion
-                                                    multiple
-                                                    variant="contained"
-                                                    radius="md"
-                                                    mt="lg"
-                                                    value={
-                                                        activeNestedAccordions[
-                                                            section.id
-                                                        ] || []
-                                                    }
-                                                    onChange={(value) =>
-                                                        handleNestedAccordionChange(
-                                                            section.id,
-                                                            value,
-                                                        )
-                                                    }
-                                                >
-                                                    {(
-                                                        section as ProjectsSection
-                                                    ).items.map(
-                                                        (item, itemIdx) => (
-                                                            <ProjectItemCard
-                                                                key={itemIdx}
-                                                                item={item}
-                                                                sectionId={
-                                                                    section.id
-                                                                }
-                                                                idx={idx}
-                                                                itemIndex={
-                                                                    itemIdx
-                                                                }
-                                                                onVisibilityToggle={
-                                                                    handleVisibilityToggle
-                                                                }
-                                                                onItemChange={
-                                                                    handleItemChange
-                                                                }
-                                                            />
-                                                        ),
-                                                    )}
-                                                </Accordion>
-                                            );
-
-                                        // Render nested accordion for Education
-                                        case 'education':
-                                            return (
-                                                <Accordion
-                                                    multiple
-                                                    variant="contained"
-                                                    radius="md"
-                                                    mt="lg"
-                                                    value={
-                                                        activeNestedAccordions[
-                                                            section.id
-                                                        ] || []
-                                                    }
-                                                    onChange={(value) =>
-                                                        handleNestedAccordionChange(
-                                                            section.id,
-                                                            value,
-                                                        )
-                                                    }
-                                                >
-                                                    {(
-                                                        section as EducationSection
-                                                    ).items.map(
-                                                        (item, itemIdx) => (
-                                                            <EducationItemCard
-                                                                key={itemIdx}
-                                                                item={item}
-                                                                sectionId={
-                                                                    section.id
-                                                                }
-                                                                idx={idx}
-                                                                itemIndex={
-                                                                    itemIdx
-                                                                }
-                                                                onItemChange={
-                                                                    handleItemChange
-                                                                }
-                                                                onVisibilityToggle={
-                                                                    handleVisibilityToggle
-                                                                }
-                                                            />
-                                                        ),
-                                                    )}
-                                                </Accordion>
-                                            );
-
-                                        default:
-                                            return (
-                                                <Text c="dimmed" size="sm">
-                                                    No editor available for this
-                                                    section type.
-                                                </Text>
-                                            );
-                                    }
-                                })()}
-                            </Box>
-                        </SectionCard>
-                    );
-                })}
-            </Accordion>
+                {/* Styles Panel: Contains style and template options */}
+                <Tabs.Panel value="styles" pt="xs">
+                    <StylesForm
+                        changeTheme={changeTheme}
+                        dataResume={dataResume}
+                    />
+                </Tabs.Panel>
+            </Tabs>
         </Box>
     );
 }

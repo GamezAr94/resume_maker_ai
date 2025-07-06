@@ -52,12 +52,6 @@
     padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
 }
 
-.sectionPaper {
-    /* This is the panel content area */
-    padding: var(--mantine-spacing-lg);
-    border-top: 1px solid var(--mantine-color-gray-2); /* Separator line */
-}
-
 .inputField {
     margin-bottom: var(--mantine-spacing-sm);
 }

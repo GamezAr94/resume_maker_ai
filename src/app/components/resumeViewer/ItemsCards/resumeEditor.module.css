@@ -52,12 +52,6 @@
     padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
 }
 
-.sectionPaper {
-    /* This is the panel content area */
-    padding: var(--mantine-spacing-lg);
-    border-top: 1px solid var(--mantine-color-gray-2); /* Separator line */
-}
-
 .inputField {
     margin-bottom: var(--mantine-spacing-sm);
 }
@@ -95,63 +89,4 @@
 
 .nestedAccordionItem :global(.mantine-Accordion-control) {
     padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
-}
-
-/* --- Dark Mode Overrides --- */
-
-[data-mantine-color-scheme='dark'] .editorContainer {
-    background-color: var(--mantine-color-dark-8);
-    border-color: var(--mantine-color-dark-5);
-}
-
-[data-mantine-color-scheme='dark'] .editorContainer::-webkit-scrollbar-track {
-    background: var(--mantine-color-dark-7);
-}
-[data-mantine-color-scheme='dark'] .editorContainer::-webkit-scrollbar-thumb {
-    background: var(--mantine-color-dark-4);
-}
-[data-mantine-color-scheme='dark']
-    .editorContainer::-webkit-scrollbar-thumb:hover {
-    background: var(--mantine-color-dark-3);
-}
-
-[data-mantine-color-scheme='dark'] .mainTitle {
-    color: var(--mantine-color-blue-4);
-    border-bottom-color: var(--mantine-color-blue-9);
-}
-
-[data-mantine-color-scheme='dark'] .accordionItem {
-    background-color: var(--mantine-color-dark-7);
-    border-color: var(--mantine-color-dark-5);
-    box-shadow: none; /* remove default light shadow in dark mode */
-}
-[data-mantine-color-scheme='dark'] .accordionItem:hover {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-[data-mantine-color-scheme='dark'] .sectionPaper {
-    background-color: transparent; /* Inherit dark background */
-    border-top-color: var(--mantine-color-dark-5);
-}
-
-[data-mantine-color-scheme='dark'] .inputField label {
-    color: var(--mantine-color-dark-0);
-}
-
-[data-mantine-color-scheme='dark'] .descriptionTextarea {
-    background-color: var(--mantine-color-dark-6);
-    border-color: var(--mantine-color-dark-4);
-    color: var(--mantine-color-gray-0);
-}
-
-[data-mantine-color-scheme='dark'] .dragHandle {
-    color: var(--mantine-color-dark-2);
-}
-
-[data-mantine-color-scheme='dark'] .chevron {
-    color: var(--mantine-color-dark-2);
-}
-
-[data-mantine-color-scheme='dark'] .nestedAccordionItem {
-    background-color: var(--mantine-color-dark-6);
 }
