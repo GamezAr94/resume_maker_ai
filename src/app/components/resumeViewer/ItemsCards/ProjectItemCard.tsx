@@ -49,6 +49,7 @@ export function ProjectItemCard({
                     </Group>
                     <Group gap="xs">
                         <ActionIcon
+                            component="div"
                             variant="subtle"
                             color="gray"
                             title={isVisible ? `Hide` : `Show`}

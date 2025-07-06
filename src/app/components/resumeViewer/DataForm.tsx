@@ -36,7 +36,7 @@ interface DataFormProps {
         sectionIndex: number,
         itemIndex: number,
         fieldName: string,
-        value: any,
+        value: string,
     ) => void;
     handleVisibilityToggle: (e: React.MouseEvent<HTMLElement>) => void;
     handleNestedAccordionChange: (sectionId: string, value: string[]) => void;

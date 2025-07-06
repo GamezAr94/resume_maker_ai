@@ -8,6 +8,7 @@ import {
     Font,
     Link,
 } from '@react-pdf/renderer';
+import { ResumeLayoutItem } from '@/utils/interfaces';
 // Assuming this interface is in your project
 // import { FormJobOfferDataStructure } from '@/utils/interfaces';
 
@@ -21,17 +22,7 @@ interface FormJobOfferDataStructure {
             email: string;
             linkedin: string;
         };
-        layout: Array<{
-            id:
-                | 'narrative'
-                | 'experience'
-                | 'education'
-                | 'projects'
-                | 'skills';
-            title: string;
-            display: boolean;
-            items: any;
-        }>;
+        layout: ResumeLayoutItem[];
     };
 }
 
@@ -266,7 +257,7 @@ export const ModernResumeTemplate = ({
                                     </Text>
                                     <View style={styles.sectionDivider} />
                                     {section.items.map(
-                                        (exp: any, id: number) =>
+                                        (exp, id) =>
                                             exp.display !== false && (
                                                 <View
                                                     key={id}
@@ -324,7 +315,7 @@ export const ModernResumeTemplate = ({
                                     </Text>
                                     <View style={styles.sectionDivider} />
                                     {section.items.map(
-                                        (edu: any, id: number) =>
+                                        (edu, id) =>
                                             edu.display !== false && (
                                                 <View
                                                     key={id}
@@ -375,7 +366,7 @@ export const ModernResumeTemplate = ({
                                     </Text>
                                     <View style={styles.sectionDivider} />
                                     {section.items.map(
-                                        (pro: any, id: number) =>
+                                        (pro, id) =>
                                             pro.display !== false && (
                                                 <View
                                                     key={id}

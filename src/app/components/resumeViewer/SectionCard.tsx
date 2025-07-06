@@ -11,7 +11,7 @@ interface SectionCardProps {
     section: ResumeLayoutItem;
     idx: number;
     children: React.ReactNode; // To render the specific form fields for each section
-    onVisibilityToggle: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    onVisibilityToggle: (e: React.MouseEvent<HTMLElement>) => void;
 }
 
 /**
@@ -40,6 +40,7 @@ export function SectionCard({
                     </Group>
                     <Group>
                         <ActionIcon
+                            component="div"
                             variant="subtle"
                             color="gray"
                             onClick={(e) => {

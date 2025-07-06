@@ -48,6 +48,7 @@ export function EducationItemCard({
                     </Group>
                     <Group gap="xs">
                         <ActionIcon
+                            component="div"
                             variant="subtle"
                             color="gray"
                             title={isVisible ? `Hide` : `Show`}

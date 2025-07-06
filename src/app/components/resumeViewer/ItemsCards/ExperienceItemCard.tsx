@@ -58,6 +58,7 @@ export function ExperienceItemCard({
                     </Group>
                     <Group gap="xs">
                         <ActionIcon
+                            component="div"
                             variant="subtle"
                             color="gray"
                             title={isVisible ? `Hide` : `Show`}

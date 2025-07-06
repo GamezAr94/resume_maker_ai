@@ -1,7 +1,7 @@
 'use client';
 // Import React and necessary Mantine components
 import React, { useState, SetStateAction, ChangeEvent } from 'react';
-import { Box, Group, Paper, Stack, Text, Tabs } from '@mantine/core';
+import { Box, Tabs } from '@mantine/core';
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
