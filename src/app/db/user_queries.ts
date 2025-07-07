@@ -115,3 +115,35 @@ export async function deleteRecord(
         return false;
     }
 }
+
+// New function to get the current user's full profile
+export async function getCurrentUserProfile() {
+    const { supabase, user } = await setSupabaseClient();
+    if (!supabase || !user) {
+        return { status: false, message: 'User not authenticated', data: null };
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('user')
+            .select('*') // Select all columns, including token_balance
+            .eq('supabase_id', user.id)
+            .single();
+
+        if (error) {
+            return {
+                status: false,
+                message: `Error getting user profile: ${error.message}`,
+                data: null,
+            };
+        }
+
+        return { status: true, message: 'Success', data: data };
+    } catch (error) {
+        return {
+            status: false,
+            message: `Unexpected error: ${(error as Error).message}`,
+            data: null,
+        };
+    }
+}

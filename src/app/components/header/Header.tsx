@@ -25,6 +25,8 @@ import Link from 'next/link';
 import styles from './header.module.css'; // Use the new styles
 import { signOutAction } from '@/app/actions';
 import TokensModal, { UserSubscription } from './tokensModal';
+import { useState, useEffect, use } from 'react';
+import { getCurrentUserProfile } from '@/app/db/user_queries';
 
 type SubscriptionTier = 'free' | 'monthly' | 'yearly';
 
@@ -35,6 +37,18 @@ export default function Header() {
     const [searchOpened, { toggle: toggleSearch }] = useDisclosure(false);
     const [modalOpened, { open: openModal, close: closeModal }] =
         useDisclosure(false);
+    const [tokenCount, setTokenCount] = useState(0);
+
+    // Fetch the token count when the component mounts
+    useEffect(() => {
+        const fetchTokenCount = async () => {
+            const { data, status } = await getCurrentUserProfile();
+            if (status && data && data.token_balance) {
+                setTokenCount(data.token_balance);
+            }
+        };
+        fetchTokenCount();
+    }, []);
 
     // === MOCK DATA FOR USER SUBSCRIPTION ===
     // Change the 'tier' value here to 'free', 'monthly', or 'yearly' to test different views
@@ -43,8 +57,6 @@ export default function Header() {
         tokensPerRefill: 500, // Example for 'monthly'
         renewalDate: new Date('2025-07-15T00:00:00Z'), // Example for 'monthly' or 'yearly'
     };
-    // NOTE: This would come from user data later.
-    const tokenCount = 1000;
 
     return (
         <>

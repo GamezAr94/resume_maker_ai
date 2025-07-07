@@ -2,10 +2,24 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { TOKEN_COSTS } from '@/app/config/costs.config';
 
 export async function POST(req: Request) {
     const supabase = await createClient();
 
+    // Get the user from the request
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    // Check if the user is authenticated
+    if (!user) {
+        return new Response(JSON.stringify({ message: 'Not authenticated' }), {
+            status: 401,
+        });
+    }
+
+    // TODO underestand why we have this right here !
     const requestJobDescBody = await req.json();
     console.log(
         'Request body for geminiResumeInteraction:',
@@ -29,6 +43,7 @@ export async function POST(req: Request) {
 
     const { data: userData, error } = await supabase.rpc('get_user_data');
 
+    // Check if userData is null or undefined or if there is an error
     if (error || !userData) {
         return new Response(
             JSON.stringify({
@@ -40,6 +55,33 @@ export async function POST(req: Request) {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
             },
+        );
+    }
+
+    const resumeCost = TOKEN_COSTS.AI_RESUME_GENERATION;
+
+    // Check if the user has enough tokens to generate a resume
+    if (!userData.token_balance || userData.token_balance < resumeCost) {
+        // TODO maybe we need to show the user a modal to buy more tokens
+        return new Response(
+            JSON.stringify({
+                message: 'Not enough tokens to generate a resume.',
+            }),
+            { status: 402 },
+        ); // 402 Payment Required
+    }
+
+    // Deduct tokens if the user has enough
+    const { error: rpcError } = await supabase.rpc('deduct_tokens', {
+        user_id_param: user.id,
+        amount: resumeCost,
+    });
+
+    // If there was an error deducting tokens, return an error response
+    if (rpcError) {
+        return new Response(
+            JSON.stringify({ message: 'Failed to deduct tokens.' }),
+            { status: 500 },
         );
     }
 
