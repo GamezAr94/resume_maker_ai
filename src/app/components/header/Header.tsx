@@ -24,11 +24,11 @@ import {
 import Link from 'next/link';
 import styles from './header.module.css'; // Use the new styles
 import { signOutAction } from '@/app/actions';
-import TokensModal, { UserSubscription } from './tokensModal';
-import { useState, useEffect, use } from 'react';
+import TokensModal from './tokensModal';
+import { useState, useEffect } from 'react';
 import { getCurrentUserProfile } from '@/app/db/user_queries';
-
-type SubscriptionTier = 'free' | 'monthly' | 'yearly';
+import { SubscriptionTier, UserSubscription } from '@/utils/interfaces';
+import { TOKEN_COSTS } from '@/app/config/costs.config';
 
 export default function Header() {
     // NOTE: This state is for toggling the mobile menu.
@@ -39,24 +39,41 @@ export default function Header() {
         useDisclosure(false);
     const [tokenCount, setTokenCount] = useState(0);
 
+    // This state now holds the complete user subscription object.
+    const [userSubscription, setUserSubscription] = useState<UserSubscription>({
+        tier: 'free' as SubscriptionTier, // Default to 'free'
+    });
+
+    // Function to easily change the subscription tier
+    const handleSubscriptionChange = (tier: SubscriptionTier) => {
+        if (tier === 'free') {
+            setUserSubscription({ tier: 'free' });
+        } else if (tier === 'monthly') {
+            setUserSubscription({
+                tier: 'monthly',
+                tokensPerRefill: TOKEN_COSTS.TOKEN_PLANS.MONTHLY.tokens,
+            });
+        } else if (tier === 'yearly') {
+            setUserSubscription({
+                tier: 'yearly',
+                tokensPerRefill: TOKEN_COSTS.TOKEN_PLANS.YEARLY.tokens,
+            });
+        }
+    };
+
     // Fetch the token count when the component mounts
     useEffect(() => {
         const fetchTokenCount = async () => {
             const { data, status } = await getCurrentUserProfile();
             if (status && data && data.token_balance) {
                 setTokenCount(data.token_balance);
+                handleSubscriptionChange(
+                    data.subscription_tier as SubscriptionTier,
+                );
             }
         };
         fetchTokenCount();
     }, []);
-
-    // === MOCK DATA FOR USER SUBSCRIPTION ===
-    // Change the 'tier' value here to 'free', 'monthly', or 'yearly' to test different views
-    const userSubscription = {
-        tier: 'free' as SubscriptionTier, // <--  TODO CHANGE THIS VALUE TO TEST
-        tokensPerRefill: 500, // Example for 'monthly'
-        renewalDate: new Date('2025-07-15T00:00:00Z'), // Example for 'monthly' or 'yearly'
-    };
 
     return (
         <>

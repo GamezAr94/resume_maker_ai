@@ -5,32 +5,41 @@ import {
     Stack,
     Group,
     Text,
-    Divider,
     Paper,
     Badge,
     Button,
     rem,
+    Tabs,
+    Alert,
+    List,
+    ThemeIcon,
+    SegmentedControl,
+    Box,
+    Divider,
 } from '@mantine/core';
 import {
     IconCoinFilled,
-    IconSparkles,
-    IconArrowRight,
-    IconDiamond,
+    IconCrown,
+    IconBolt,
+    IconInfoCircle,
+    IconCheck,
     IconCalendar,
-    IconShoppingCart,
+    IconDiamond,
 } from '@tabler/icons-react';
-import Link from 'next/link';
+import { useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 import styles from './tokensModal.module.css';
+import {
+    TokenPack,
+    SubscriptionTier,
+    SubscriptionPlan,
+    UserSubscription,
+} from '@/utils/interfaces';
+import { TOKEN_COSTS } from '@/app/config/costs.config';
 
-// Define the shape of the subscription data the modal will receive
-type SubscriptionTier = 'free' | 'monthly' | 'yearly';
-export interface UserSubscription {
-    tier: SubscriptionTier;
-    tokensPerRefill: number;
-    renewalDate: Date;
-}
+// --- Types and Data Structures ---
 
-// Define the props for the component
+// Props for the modal component
 interface TokensModalProps {
     opened: boolean;
     onClose: () => void;
@@ -38,152 +47,493 @@ interface TokensModalProps {
     userSubscription: UserSubscription;
 }
 
+// --- Configuration & Mock Data ---
+
+// Replace these with your actual Stripe Price IDs
+const tokenPacks: TokenPack[] = [
+    TOKEN_COSTS.TOKEN_PACKAGES.BASIC,
+    TOKEN_COSTS.TOKEN_PACKAGES.PREMIUM,
+    TOKEN_COSTS.TOKEN_PACKAGES.ULTIMATE,
+];
+
+const subscriptionPlans: SubscriptionPlan[] = [
+    TOKEN_COSTS.TOKEN_PLANS.MONTHLY,
+    TOKEN_COSTS.TOKEN_PLANS.YEARLY,
+];
+
+// Initialize Stripe outside of the component render
+const stripePromise = loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+);
+
+// --- THE MODAL COMPONENT ---
 export default function TokensModal({
     opened,
     onClose,
     tokenCount,
     userSubscription,
 }: TokensModalProps) {
+    const [balanceVisible, setBalanceVisible] = useState(true);
+
+    // This is your checkout logic, it remains the same.
+    const handlePurchase = async (productId: string) => {
+        try {
+            const stripe = await stripePromise;
+            if (!stripe) throw new Error('Stripe.js has not loaded yet.');
+            const res = await fetch('/api/stripe/checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: productId }),
+            });
+            if (!res.ok) {
+                console.error('Server returned an error:', await res.text());
+                return;
+            }
+            const { sessionId } = await res.json();
+            const { error } = await stripe.redirectToCheckout({ sessionId });
+            if (error) console.error('Stripe redirect error:', error.message);
+        } catch (error) {
+            console.error('Purchase error:', (error as Error).message);
+        }
+    };
+
+    // --- RENDER METHOD FOR QUICK TOP-UP TAB ---
+    const renderQuickTopUp = () => {
+        // Get the discount percentage based on the user's current subscription tier.
+        const discount = TOKEN_COSTS.DISCOUNTED_PACKAGES[userSubscription.tier];
+
+        return (
+            <Stack gap="md" mt="md">
+                <Stack gap={4} align="center">
+                    <Text size="xl" fw={700}>
+                        Buy Token Packs
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                        Get tokens instantly
+                        {/* Show this message only if a discount is applied */}
+                        {discount > 0 && (
+                            <span className={styles.discountAppliedText}>
+                                {' '}
+                                • Subscriber discount applied
+                            </span>
+                        )}
+                    </Text>
+                </Stack>
+
+                {tokenPacks.map((pack) => {
+                    // Calculate the discounted price.
+                    const discountedPrice = pack.price * (1 - discount);
+
+                    return (
+                        <div key={pack.id} className={styles.popularWrapper}>
+                            {pack.isPopular && (
+                                <Badge
+                                    className={styles.popularBadge}
+                                    color="blue"
+                                    variant="filled"
+                                >
+                                    Most Popular
+                                </Badge>
+                            )}
+                            <Paper
+                                withBorder
+                                radius="md"
+                                p="md"
+                                className={styles.tokenPackItem}
+                                data-popular={pack.isPopular}
+                            >
+                                <Group justify="space-between">
+                                    <Group>
+                                        <IconCoinFilled
+                                            style={{
+                                                width: rem(24),
+                                                height: rem(24),
+                                            }}
+                                            color="var(--mantine-color-yellow-5)"
+                                        />
+                                        <Text fw={600} size="lg">
+                                            {pack.tokens.toLocaleString()}{' '}
+                                            tokens
+                                        </Text>
+                                        {/* Show the discount badge if the discount is greater than 0 */}
+                                        {discount > 0 && (
+                                            <Badge color="teal" variant="light">
+                                                {discount * 100}% off
+                                            </Badge>
+                                        )}
+                                    </Group>
+                                    <Group>
+                                        <Stack gap={0} align="flex-end">
+                                            <Text fw={700} size="lg">
+                                                ${discountedPrice.toFixed(2)}
+                                            </Text>
+                                            {/* Show the original price (struck-through) if there's a discount */}
+                                            {discount > 0 && (
+                                                <Text
+                                                    size="sm"
+                                                    c="dimmed"
+                                                    td="line-through"
+                                                    className={
+                                                        styles.originalPrice
+                                                    }
+                                                >
+                                                    ${pack.price.toFixed(2)}
+                                                </Text>
+                                            )}
+                                        </Stack>
+                                        <Button
+                                            onClick={() =>
+                                                handlePurchase(pack.id)
+                                            }
+                                            variant="filled"
+                                            color="dark"
+                                        >
+                                            Buy Now
+                                        </Button>
+                                    </Group>
+                                </Group>
+                            </Paper>
+                        </div>
+                    );
+                })}
+            </Stack>
+        );
+    };
+
+    // --- RENDER METHOD FOR UPGRADE PLAN TAB ---
+    const renderUpgradePlan = () => (
+        <Stack gap="lg" mt="md">
+            <Stack gap={4} align="center">
+                <Text size="xl" fw={700}>
+                    Upgrade Your Plan
+                </Text>
+                <Text c="dimmed" size="sm">
+                    Get more tokens monthly + discounted top-ups
+                </Text>
+            </Stack>
+            {subscriptionPlans.map((plan) => {
+                // Check if the plan being rendered is the user's currently active plan.
+                const isCurrentPlan =
+                    userSubscription.tier === plan.tierIdentifier;
+
+                return (
+                    <div key={plan.id} className={styles.popularWrapper}>
+                        {plan.isPopular && !isCurrentPlan && (
+                            <Badge
+                                className={styles.popularBadge}
+                                color="blue"
+                                variant="filled"
+                            >
+                                Most Popular
+                            </Badge>
+                        )}
+                        {/* If this is the current plan, show a different badge */}
+                        {isCurrentPlan && (
+                            <Badge
+                                className={styles.popularBadge}
+                                color="teal"
+                                variant="filled"
+                                leftSection={<IconCheck size={14} />}
+                            >
+                                Current Plan
+                            </Badge>
+                        )}
+                        <Paper
+                            withBorder
+                            radius="md"
+                            p="xl"
+                            className={styles.planCard}
+                            data-popular={plan.isPopular && !isCurrentPlan}
+                        >
+                            <Stack gap="lg">
+                                <Group
+                                    justify="space-between"
+                                    align="flex-start"
+                                >
+                                    <div>
+                                        <Text size="xl" fw={700}>
+                                            {plan.name}
+                                        </Text>
+                                        <Group gap="xs" align="baseline">
+                                            <Text
+                                                className={styles.price}
+                                                component="span"
+                                            >
+                                                ${plan.price.toFixed(2)}
+                                            </Text>
+                                            <Text
+                                                c="dimmed"
+                                                size="sm"
+                                                component="span"
+                                            >
+                                                {plan.priceAnnotation}
+                                            </Text>
+                                            {plan.discountBadge && (
+                                                <Badge
+                                                    color="teal"
+                                                    variant="light"
+                                                    className={
+                                                        styles.discountBadge
+                                                    }
+                                                >
+                                                    {plan.discountBadge}
+                                                </Badge>
+                                            )}
+                                        </Group>
+                                    </div>
+                                    {/* Show the Upgrade button ONLY if it's not the current plan */}
+                                    {!isCurrentPlan && (
+                                        <Button
+                                            onClick={() =>
+                                                handlePurchase(plan.id)
+                                            }
+                                            variant="filled"
+                                            color="dark"
+                                            size="sm"
+                                        >
+                                            Upgrade
+                                        </Button>
+                                    )}
+                                </Group>
+
+                                <List
+                                    spacing="xs"
+                                    size="sm"
+                                    center
+                                    icon={
+                                        <ThemeIcon
+                                            color="teal"
+                                            size={24}
+                                            radius="xl"
+                                        >
+                                            <IconCheck
+                                                style={{
+                                                    width: rem(16),
+                                                    height: rem(16),
+                                                }}
+                                            />
+                                        </ThemeIcon>
+                                    }
+                                    className={styles.featureList}
+                                >
+                                    {plan.features.map((feature) => (
+                                        <List.Item key={feature}>
+                                            {feature}
+                                        </List.Item>
+                                    ))}
+                                </List>
+
+                                {/* If this is the active plan, show renewal info instead of the upgrade button */}
+                                {isCurrentPlan && (
+                                    <Alert
+                                        variant="light"
+                                        color="gray"
+                                        title="Plan Renewal"
+                                        icon={<IconCalendar />}
+                                        mt="md"
+                                    >
+                                        You will receive +
+                                        {userSubscription.tokensPerRefill?.toLocaleString()}{' '}
+                                        tokens when your subscription renews.
+                                        "View Details"
+                                    </Alert>
+                                )}
+                            </Stack>
+                        </Paper>
+                    </div>
+                );
+            })}
+        </Stack>
+    );
+
+    // --- MAIN MODAL RENDER ---
     return (
         <Modal
             opened={opened}
             onClose={onClose}
-            title="Token Balance & Plan"
+            title={
+                <Text fw={700} size="xl">
+                    Token Balance & Plans
+                </Text>
+            }
             centered
             size="lg"
+            radius="md"
+            padding="xl"
+            classNames={{ header: styles.modalHeader, body: styles.modalBody }}
         >
             <Stack gap="lg">
-                {/* Current Balance Section */}
-                <Group justify="space-between">
-                    <Text fw={500}>Your Current Balance:</Text>
-                    <div
-                        className={`${styles.tokenDisplay} ${styles.modalTokenDisplay}`}
-                    >
-                        <Text size="lg" className={styles.tokenValue}>
-                            {tokenCount.toLocaleString()}
-                        </Text>
-                        <IconCoinFilled
-                            style={{ width: rem(20), height: rem(20) }}
-                            color="var(--mantine-color-yellow-5)"
-                        />
-                    </div>
-                </Group>
-
-                <Divider my="xs" label="Your Plan" labelPosition="center" />
-
-                {/* Plan Details & Actions - Conditional Rendering */}
-                {userSubscription.tier === 'free' && (
-                    <Paper
-                        withBorder
-                        radius="md"
-                        p="xl"
-                        bg="var(--mantine-color-gray-0)"
-                    >
-                        <Stack align="center" gap="xs">
-                            <IconSparkles
-                                size={36}
-                                color="var(--mantine-color-yellow-6)"
-                            />
-                            <Text fw={700} size="lg" mt="sm">
-                                You&apos;re on the Free Tier
-                            </Text>
-                            <Text c="dimmed" size="sm" ta="center" maw={350}>
-                                Upgrade for more monthly tokens, advanced AI
-                                features, and priority support.
-                            </Text>
-                            <Button
-                                component={Link}
-                                href="/pricing"
-                                onClick={onClose}
-                                mt="md"
-                                size="md"
-                                variant="gradient"
-                                gradient={{ from: 'blue', to: 'cyan' }}
-                                rightSection={<IconArrowRight size={16} />}
-                            >
-                                View Plans & Upgrade
-                            </Button>
-                        </Stack>
-                    </Paper>
-                )}
-
-                {(userSubscription.tier === 'monthly' ||
-                    userSubscription.tier === 'yearly') && (
-                    <Paper
-                        withBorder
-                        radius="md"
-                        p="md"
-                        bg="var(--mantine-color-gray-0)"
-                    >
-                        <Stack gap="md">
+                {balanceVisible && (
+                    <Alert
+                        variant="light"
+                        color="gray"
+                        withCloseButton
+                        onClose={() => setBalanceVisible(false)}
+                        styles={{ title: { flex: 1 }, body: { width: '100%' } }}
+                        icon={<span />}
+                        title={
                             <Group justify="space-between">
-                                <Text fw={500}>Current Plan:</Text>
-                                <Badge
-                                    size="lg"
-                                    variant="filled"
-                                    color={
-                                        userSubscription.tier === 'monthly'
-                                            ? 'teal'
-                                            : 'violet'
-                                    }
-                                    leftSection={<IconDiamond size={16} />}
-                                >
-                                    {userSubscription.tier === 'monthly'
-                                        ? 'Monthly Pro'
-                                        : 'Yearly Premium'}
-                                </Badge>
-                            </Group>
-                            <Group justify="space-between">
-                                <Text c="dimmed" size="sm">
-                                    Next Refill:
-                                </Text>
                                 <Group gap="xs">
-                                    <IconCalendar size={16} />
-                                    <Text size="sm">
-                                        +{userSubscription.tokensPerRefill}{' '}
-                                        tokens on{' '}
-                                        {userSubscription.renewalDate.toLocaleDateString(
-                                            'en-US',
-                                            { month: 'long', day: 'numeric' },
-                                        )}
+                                    <IconCoinFilled
+                                        color="var(--mantine-color-yellow-6)"
+                                        size={20}
+                                    />
+                                    <Text fw={500}>
+                                        Current Balance:{' '}
+                                        {tokenCount.toLocaleString()} tokens
                                     </Text>
                                 </Group>
+                                {userSubscription.tier !== 'free' && (
+                                    <Badge
+                                        color="teal"
+                                        variant="light"
+                                        leftSection={<IconDiamond size={14} />}
+                                    >
+                                        {userSubscription.tier
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                            userSubscription.tier.slice(1)}{' '}
+                                        Pro
+                                    </Badge>
+                                )}
                             </Group>
-                            <Button
-                                component={Link}
-                                href="/billing"
-                                onClick={onClose}
-                                variant="light"
-                                fullWidth
-                                mt="sm"
-                            >
-                                Manage Subscription
-                            </Button>
-                        </Stack>
-                    </Paper>
+                        }
+                    />
                 )}
 
-                {/* One-Time Purchase Section */}
-                <Paper withBorder radius="md" p="md">
-                    <Group justify="space-between" align="center">
-                        <Stack gap={0}>
-                            <Text fw={500}>Need a quick top-up?</Text>
-                            <Text size="xs" c="dimmed">
-                                Get more tokens instantly.
-                            </Text>
-                        </Stack>
-                        <Button
-                            component={Link}
-                            href="/buy-tokens"
-                            onClick={onClose}
-                            variant="outline"
-                            leftSection={<IconShoppingCart size={16} />}
+                <Tabs
+                    defaultValue="top-up"
+                    variant="pills"
+                    radius="md"
+                    classNames={{ list: styles.tabsList, tab: styles.tab }}
+                >
+                    <Tabs.List grow>
+                        <Tabs.Tab
+                            value="top-up"
+                            leftSection={<IconBolt size={16} />}
                         >
-                            Buy Token Packs
-                        </Button>
-                    </Group>
-                </Paper>
+                            Quick Top-up
+                        </Tabs.Tab>
+                        <Tabs.Tab
+                            value="upgrade"
+                            leftSection={<IconCrown size={16} />}
+                        >
+                            Upgrade Plan
+                        </Tabs.Tab>
+                    </Tabs.List>
+                    <Tabs.Panel value="top-up">{renderQuickTopUp()}</Tabs.Panel>
+                    <Tabs.Panel value="upgrade">
+                        {renderUpgradePlan()}
+                    </Tabs.Panel>
+                </Tabs>
+                {userSubscription.tier === 'free' && (
+                    <Alert
+                        variant="light"
+                        color="blue"
+                        title="Pro Tip"
+                        icon={<IconInfoCircle />}
+                    >
+                        Subscribe to get up to{' '}
+                        {TOKEN_COSTS.DISCOUNTED_PACKAGES.yearly * 100}% off all
+                        token purchases + a recurring token allowance.
+                    </Alert>
+                )}
+                {userSubscription.tier === 'monthly' && (
+                    <Alert
+                        variant="light"
+                        color="blue"
+                        title="Pro Tip"
+                        icon={<IconInfoCircle />}
+                    >
+                        Subscribe to the Yearly plan and get{' '}
+                        {TOKEN_COSTS.DISCOUNTED_PACKAGES.yearly * 100}% off all
+                        token purchases + a yearly token allowance.
+                    </Alert>
+                )}
             </Stack>
         </Modal>
     );
 }
+
+// --- DEMO APP WRAPPER ---
+// This component demonstrates how to use the TokensModal and allows you to test different states.
+function App() {
+    const [modalOpened, setModalOpened] = useState(true); // Default to open for demo
+    const [tokenCount, setTokenCount] = useState(4); // Mock token count
+
+    // This state now holds the complete user subscription object.
+    const [userSubscription, setUserSubscription] = useState<UserSubscription>({
+        tier: 'yearly',
+    });
+
+    // Function to easily change the subscription for testing.
+    const handleSubscriptionChange = (tier: SubscriptionTier) => {
+        if (tier === 'free') {
+            setUserSubscription({ tier: 'free' });
+        } else if (tier === 'monthly') {
+            setUserSubscription({
+                tier: 'monthly',
+                tokensPerRefill: 1000,
+            });
+        } else if (tier === 'yearly') {
+            setUserSubscription({
+                tier: 'yearly',
+                tokensPerRefill: 12000,
+            });
+        }
+    };
+
+    return (
+        <Box p="xl">
+            <Paper withBorder p="xl" radius="md">
+                <Stack align="center">
+                    <Text size="xl" fw={700}>
+                        Modal Control Panel
+                    </Text>
+                    <Text c="dimmed">
+                        Use these controls to test the modal's behavior.
+                    </Text>
+                    <Divider
+                        my="md"
+                        label="Test Subscription Tiers"
+                        labelPosition="center"
+                    />
+                    <SegmentedControl
+                        value={userSubscription.tier}
+                        onChange={(value) =>
+                            handleSubscriptionChange(value as SubscriptionTier)
+                        }
+                        data={[
+                            { label: 'Free Tier', value: 'free' },
+                            { label: 'Monthly Pro', value: 'monthly' },
+                            { label: 'Yearly Pro', value: 'yearly' },
+                        ]}
+                        color="blue"
+                    />
+                    <Button onClick={() => setModalOpened(true)} mt="lg">
+                        Open Tokens & Plans Modal
+                    </Button>
+                </Stack>
+            </Paper>
+
+            <TokensModal
+                opened={modalOpened}
+                onClose={() => setModalOpened(false)}
+                tokenCount={tokenCount}
+                userSubscription={userSubscription}
+            />
+        </Box>
+    );
+}
+
+/*
+    <Button
+        onClick={() =>
+            handlePurchase('price_1Ri5lBPxaFwrUyBLgw3lxWQv')
+        } // IMPORTANT: Replace with your actual Price ID from Stripe
+        variant="outline"
+        leftSection={<IconShoppingCart size={16} />}
+    >
+        Buy Token Packs
+    </Button>
+*/

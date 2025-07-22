@@ -1,4 +1,30 @@
 // PERSONAL FORM
+export type SubscriptionTier = 'free' | 'monthly' | 'yearly';
+
+// Define the structure for a one-time token pack
+export interface TokenPack {
+    id: string; // Stripe Price ID
+    tokens: number;
+    price: number;
+    isPopular: boolean;
+}
+export interface UserSubscription {
+    tier: SubscriptionTier; // 'free', 'monthly', or 'yearly'
+    tokensPerRefill?: number; // Optional, only for paid plans
+}
+
+// This interface now holds all necessary info about the user's current subscription
+export interface SubscriptionPlan {
+    id: string;
+    tierIdentifier: SubscriptionTier;
+    name: string;
+    price: number;
+    priceAnnotation: string;
+    tokens: number; // Tokens included in the plan
+    features: string[];
+    isPopular: boolean;
+    discountBadge?: string;
+}
 
 // Initial state for the personal form errors
 export const emptyStatePersonal: FormPersonalStructure = {
