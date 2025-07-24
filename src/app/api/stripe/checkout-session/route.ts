@@ -10,9 +10,12 @@ import {
     SubscriptionTier,
 } from '@/utils/interfaces';
 import { User } from '@supabase/auth-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export async function POST(req: Request) {
     const supabase = await createClient();
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
     const {
         data: { user },
     } = await supabase.auth.getUser();
@@ -23,6 +26,12 @@ export async function POST(req: Request) {
             { status: 401 },
         );
     }
+
+    const stripeCustomerId = await findOrCreateStripeCustomer(
+        supabase,
+        user,
+        stripe,
+    );
 
     const { productId } = await req.json(); // Get priceId from the frontend request
 
@@ -85,12 +94,12 @@ export async function POST(req: Request) {
     //const stripeCustomerId = userProfile.stripe_customer_id;
 
     if (plan) {
-        return createSubscriptionPlan(user, plan);
+        return createSubscriptionPlan(user, plan, stripeCustomerId);
     }
 
     if (pack) {
         // If it's a token pack, we proceed with one-time payment
-        return createTokenPack(user, pack, userTier);
+        return createTokenPack(user, pack, userTier, stripeCustomerId);
     }
 
     // This return is just for safety, it shouldn't be reached.
@@ -103,7 +112,11 @@ export async function POST(req: Request) {
 }
 
 // This function creates a Stripe Checkout Session for a subscription plan
-async function createSubscriptionPlan(user: User, plan: SubscriptionPlan) {
+async function createSubscriptionPlan(
+    user: User,
+    plan: SubscriptionPlan,
+    stripeCustomerId: string,
+) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
         apiVersion: '2024-06-20' as any, // Use a stable version
     });
@@ -124,7 +137,7 @@ async function createSubscriptionPlan(user: User, plan: SubscriptionPlan) {
             ],
             // Use 'subscription' mode for recurring payments
             mode: 'subscription',
-            customer_email: user.email, // Pre-fill the email field in the checkout
+            customer: stripeCustomerId,
             // If the user already exists in Stripe, link this new subscription to them
             // This prevents creating duplicate customers in Stripe.
             //customer: stripeCustomerId || undefined,
@@ -154,6 +167,7 @@ async function createTokenPack(
     user: User,
     pack: TokenPack,
     userTier: SubscriptionTier = 'free',
+    stripeCustomerId: string,
 ) {
     const discount = TOKEN_COSTS.DISCOUNTED_PACKAGES[userTier] || 0;
     const finalPrice = pack.price * (1 - discount);
@@ -167,7 +181,7 @@ async function createTokenPack(
 
     try {
         const session = await stripe.checkout.sessions.create({
-            customer_email: user.email, // Pre-fill the email field in the checkout
+            customer: stripeCustomerId,
             payment_method_types: ['card'],
             line_items: [
                 {
@@ -203,4 +217,67 @@ async function createTokenPack(
             { status: 500 },
         );
     }
+}
+
+// This function finds or creates a Stripe customer for the user
+// It checks if the user already has a Stripe ID in your database,
+// and if not, it checks Stripe for an existing customer with the same email.
+// If no customer exists, it creates a new one.
+// It returns the Stripe customer ID.
+async function findOrCreateStripeCustomer(
+    supabase: SupabaseClient,
+    user: User,
+    stripe: Stripe,
+): Promise<string> {
+    // 1. Check if the user already has a Stripe ID in your DB.
+    const { data, error } = await supabase
+        .from('user')
+        .select('stripe_customer_id')
+        .eq('supabase_id', user.id)
+        .single();
+
+    if (error) console.error('Error fetching user:', error);
+
+    // If the ID exists and is not null, return it.
+    if (data?.stripe_customer_id) {
+        return data.stripe_customer_id;
+    }
+
+    // 2. If not, check Stripe to see if a customer with this email already exists.
+    const existingCustomers = await stripe.customers.list({
+        email: user.email!,
+        limit: 1,
+    });
+
+    if (existingCustomers.data.length > 0) {
+        const stripeCustomerId = existingCustomers.data[0].id;
+        // Save the found ID to your database for future use.
+        await supabase
+            .from('user')
+            .update({ stripe_customer_id: stripeCustomerId })
+            .eq('supabase_id', user.id);
+        return stripeCustomerId;
+    }
+
+    let fullName = '';
+    if (user.user_metadata?.first_name && user.user_metadata?.last_name) {
+        fullName = `${user.user_metadata?.first_name} ${user.user_metadata?.last_name}`;
+    }
+
+    // 3. If no customer exists in your DB or in Stripe, create a new one.
+    const newCustomer = await stripe.customers.create({
+        email: user.email!,
+        name: fullName,
+        metadata: {
+            supabase_id: user.id, // Good practice to link back to your DB
+        },
+    });
+
+    // Save the new ID to your database immediately.
+    await supabase
+        .from('user')
+        .update({ stripe_customer_id: newCustomer.id })
+        .eq('supabase_id', user.id);
+
+    return newCustomer.id;
 }

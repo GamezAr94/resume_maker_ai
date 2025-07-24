@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { TOKEN_COSTS } from '@/app/config/costs.config';
 
 // Use the admin client for server-to-server operations
@@ -24,129 +24,184 @@ export async function POST(req: Request) {
         });
     }
 
-    // Handle the checkout.session.completed event
-    if (event.type === 'checkout.session.completed') {
-        // Retrieve the session again from the API, but expand the customer object
-        const session = await stripe.checkout.sessions.retrieve(
-            event.data.object.id,
-            { expand: ['customer'] }, // This forces Stripe to include the full customer object
-        );
+    // Check if the event is valid
+    if (!event || !event.type) {
+        return new Response('Webhook Error: Invalid event', { status: 400 });
+    }
 
-        const userId = session?.metadata?.userId;
+    console.log(`Received event: ${event.type}`);
+    switch (event.type) {
+        case 'checkout.session.completed':
+            try {
+                const session = event.data.object as Stripe.Checkout.Session;
 
-        if (!userId) {
-            return new Response('Webhook Error: Missing metadata', {
+                // Final validation before calling the handler
+                if (
+                    !session.metadata ||
+                    !session.metadata.userId ||
+                    !session.customer
+                ) {
+                    console.error('Invalid session data:', session);
+                    throw new Error(
+                        ' Webhook Error: missing metadata or customer ID',
+                    );
+                }
+                await handleCheckoutSessionCompleted(session, supabaseAdmin);
+            } catch (error) {
+                const errorMessage =
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'message' in error
+                        ? (error as { message: string }).message
+                        : String(error);
+                console.error(
+                    `Failed to handle checkout session: ${errorMessage}`,
+                );
+                return new Response(
+                    `Failed to handle checkout session: ${errorMessage}`,
+                    { status: 500 },
+                );
+            }
+            break;
+        case 'customer.subscription.updated':
+            // TODO : Handle subscription updates if needed
+            // Handle subscription updates if needed
+            console.log('Customer subscription updated:', event.data.object);
+            break;
+        case 'customer.subscription.deleted':
+            try {
+                await handleSubscriptionCanceled(
+                    event.data.object as Stripe.Subscription,
+                    supabaseAdmin,
+                );
+            } catch (error) {
+                const errorMessage =
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'message' in error
+                        ? (error as { message: string }).message
+                        : String(error);
+                console.error(
+                    `Failed to handle subscription cancellation: ${errorMessage}`,
+                );
+                return new Response(
+                    `Failed to handle subscription cancellation: ${errorMessage}`,
+                    { status: 500 },
+                );
+            }
+            break;
+        case 'invoice.payment_succeeded':
+            // TODO : Handle successful invoice payments if needed
+            // Handle successful invoice payments if needed
+            console.log('Invoice payment succeeded:', event.data.object);
+            break;
+        case 'invoice.payment_failed':
+            // TODO : Handle failed invoice payments if needed
+            // Handle failed invoice payments if needed
+            console.log('Invoice payment failed:', event.data.object);
+            break;
+        default:
+            console.warn(`Unhandled event type: ${event.type}`);
+            return new Response(`Unhandled event type: ${event.type}`, {
                 status: 400,
             });
-        }
-        try {
-            // --- NEW "FIND OR CREATE CUSTOMER" LOGIC ---
-            let stripeCustomerId: string;
-
-            // If the session already has a customer ID, use it.
-            if (session.customer) {
-                stripeCustomerId = session.customer as string;
-            } else {
-                // The customer is new. Find them by email or create them.
-                const customerEmail = session.customer_details?.email;
-                if (!customerEmail) {
-                    throw new Error('Customer email not found in session.');
-                }
-
-                const existingCustomers = await stripe.customers.list({
-                    email: customerEmail,
-                    limit: 1,
-                });
-
-                if (existingCustomers.data.length > 0) {
-                    // Customer found, use their ID
-                    stripeCustomerId = existingCustomers.data[0].id;
-                } else {
-                    // Customer not found, create a new one
-                    const newCustomer = await stripe.customers.create({
-                        email: customerEmail,
-                        name: session.customer_details?.name || undefined,
-                    });
-                    stripeCustomerId = newCustomer.id;
-                }
-            }
-
-            // 1. Save the Stripe Customer ID if it's the user's first time.
-            await supabaseAdmin
-                .from('user')
-                .update({ stripe_customer_id: stripeCustomerId })
-                .eq('supabase_id', userId)
-                .is('stripe_customer_id', null);
-
-            // 2. Handle provisioning based on what was purchased.
-            if (session.mode === 'subscription') {
-                if (!session.metadata || !session.metadata.newTier) {
-                    console.error(
-                        'Webhook Error: Missing metadata for newTier',
-                    );
-                    return new Response(
-                        'Webhook Error: Missing metadata for newTier',
-                        {
-                            status: 400,
-                        },
-                    );
-                }
-                const newTier = session.metadata.newTier as
-                    | 'monthly'
-                    | 'yearly';
-                const planDetails = Object.values(TOKEN_COSTS.TOKEN_PLANS).find(
-                    (p) => p.tierIdentifier === newTier,
-                );
-
-                if (planDetails) {
-                    // Update the user's subscription tier
-                    await supabaseAdmin
-                        .from('user')
-                        .update({ subscription_tier: newTier })
-                        .eq('supabase_id', userId);
-
-                    // Add the initial tokens for the plan
-                    const tokensForPlan =
-                        newTier === 'monthly'
-                            ? TOKEN_COSTS.TOKEN_PLANS.MONTHLY.tokens
-                            : TOKEN_COSTS.TOKEN_PLANS.YEARLY.tokens;
-                    await supabaseAdmin.rpc('increment_tokens', {
-                        user_id_input: userId,
-                        token_amount: tokensForPlan,
-                    });
-                }
-            } else if (session.mode === 'payment') {
-                if (!session.metadata || !session.metadata.productId) {
-                    console.error(
-                        'Webhook Error: Missing metadata for productId',
-                    );
-                    return new Response(
-                        'Webhook Error: Missing metadata for productId',
-                        {
-                            status: 400,
-                        },
-                    );
-                }
-                const productId = session.metadata.productId;
-                const pack = Object.values(TOKEN_COSTS.TOKEN_PACKAGES).find(
-                    (p) => p.id === productId,
-                );
-
-                if (pack) {
-                    // Add the purchased tokens to the user's balance
-                    await supabaseAdmin.rpc('increment_tokens', {
-                        user_id_input: userId,
-                        token_amount: pack.tokens,
-                    });
-                }
-            }
-        } catch (dbError) {
-            console.error('Database update failed:', dbError);
-            return new Response('Webhook Error: Database update failed', {
-                status: 500,
-            });
-        }
     }
 
     return new Response(null, { status: 200 });
+}
+
+// This function handles subscription cancellations
+// It updates the user's tier to 'free' when their subscription is canceled.
+// It takes the subscription object and the Supabase client as parameters.
+// It returns a Response indicating success or failure.
+async function handleSubscriptionCanceled(
+    subscription: Stripe.Subscription,
+    supabaseAdmin: SupabaseClient,
+) {
+    const stripeCustomerId = subscription.customer as string;
+    console.log(`Subscription canceled for customer: ${stripeCustomerId}`);
+
+    // Find the user with that Stripe customer ID and update their tier to 'free'
+    const { error } = await supabaseAdmin
+        .from('user')
+        .update({ subscription_tier: 'free' })
+        .eq('stripe_customer_id', stripeCustomerId);
+
+    // If there's an error, throw it so the calling function can catch it
+    if (error) {
+        throw new Error(
+            `Failed to update user tier for customer ${stripeCustomerId}: ${error.message}`,
+        );
+    }
+
+    console.log(`Successfully set user ${stripeCustomerId} to 'free' tier.`);
+}
+
+async function handleCheckoutSessionCompleted(
+    session: Stripe.Checkout.Session,
+    supabaseAdmin: SupabaseClient,
+) {
+    const userId = session.metadata?.userId;
+    if (!userId) {
+        throw new Error('User ID not found in session metadata.');
+    }
+
+    // --- Handle a new SUBSCRIPTION purchase ---
+    if (session.mode === 'subscription') {
+        const newTier = session.metadata?.newTier as 'monthly' | 'yearly';
+        if (!newTier) {
+            throw new Error('Subscription tier not found in session metadata.');
+        }
+
+        const planDetails = Object.values(TOKEN_COSTS.TOKEN_PLANS).find(
+            (p) => p.tierIdentifier === newTier,
+        );
+
+        if (!planDetails) {
+            throw new Error(`Plan details not found for tier: ${newTier}`);
+        }
+
+        // Update the user's subscription tier in your DB
+        const { error } = await supabaseAdmin
+            .from('user')
+            .update({ subscription_tier: newTier })
+            .eq('supabase_id', userId);
+
+        if (error) throw error; // Let the caller catch the DB error
+
+        // Add the initial tokens for the new plan
+        await supabaseAdmin.rpc('increment_tokens', {
+            user_id_input: userId,
+            token_amount: planDetails.tokens,
+        });
+
+        console.log(
+            `Provisioned subscription for user ${userId} with tier ${newTier}.`,
+        );
+
+        // --- Handle a one-time TOKEN PACK purchase ---
+    } else if (session.mode === 'payment') {
+        const productId = session.metadata?.productId;
+        if (!productId) {
+            throw new Error('Product ID not found in session metadata.');
+        }
+
+        const pack = Object.values(TOKEN_COSTS.TOKEN_PACKAGES).find(
+            (p) => p.id === productId,
+        );
+
+        if (!pack) {
+            throw new Error(
+                `Token pack details not found for ID: ${productId}`,
+            );
+        }
+
+        // Add the purchased tokens to the user's balance
+        await supabaseAdmin.rpc('increment_tokens', {
+            user_id_input: userId,
+            token_amount: pack.tokens,
+        });
+
+        console.log(`Provisioned token pack for user ${userId}.`);
+    }
 }
