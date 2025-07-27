@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         case 'customer.subscription.updated':
             // TODO : Handle subscription updates if needed
             // Handle subscription updates if needed
-            console.log('Customer subscription updated:', event.data.object);
+            //console.log('Customer subscription updated:', event.data.object);
             break;
         case 'customer.subscription.deleted':
             try {
@@ -91,9 +91,27 @@ export async function POST(req: Request) {
             }
             break;
         case 'invoice.payment_succeeded':
-            // TODO : Handle successful invoice payments if needed
-            // Handle successful invoice payments if needed
-            console.log('Invoice payment succeeded:', event.data.object);
+            // Call the function to handle invoice payment succeeded
+            try {
+                await handleInvoicePaymentSucceeded(
+                    event.data.object as Stripe.Invoice,
+                    supabaseAdmin,
+                );
+            } catch (error) {
+                const errorMessage =
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'message' in error
+                        ? (error as { message: string }).message
+                        : String(error);
+                console.error(
+                    `Failed to handle invoice payment succeeded: ${errorMessage}`,
+                );
+                return new Response(
+                    `Failed to handle invoice payment succeeded: ${errorMessage}`,
+                    { status: 500 },
+                );
+            }
             break;
         case 'invoice.payment_failed':
             // TODO : Handle failed invoice payments if needed
@@ -204,4 +222,66 @@ async function handleCheckoutSessionCompleted(
 
         console.log(`Provisioned token pack for user ${userId}.`);
     }
+}
+
+// This function handles invoice payment succeeded events
+// It grants tokens to the user for their subscription renewal.
+// It takes the invoice object and the Supabase client as parameters.
+// It returns a Response indicating success or failure.
+async function handleInvoicePaymentSucceeded(
+    invoice: Stripe.Invoice,
+    supabaseAdmin: SupabaseClient,
+) {
+    // This check is crucial. It ensures we only grant tokens for recurring subscription payments,
+    // not for other things like the initial subscription creation or other one-off invoices.
+    if (invoice.billing_reason !== 'subscription_cycle') {
+        console.log(
+            `Skipping invoice ${invoice.id}: Not a subscription renewal.`,
+        );
+        return;
+    }
+
+    const stripeCustomerId = invoice.customer as string;
+    if (!stripeCustomerId) {
+        throw new Error('Customer ID not found in invoice.');
+    }
+
+    // The invoice contains the line items for the purchase.
+    // For a simple subscription, there will be one line item.
+    const lineItem = invoice.lines.data[0];
+    const priceId = lineItem?.pricing?.price_details?.price;
+
+    if (!priceId) {
+        throw new Error('Price ID not found in invoice line items.');
+    }
+
+    // Find the plan details based on the Price ID to know how many tokens to grant.
+    const planDetails = Object.values(TOKEN_COSTS.TOKEN_PLANS).find(
+        (p) => p.id === priceId,
+    );
+
+    if (!planDetails) {
+        throw new Error(`Plan details not found for Price ID: ${priceId}`);
+    }
+
+    // Find the user by their Stripe customer ID
+    const { data: user, error: userError } = await supabaseAdmin
+        .from('user')
+        .select('supabase_id')
+        .eq('stripe_customer_id', stripeCustomerId)
+        .single();
+
+    if (userError || !user) {
+        throw new Error(
+            `User not found for Stripe customer ID: ${stripeCustomerId}`,
+        );
+    }
+
+    // Grant the tokens for the new billing cycle
+    await supabaseAdmin.rpc('increment_tokens', {
+        user_id_input: user.supabase_id,
+        token_amount: planDetails.tokens,
+    });
+
+    console.log(`Provisioned renewal tokens for user ${user.supabase_id}.`);
 }
