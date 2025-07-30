@@ -54,7 +54,7 @@ export const TOKEN_COSTS = {
             isPopular: true,
         },
         YEARLY: {
-            id: 'price_YEARLY_SUB', // Replace with your yearly plan Price ID
+            id: 'price_1Rq4K1PxaFwrUyBLfKQaGgM0', // Replace with your yearly plan Price ID
             tierIdentifier: 'yearly',
             name: 'Yearly Pro',
             price: 12,

@@ -94,6 +94,7 @@ export async function POST(req: Request) {
     //const stripeCustomerId = userProfile.stripe_customer_id;
 
     if (plan) {
+        // If it's a subscription plan, we proceed with the
         return createSubscriptionPlan(user, plan, stripeCustomerId);
     }
 

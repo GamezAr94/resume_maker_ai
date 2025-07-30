@@ -16,6 +16,7 @@ import {
     SegmentedControl,
     Box,
     Divider,
+    NavLink,
 } from '@mantine/core';
 import {
     IconCoinFilled,
@@ -25,6 +26,7 @@ import {
     IconCheck,
     IconCalendar,
     IconDiamond,
+    IconSettings,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
@@ -36,6 +38,7 @@ import {
     UserSubscription,
 } from '@/utils/interfaces';
 import { TOKEN_COSTS } from '@/app/config/costs.config';
+import Link from 'next/link';
 
 // --- Types and Data Structures ---
 
@@ -74,6 +77,50 @@ export default function TokensModal({
     userSubscription,
 }: TokensModalProps) {
     const [balanceVisible, setBalanceVisible] = useState(true);
+
+    const handleManageBilling = async () => {
+        try {
+            // Call your new API route
+            const response = await fetch('/api/stripe/create-portal-link', {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create portal link.');
+            }
+
+            const { url } = await response.json();
+
+            // Redirect the user to the Stripe Customer Portal
+            window.location.href = url;
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUpdatePlan = async () => {
+        try {
+            const response = await fetch('/api/stripe/create-portal-link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // ✅ This is the key part: tell the server which flow to start
+                body: JSON.stringify({ flowType: 'subscription_update' }),
+            });
+
+            if (!response.ok) {
+                const { error } = await response.json();
+                throw new Error(
+                    error.message || 'Failed to create portal link.',
+                );
+            }
+
+            const { url } = await response.json();
+            window.location.href = url;
+        } catch (error) {
+            console.error(error);
+            alert((error as Error).message);
+        }
+    };
 
     // This is your checkout logic, it remains the same.
     const handlePurchase = async (productId: string) => {
@@ -216,6 +263,14 @@ export default function TokensModal({
                 const isCurrentPlan =
                     userSubscription.tier === plan.tierIdentifier;
 
+                // If the user is on the Yearly plan, they can't upgrade to Monthly.
+                if (
+                    userSubscription.tier === 'yearly' &&
+                    plan.tierIdentifier === 'monthly'
+                ) {
+                    return <></>;
+                }
+
                 return (
                     <div key={plan.id} className={styles.popularWrapper}>
                         {plan.isPopular && !isCurrentPlan && (
@@ -285,7 +340,9 @@ export default function TokensModal({
                                     {!isCurrentPlan && (
                                         <Button
                                             onClick={() =>
-                                                handlePurchase(plan.id)
+                                                userSubscription.tier === 'free'
+                                                    ? handlePurchase(plan.id)
+                                                    : handleUpdatePlan()
                                             }
                                             variant="filled"
                                             color="dark"
@@ -335,7 +392,25 @@ export default function TokensModal({
                                         You will receive +
                                         {userSubscription.tokensPerRefill?.toLocaleString()}{' '}
                                         tokens when your subscription renews.
-                                        "View Details"
+                                        <>
+                                            <Divider
+                                                my="md"
+                                                label="Account Management"
+                                                labelPosition="center"
+                                            />
+                                            <Button
+                                                fullWidth
+                                                variant="light"
+                                                color="gray"
+                                                leftSection={
+                                                    <IconSettings size={16} />
+                                                }
+                                                onClick={handleManageBilling}
+                                            >
+                                                Manage subscription & billing
+                                                details
+                                            </Button>
+                                        </>
                                     </Alert>
                                 )}
                             </Stack>

@@ -64,9 +64,28 @@ export async function POST(req: Request) {
             }
             break;
         case 'customer.subscription.updated':
-            // TODO : Handle subscription updates if needed
-            // Handle subscription updates if needed
-            //console.log('Customer subscription updated:', event.data.object);
+
+        case 'customer.subscription.updated':
+            try {
+                await handleSubscriptionUpdated(
+                    event.data.object as Stripe.Subscription,
+                    supabaseAdmin,
+                );
+            } catch (error) {
+                const errorMessage =
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'message' in error
+                        ? (error as { message: string }).message
+                        : String(error);
+                console.error(
+                    `Failed to handle subscription update: ${errorMessage}`,
+                );
+                return new Response(
+                    `Failed to handle subscription update: ${errorMessage}`,
+                    { status: 500 },
+                );
+            }
             break;
         case 'customer.subscription.deleted':
             try {
@@ -234,7 +253,10 @@ async function handleInvoicePaymentSucceeded(
 ) {
     // This check is crucial. It ensures we only grant tokens for recurring subscription payments,
     // not for other things like the initial subscription creation or other one-off invoices.
-    if (invoice.billing_reason !== 'subscription_cycle') {
+    if (
+        invoice.billing_reason !== 'subscription_cycle' &&
+        invoice.billing_reason !== 'subscription_update'
+    ) {
         console.log(
             `Skipping invoice ${invoice.id}: Not a subscription renewal.`,
         );
@@ -284,4 +306,53 @@ async function handleInvoicePaymentSucceeded(
     });
 
     console.log(`Provisioned renewal tokens for user ${user.supabase_id}.`);
+}
+
+// This function handles subscription updates
+// It updates the user's subscription tier in your database when their subscription is updated.
+// It takes the subscription object and the Supabase client as parameters.
+// It returns a Response indicating success or failure.
+// It also updates the user's tier based on the new Price ID.
+// This is crucial to ensure the user's tier is always in sync with their subscription.
+// It returns a Response indicating success or failure.
+async function handleSubscriptionUpdated(
+    subscription: Stripe.Subscription,
+    supabaseAdmin: SupabaseClient,
+) {
+    const stripeCustomerId = subscription.customer as string;
+
+    // Get the new Price ID from the subscription's line items
+    const newPriceId = subscription.items.data[0]?.price.id;
+    if (!newPriceId) {
+        throw new Error('New Price ID not found in subscription update.');
+    }
+
+    // Find the corresponding plan in your config to get the tier identifier ('monthly' or 'yearly')
+    const planDetails = Object.values(TOKEN_COSTS.TOKEN_PLANS).find(
+        (p) => p.id === newPriceId,
+    );
+
+    if (!planDetails) {
+        throw new Error(
+            `Plan details not found for updated Price ID: ${newPriceId}`,
+        );
+    }
+
+    const newTier = planDetails.tierIdentifier;
+
+    // Update the user's subscription_tier in your database
+    const { error } = await supabaseAdmin
+        .from('user')
+        .update({ subscription_tier: newTier })
+        .eq('stripe_customer_id', stripeCustomerId);
+
+    if (error) {
+        throw new Error(
+            `Failed to update subscription tier for customer ${stripeCustomerId}: ${error.message}`,
+        );
+    }
+
+    console.log(
+        `Successfully updated user ${stripeCustomerId} to new tier: ${newTier}.`,
+    );
 }
