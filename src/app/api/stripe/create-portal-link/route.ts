@@ -6,7 +6,6 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-    // 1. Get the user from Supabase
     const {
         data: { user },
     } = await supabase.auth.getUser();
@@ -18,7 +17,6 @@ export async function POST(req: Request) {
         );
     }
 
-    // 2. Get the user's Stripe Customer ID from your database
     const { data: userData, error: userError } = await supabase
         .from('user')
         .select('stripe_customer_id')
@@ -32,17 +30,49 @@ export async function POST(req: Request) {
         );
     }
 
-    // 3. Define the return URL (where users go after they're done)
     const { origin } = new URL(req.url);
-    const returnUrl = `${origin}`; // Or any other page you want
+    const returnUrl = `${origin}`; // Your settings page
 
-    // 4. Create a new Portal Session
+    let flowType: string | undefined;
     try {
-        const portalSession = await stripe.billingPortal.sessions.create({
+        // Try to parse the body, but don't fail if it's empty
+        const body = await req.json();
+        flowType = body.flowType;
+    } catch (e) {}
+
+    const portalConfig: Stripe.BillingPortal.SessionCreateParams = {
+        customer: userData.stripe_customer_id,
+        return_url: returnUrl,
+    };
+
+    // If the client specifically requests the 'subscription_update' flow...
+    if (flowType === 'subscription_update') {
+        const subscriptions = await stripe.subscriptions.list({
             customer: userData.stripe_customer_id,
-            return_url: returnUrl,
+            status: 'active',
+            limit: 1,
         });
 
+        if (subscriptions.data.length === 0) {
+            return NextResponse.json(
+                { error: 'No active subscription to update.' },
+                { status: 404 },
+            );
+        }
+
+        // Add the flow_data to the portal configuration
+        portalConfig.flow_data = {
+            type: 'subscription_update',
+            subscription_update: {
+                subscription: subscriptions.data[0].id,
+            },
+        };
+    }
+
+    try {
+        const portalSession = await stripe.billingPortal.sessions.create(
+            portalConfig,
+        );
         return NextResponse.json({ url: portalSession.url });
     } catch (err) {
         console.error('Error creating portal session:', err);
