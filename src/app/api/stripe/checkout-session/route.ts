@@ -119,7 +119,7 @@ async function createSubscriptionPlan(
     stripeCustomerId: string,
 ) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-        apiVersion: '2024-06-20' as any, // Use a stable version
+        apiVersion: '2025-07-30.basil', // Use a stable version
     });
 
     const origin = (await headers()).get('origin');
@@ -175,7 +175,7 @@ async function createTokenPack(
     const finalPriceInCents = Math.round(finalPrice * 100); // Stripe needs the price in cents
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-        apiVersion: '2024-06-20' as any,
+        apiVersion: '2025-07-30.basil',
     });
 
     const origin = (await headers()).get('origin');

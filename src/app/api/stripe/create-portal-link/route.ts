@@ -38,7 +38,9 @@ export async function POST(req: Request) {
         // Try to parse the body, but don't fail if it's empty
         const body = await req.json();
         flowType = body.flowType;
-    } catch (e) {}
+    } catch (e) {
+        console.error('Error parsing request body:', e);
+    }
 
     const portalConfig: Stripe.BillingPortal.SessionCreateParams = {
         customer: userData.stripe_customer_id,

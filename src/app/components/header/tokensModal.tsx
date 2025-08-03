@@ -13,10 +13,7 @@ import {
     Alert,
     List,
     ThemeIcon,
-    SegmentedControl,
-    Box,
     Divider,
-    NavLink,
 } from '@mantine/core';
 import {
     IconCoinFilled,
@@ -33,12 +30,10 @@ import { loadStripe } from '@stripe/stripe-js';
 import styles from './tokensModal.module.css';
 import {
     TokenPack,
-    SubscriptionTier,
     SubscriptionPlan,
     UserSubscription,
 } from '@/utils/interfaces';
 import { TOKEN_COSTS } from '@/app/config/costs.config';
-import Link from 'next/link';
 
 // --- Types and Data Structures ---
 
