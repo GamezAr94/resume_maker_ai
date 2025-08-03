@@ -44,6 +44,26 @@ export default function Header() {
         tier: 'free' as SubscriptionTier, // Default to 'free'
     });
 
+    const handleManageBilling = async () => {
+        try {
+            // Call your new API route
+            const response = await fetch('/api/stripe/create-portal-link', {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create portal link.');
+            }
+
+            const { url } = await response.json();
+
+            // Redirect the user to the Stripe Customer Portal
+            window.location.href = url;
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     // Function to easily change the subscription tier
     const handleSubscriptionChange = (tier: SubscriptionTier) => {
         if (tier === 'free') {
@@ -156,14 +176,14 @@ export default function Header() {
                             </Anchor>
                             <Anchor
                                 component={Link}
-                                href="/my-applications"
+                                href="/applications"
                                 className={styles.navLink}
                             >
                                 My Applications
                             </Anchor>
                             <Anchor
-                                component={Link}
-                                href="/settings"
+                                variant="transparent"
+                                onClick={handleManageBilling}
                                 className={styles.navLink}
                             >
                                 Settings
@@ -235,17 +255,19 @@ export default function Header() {
                             </Anchor>
                             <Anchor
                                 component={Link}
-                                href="/my-applications"
+                                href="/applications"
                                 className={styles.mobileNavLink}
                                 onClick={toggle} /* Close drawer on click */
                             >
                                 My Applications
                             </Anchor>
                             <Anchor
-                                component={Link}
-                                href="/settings"
+                                variant="transparent"
+                                onClick={() => {
+                                    handleManageBilling();
+                                    toggle();
+                                }}
                                 className={styles.mobileNavLink}
-                                onClick={toggle} /* Close drawer on click */
                             >
                                 Settings
                             </Anchor>
