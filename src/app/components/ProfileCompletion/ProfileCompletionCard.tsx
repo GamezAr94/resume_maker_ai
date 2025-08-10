@@ -84,9 +84,9 @@ export function ProfileCompletionCard({
                     <div>
                         <Text fw={500}>Profile Completion</Text>
                         <Text size="sm" c="dimmed">
-                            Complete your profile to generate better tailored
-                            resumes and keep adding more details to improve your
-                            resume quality.
+                            To create a great resume, complete your profile. The
+                            more records and details you add, the better your
+                            resume will be.
                         </Text>
                     </div>
                 </Group>

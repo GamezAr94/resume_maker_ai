@@ -94,12 +94,12 @@ export default function ExperienceForm({
             // Directly build the object to validate from the state
             const dataToValidate = {
                 ...(getEditRecord?.id && { id: getEditRecord.id }),
-                company_name: getEditRecord?.company || '',
-                job_title: getEditRecord?.title || '',
+                company_name: getEditRecord?.company_name || '',
+                job_title: getEditRecord?.job_title || '',
                 start_date: getEditRecord?.start_date || '',
                 end_date: getEditRecord?.end_date || undefined,
                 is_current: getEditRecord?.is_current || false,
-                description: getEditRecord?.responsabilities || '',
+                description: getEditRecord?.description || '',
             };
 
             const parseUser = userSchema.safeParse(dataToValidate);
@@ -228,10 +228,10 @@ export default function ExperienceForm({
                 <div className={styles.infoCard}>
                     <div>
                         <Text className={styles.infoTextPrimary}>
-                            {infoQuery.title}
+                            {infoQuery.job_title}
                         </Text>
                         <Text className={styles.infoTextSecondary}>
-                            {infoQuery.company}
+                            {infoQuery.company_name}
                         </Text>
                     </div>
                     <Group
@@ -273,11 +273,14 @@ export default function ExperienceForm({
                         placeholder="e.g., Software Engineer"
                         maxLength={CHARACTER_LIMITS.title}
                         name="job_title"
-                        value={getEditRecord?.title || ''}
+                        value={getEditRecord?.job_title || ''}
                         onChange={(e) =>
-                            handleInputChange('title', e.currentTarget.value)
+                            handleInputChange(
+                                'job_title',
+                                e.currentTarget.value,
+                            )
                         }
-                        error={formErrors.title}
+                        error={formErrors.job_title}
                         required
                     />
                     <TextInput
@@ -285,11 +288,14 @@ export default function ExperienceForm({
                         placeholder="e.g., Google"
                         maxLength={CHARACTER_LIMITS.company}
                         name="company_name"
-                        value={getEditRecord?.company || ''}
+                        value={getEditRecord?.company_name || ''}
                         onChange={(e) =>
-                            handleInputChange('company', e.currentTarget.value)
+                            handleInputChange(
+                                'company_name',
+                                e.currentTarget.value,
+                            )
                         }
-                        error={formErrors.company}
+                        error={formErrors.company_name}
                         required
                     />
 
@@ -383,22 +389,22 @@ export default function ExperienceForm({
                         <Textarea
                             label="Description"
                             placeholder="Describe your role and accomplishments..."
-                            value={getEditRecord?.responsabilities || ''}
+                            value={getEditRecord?.description || ''}
                             onChange={(event) =>
                                 handleInputChange(
-                                    'responsabilities',
+                                    'description',
                                     event.currentTarget.value,
                                 )
                             }
                             autosize
                             minRows={4}
                             maxLength={CHARACTER_LIMITS.description}
-                            error={formErrors.responsabilities}
+                            error={formErrors.description}
                             required
                         />
                         <CharacterCounter
                             currentLength={
-                                getEditRecord?.responsabilities?.length || 0
+                                getEditRecord?.description?.length || 0
                             }
                             maxLength={CHARACTER_LIMITS.description}
                         />

@@ -171,14 +171,17 @@ async function updatePerType(
                 const experienceData =
                     requestBodyData as FormExperienceStructure;
                 // --- SERVER-SIDE VALIDATION ---
-                if (experienceData.title.length > CHARACTER_LIMITS.title) {
+                if (experienceData.job_title.length > CHARACTER_LIMITS.title) {
                     return {
                         id: null,
                         message: 'Job title exceeds character limit.',
                         status: 400,
                     };
                 }
-                if (experienceData.company.length > CHARACTER_LIMITS.company) {
+                if (
+                    experienceData.company_name.length >
+                    CHARACTER_LIMITS.company
+                ) {
                     return {
                         id: null,
                         message: 'Company name exceeds character limit.',
@@ -186,7 +189,7 @@ async function updatePerType(
                     };
                 }
                 if (
-                    experienceData.responsabilities.length >
+                    experienceData.description.length >
                     CHARACTER_LIMITS.description
                 ) {
                     return {

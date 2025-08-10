@@ -53,22 +53,22 @@ export interface FormPersonalStructure {
 // Initial state for the experience form errors
 export const emptyStateExperience: FormExperienceStructure = {
     id: '',
-    company: '',
-    title: '',
+    company_name: '',
+    job_title: '',
     start_date: '',
     end_date: '',
-    responsabilities: '',
+    description: '',
     is_current: false,
     display: true, // Optional field to control visibility in the UI
 };
 // Interface for the form experience structure
 export interface FormExperienceStructure {
     id: string;
-    company: string;
-    title: string;
+    company_name: string;
+    job_title: string;
     start_date: Date | string;
     end_date: Date | string | null;
-    responsabilities: string;
+    description: string;
     is_current?: boolean | null; // Optional field to indicate if the job is current
     display?: boolean; // Optional field to control visibility in the UI
 }
