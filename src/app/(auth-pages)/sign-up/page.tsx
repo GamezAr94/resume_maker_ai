@@ -176,7 +176,13 @@ export default function SignUpPage() {
 
     return (
         <Container size={460} my={30} style={{ width: '100%' }}>
-            <Anchor component={Link} href="/" c="dimmed" size="sm">
+            <Anchor
+                href="https://www.fazume.com"
+                c="dimmed"
+                size="sm"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
                 <Center inline>
                     <IconArrowLeft
                         style={{ width: rem(12), height: rem(12) }}
@@ -307,7 +313,24 @@ export default function SignUpPage() {
                         mt="md"
                     />
                     <Checkbox
-                        label="I agree to the Terms of Service and Privacy Policy"
+                        label={
+                            <Text size="sm">
+                                I agree to the{' '}
+                                <Anchor
+                                    href="https://www.fazume.com/terms"
+                                    target="_blank"
+                                >
+                                    Terms of Service
+                                </Anchor>{' '}
+                                and{' '}
+                                <Anchor
+                                    href="https://www.fazume.com/privacy"
+                                    target="_blank"
+                                >
+                                    Privacy Policy
+                                </Anchor>
+                            </Text>
+                        }
                         mt="lg"
                         required
                     />
