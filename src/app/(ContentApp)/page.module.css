@@ -5,12 +5,43 @@
     flex-direction: column;
     gap: 20px;
 }
-.container_form {
-    -webkit-box-shadow: 0px 1px 3px 0px rgb(224, 224, 224, 0.7);
-    -moz-box-shadow: 0px 1px 3px 0px rgb(224, 224, 224, 0.7);
-    box-shadow: 0px 1px 2px 0px rgb(224, 224, 224, 0.7);
+
+/* This is the main container for the top two components */
+.topSectionContainer {
     display: flex;
-    flex-direction: column;
-    padding: 0px 30px 30px 30px;
+    flex-direction: row; /* Default to side-by-side for wide screens */
     gap: 20px;
+    align-items: flex-start; /* Prevents columns from stretching to the same height */
+    margin: 30px;
+    justify-content: center;
+}
+
+/* The left column containing the form */
+.leftColumn {
+    min-width: 0; /* A flexbox trick to prevent content from overflowing */
+}
+
+/* The right column containing the profile card */
+.rightColumn {
+    width: 400px; /* A fixed width for the profile card on large screens */
+    flex-shrink: 0; /* Prevents this column from shrinking */
+}
+
+/* --- MEDIA QUERY FOR RESPONSIVENESS --- */
+
+/* This will apply on screens with a max-width of 992px (tablets and phones) */
+@media (max-width: 992px) {
+    .topSectionContainer {
+        /* This stacks the columns vertically AND reverses their order,
+           so the profile card (the second item) appears on top. */
+        flex-direction: column-reverse;
+    }
+
+    .leftColumn,
+    .rightColumn {
+        width: 100%; /* Make both columns take up the full width on smaller screens */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }

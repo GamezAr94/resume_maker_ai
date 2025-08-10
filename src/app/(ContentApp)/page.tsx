@@ -47,7 +47,6 @@ export default function Home() {
     const [userInfo, setUserInfo] = useState<FormPersonalStructure | false>(
         false,
     );
-    const [isLoading, setIsLoading] = useState(true);
 
     // Calculate the profile completeness percentage and status
     const { percentage, status = 'ready' } = calculateProfileCompleteness({
@@ -57,19 +56,6 @@ export default function Home() {
         skillInfo: skillInfo || [],
         projectInfo: projectInfo || [],
     });
-
-    useEffect(() => {
-        // We are waiting for all the data to be loaded before showing the profile completion card
-        if (
-            userInfo !== false &&
-            projectInfo !== false &&
-            skillInfo !== false &&
-            educationInfo !== false &&
-            experienceInfo !== false
-        ) {
-            setIsLoading(false);
-        }
-    }, [userInfo, projectInfo, skillInfo, educationInfo, experienceInfo]);
 
     // Define the section counts for the profile completion card
     // Each section has a current count, required count, label, and value
@@ -209,22 +195,23 @@ export default function Home() {
     return (
         <div>
             <main className={styles.main}>
-                {isLoading || status === 'ready' ? (
-                    ''
-                ) : (
-                    <ProfileCompletionCard
-                        onCompleteProfileClick={handleScrollToForm}
-                        percentage={percentage}
-                        sectionCounts={sectionCounts}
-                    />
-                )}
-                <MainJobForm
-                    onCompleteProfileClick={handleScrollToForm}
-                    className={styles.container_form}
-                    status={status}
-                    percentage={percentage}
-                    sectionCounts={sectionCounts}
-                />
+                <div className={styles.topSectionContainer}>
+                    <div className={styles.leftColumn}>
+                        <MainJobForm
+                            onCompleteProfileClick={handleScrollToForm}
+                            status={status}
+                            percentage={percentage}
+                            sectionCounts={sectionCounts}
+                        />
+                    </div>
+                    <div className={styles.rightColumn}>
+                        <ProfileCompletionCard
+                            onCompleteProfileClick={handleScrollToForm}
+                            percentage={percentage}
+                            sectionCounts={sectionCounts}
+                        />
+                    </div>
+                </div>
                 <Divider my="xs" color="gray.1" />
                 <MainUserForm
                     ref={mainFormRef}

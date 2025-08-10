@@ -85,7 +85,8 @@ export function ProfileCompletionCard({
                         <Text fw={500}>Profile Completion</Text>
                         <Text size="sm" c="dimmed">
                             Complete your profile to generate better tailored
-                            resumes
+                            resumes and keep adding more details to improve your
+                            resume quality.
                         </Text>
                     </div>
                 </Group>
@@ -130,7 +131,7 @@ export function ProfileCompletionCard({
                     rightSection={<IconChevronDown size={16} />}
                     variant="default"
                 >
-                    Complete Profile
+                    Add More
                 </Button>
             </div>
         </Card>

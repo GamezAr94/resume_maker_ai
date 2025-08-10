@@ -109,9 +109,7 @@ export default function Header() {
                                 color="var(--mantine-color-blue-5)"
                             />{' '}
                             {/* Your Logo */}
-                            <Text className={styles.logoText}>
-                                ResumeCraft AI
-                            </Text>
+                            <Text className={styles.logoText}>Fazume</Text>
                         </Group>
                     </Link>
 
