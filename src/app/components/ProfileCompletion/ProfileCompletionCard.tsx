@@ -1,4 +1,13 @@
-import { Card, Text, Progress, Group, Button, ThemeIcon } from '@mantine/core';
+import {
+    Card,
+    Text,
+    Progress,
+    Group,
+    Button,
+    ThemeIcon,
+    Grid,
+    Stack,
+} from '@mantine/core';
 import {
     IconTargetArrow,
     IconCheck,
@@ -71,33 +80,91 @@ export function ProfileCompletionCard({
         },
     );
 
-    return (
-        <Card withBorder radius="md" p="lg" className={styles.card}>
-            {/* Header Section */}
-            <Group justify="space-between">
+    if (percentage === 100) {
+        return (
+            <Card withBorder radius="md" p="lg" className={styles.card}>
+                {/* Header Section */}
                 <Group>
-                    <ThemeIcon size="xl" radius="md" variant="light">
+                    <ThemeIcon
+                        size="xl"
+                        radius="md"
+                        variant="light"
+                        color="green"
+                    >
                         <IconTargetArrow
                             style={{ width: '70%', height: '70%' }}
                         />
                     </ThemeIcon>
                     <div>
-                        <Text fw={500}>Profile Completion</Text>
+                        <Text fw={500}>Profile Complete!</Text>
                         <Text size="sm" c="dimmed">
-                            To create a great resume, complete your profile. The
-                            more records and details you add, the better your
-                            resume will be.
+                            Keep adding details to generate even better resumes.
                         </Text>
                     </div>
                 </Group>
-                <div className={styles.percentage}>
-                    <Text size="xl" fw={700} c="orange">
-                        {percentage}%
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                        Complete
-                    </Text>
+                <Grid mt="xl" align="center">
+                    {/* Column 1: Percentage (takes only the space it needs) */}
+                    <Grid.Col span="content">
+                        <Stack align="center" gap={0}>
+                            <Text size="xl" fw={700} c="green">
+                                {percentage}%
+                            </Text>
+                            <Text size="sm" c="dimmed">
+                                Complete
+                            </Text>
+                        </Stack>
+                    </Grid.Col>
+
+                    {/* Column 2: Reminder Text (takes the rest of the space) */}
+                    <Grid.Col span="auto">
+                        <Text c="dimmed" size="sm">
+                            To generate stronger resumes, continue adding
+                            detailed projects, experiences, and skills. The more
+                            specific you are, the better your results will be.
+                        </Text>
+                    </Grid.Col>
+                </Grid>
+
+                {/* Footer Section (Optional, but good to keep) */}
+                <div className={styles.footer}>
+                    <Group gap="xs">
+                        <IconAsterisk
+                            size={12}
+                            color="var(--mantine-color-blue-6)"
+                        />
+                        <Text size="sm" c="blue" fw={500}>
+                            Add more details to improve your resume quality
+                        </Text>
+                    </Group>
+                    <Button
+                        onClick={onCompleteProfileClick}
+                        rightSection={<IconChevronDown size={16} />}
+                        variant="default"
+                    >
+                        Add More
+                    </Button>
                 </div>
+            </Card>
+        );
+    }
+
+    return (
+        <Card withBorder radius="md" p="lg" className={styles.card}>
+            {/* Header Section */}
+            <Group wrap="nowrap" align="flex-start">
+                <ThemeIcon size="xl" radius="md" variant="light">
+                    <IconTargetArrow style={{ width: '70%', height: '70%' }} />
+                </ThemeIcon>
+
+                {/* Use a Stack for the vertical text block */}
+                <Stack gap={0}>
+                    <Text fw={500}>Profile Completion</Text>
+                    <Text size="sm" c="dimmed">
+                        To create a great resume, complete your profile. The
+                        more records and details you add, the better your resume
+                        will be.
+                    </Text>
+                </Stack>
             </Group>
 
             {/* Progress Bar Section */}

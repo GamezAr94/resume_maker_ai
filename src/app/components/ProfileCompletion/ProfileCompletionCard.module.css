@@ -1,6 +1,6 @@
 .card {
     background-color: var(--mantine-color-body);
-    max-width: 800px; /* Adjust as needed */
+    max-width: 550px; /* Adjust as needed */
     margin: auto;
     min-width: 500px;
 }
