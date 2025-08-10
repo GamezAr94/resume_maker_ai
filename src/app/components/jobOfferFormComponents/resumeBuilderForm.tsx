@@ -18,11 +18,14 @@ import {
     Text,
     Box,
     LoadingOverlay,
+    Flex,
+    Group,
+    Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IncompleteProfileModal } from './IncompleteProfileModal';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { IconCheck, IconCoinFilled, IconX } from '@tabler/icons-react';
 
 // the limits for the content of each input field in the forms
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
@@ -356,17 +359,33 @@ export default function ResumeBuilderForm({
                         />
                     </div>
 
-                    <Button
-                        size="lg"
-                        fullWidth
-                        type="submit"
-                        loading={isGenerating}
-                        mt="xl"
-                        color="blue" /* Use your primary theme color, like in the screenshot */
-                        variant="filled" /* A solid, primary button */
+                    <Tooltip
+                        label={`This will use 1 of your remaining tokens.`}
+                        withArrow
+                        position="bottom"
                     >
-                        Generate Resume
-                    </Button>
+                        <Button
+                            size="lg"
+                            fullWidth
+                            type="submit"
+                            loading={isGenerating}
+                            mt="xl"
+                        >
+                            <Flex
+                                justify="space-between" // Pushes children to opposite ends
+                                align="center"
+                                style={{ width: '200px' }}
+                            >
+                                <Text>Generate Resume</Text>
+                                <Group gap="xs" align="center">
+                                    <Text component="span" fw={700}>
+                                        -1
+                                    </Text>
+                                    <IconCoinFilled size={20} />
+                                </Group>
+                            </Flex>
+                        </Button>
+                    </Tooltip>
                 </Stack>
             </form>
         </Box>
