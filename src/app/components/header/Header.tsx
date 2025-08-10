@@ -46,13 +46,22 @@ export default function Header() {
 
     const handleManageBilling = async () => {
         try {
-            // Call your new API route
+            // Call your API route with the required headers and body
             const response = await fetch('/api/stripe/create-portal-link', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Add an empty JSON object to the body. This is crucial.
+                body: JSON.stringify({}),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create portal link.');
+                // Try to get a more specific error message from the server response
+                const errorData = await response.json();
+                throw new Error(
+                    errorData.error || 'Failed to create portal link.',
+                );
             }
 
             const { url } = await response.json();
@@ -60,7 +69,8 @@ export default function Header() {
             // Redirect the user to the Stripe Customer Portal
             window.location.href = url;
         } catch (error) {
-            console.error(error);
+            console.error('Error managing billing:', error);
+            // TODO: Optionally show an error message to the user in the UI
         }
     };
 

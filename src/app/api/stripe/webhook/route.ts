@@ -64,8 +64,6 @@ export async function POST(req: Request) {
             }
             break;
         case 'customer.subscription.updated':
-
-        case 'customer.subscription.updated':
             try {
                 await handleSubscriptionUpdated(
                     event.data.object as Stripe.Subscription,
