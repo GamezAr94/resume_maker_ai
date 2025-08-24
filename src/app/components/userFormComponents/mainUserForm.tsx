@@ -28,7 +28,7 @@ import PersonalContainerForm from './formContainers/personalContainerForm';
 
 import styles from './mainUserForm.module.css';
 import '@mantine/dates/styles.css';
-import { LinkedInImporter } from './LinkedinImporterForm';
+import { LinkedInImporter } from './linkedinForms/LinkedinImporterForm';
 
 interface Props {
     className: string;
@@ -206,6 +206,8 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                         >
                             Enter Data Manually (Free)
                         </Button>
+                        {/*
+                       // TODO for future update when we want to implement other imprt methods 
                         <Button
                             onClick={() => setInputMode('ai')}
                             variant="filled"
@@ -230,6 +232,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                         >
                             Import from LinkedIn
                         </Button>
+                        */}
                     </Box>
                 </Group>
 
@@ -363,6 +366,8 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                         </Box>
                     </div>
                 )}
+                {/*
+                // TODO this is a future update when we want to implement another way of importing experience
                 {inputMode === 'linkedin' && <LinkedInImporter />}
                 {inputMode === 'ai' && (
                     // Placeholder styled with Mantine's Paper component
@@ -382,6 +387,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                         </Text>
                     </Paper>
                 )}
+                    */}
             </Paper>
         );
     },
