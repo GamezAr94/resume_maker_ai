@@ -126,7 +126,8 @@ export default function Header() {
                     {/* This Group will be hidden on mobile by the CSS media query */}
                     <Group className={styles.mainNav}>
                         {/* This is the new conditional search bar section */}
-                        {searchOpened ? (
+                        {/* TODO THIS IS THE SEARCH BAR it is a feature for future
+                        searchOpened ? (
                             <Group gap="xs">
                                 <TextInput
                                     placeholder="Search company (e.g., Innovate Hub)"
@@ -158,7 +159,7 @@ export default function Header() {
                                     style={{ width: rem(18), height: rem(18) }}
                                 />
                             </ActionIcon>
-                        )}
+                        )*/}
 
                         <div
                             className={styles.tokenDisplay}
@@ -175,6 +176,8 @@ export default function Header() {
                         </div>
 
                         <Group gap="xl">
+                            {/*
+
                             <Anchor
                                 component={Link}
                                 href="/dashboard"
@@ -182,6 +185,7 @@ export default function Header() {
                             >
                                 Dashboard
                             </Anchor>
+                                */}
                             <Anchor
                                 component={Link}
                                 href="/applications"
@@ -253,14 +257,16 @@ export default function Header() {
                         } /* Ensure drawer is on top of the fixed header */
                     >
                         <Stack gap="lg" mt="md">
+                            {/*
                             <Anchor
                                 component={Link}
                                 href="/dashboard"
                                 className={styles.mobileNavLink}
-                                onClick={toggle} /* Close drawer on click */
+                                onClick={toggle} 
                             >
                                 Dashboard
                             </Anchor>
+                            */}
                             <Anchor
                                 component={Link}
                                 href="/applications"

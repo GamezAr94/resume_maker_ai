@@ -285,3 +285,13 @@ export interface FormJobOfferDataStructure {
     job_description: string;
     resume_generated: GeminiResponse;
 }
+
+// The Interface for my applications/resumes generated
+export interface ApplicationData {
+    id: string;
+    jobTitle: string;
+    company: string;
+    appliedDate: string;
+    description: string;
+    link: string; // We'll add a placeholder for this
+}
