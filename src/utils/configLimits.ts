@@ -11,8 +11,8 @@ export const CHARACTER_LIMITS = {
     grades: 10,
 
     // --- Experience & Projects ---
-    title: 30, // Reusable for Job Title and Project Name
-    company: 20,
+    title: 90, // Reusable for Job Title and Project Name
+    company: 70,
     description: 2000, // A generous limit for descriptions
 
     // --- Skills ---

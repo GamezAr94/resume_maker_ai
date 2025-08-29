@@ -16,40 +16,39 @@ export async function POST(req: Request) {
     if (!user) {
         return new Response(JSON.stringify({ message: 'Not authenticated' }), {
             status: 401,
+            headers: { 'Content-Type': 'application/json' },
         });
     }
 
-    // TODO underestand why we have this right here !
     const requestJobDescBody = await req.json();
-    console.log(
-        'Request body for geminiResumeInteraction:',
-        requestJobDescBody,
-    );
 
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
+        console.error('GEMINI_API_KEY is not set.');
         return new Response(
             JSON.stringify({
                 message:
-                    'Error accessing the API. Please contact the administrator',
+                    'API configuration error. Please contact the administrator.',
             }),
             {
-                status: 400,
+                status: 500,
                 headers: { 'Content-Type': 'application/json' },
             },
         );
     }
 
-    const { data: userData, error } = await supabase.rpc('get_user_data');
+    const { data: userData, error: userError } = await supabase.rpc(
+        'get_user_data',
+    );
 
     // Check if userData is null or undefined or if there is an error
-    if (error || !userData) {
+    if (userError || !userData) {
         return new Response(
             JSON.stringify({
                 message:
                     'Error accessing your account. Please close your session and login again ' +
-                    error?.message,
+                    userError?.message,
             }),
             {
                 status: 400,
@@ -60,6 +59,7 @@ export async function POST(req: Request) {
 
     const resumeCost = TOKEN_COSTS.AI_RESUME_GENERATION;
 
+    console.log(resumeCost);
     // Check if the user has enough tokens to generate a resume
     if (!userData.token_balance || userData.token_balance < resumeCost) {
         // TODO maybe we need to show the user a modal to buy more tokens
@@ -80,7 +80,9 @@ export async function POST(req: Request) {
     // If there was an error deducting tokens, return an error response
     if (rpcError) {
         return new Response(
-            JSON.stringify({ message: 'Failed to deduct tokens.' }),
+            JSON.stringify({
+                message: 'An error occurred with your account transaction.',
+            }),
             { status: 500 },
         );
     }
@@ -200,7 +202,7 @@ JSON Field-by-Field Instructions:
 
     // with this configuration you can configure the responses of gemini
     const generationConfig = {
-        temperature: 1,
+        temperature: 0.8,
         topP: 0.95,
         topK: 40,
         // NOTE I checked on the gemini studio the number of tokens for a resume that I found on the
@@ -397,25 +399,28 @@ JSON Field-by-Field Instructions:
     console.log(requestJobDescBody);
     */
 
-    const userInfo = userDummyData();
-    const jobOffer = jobOfferDummyData()[Math.floor(Math.random() * 12)];
+    // NOTE: These functions will get dummy data
+    //const userInfo = userDummyData();
+    //const jobOffer = jobOfferDummyData()[Math.floor(Math.random() * 12)];
 
-    /* 
     // NOTE REAL DATA PASSED BY THE USER
     const prompt = `User Information: 
     ${JSON.stringify(userData)}
     Job Offer: 
     ${JSON.stringify(requestJobDescBody)}`;
-    */
+    /* 
+    NOTE: this is a prompt for dummy data
     const prompt = `User Information: 
     ${JSON.stringify(userInfo)}
     Job Offer: 
     ${JSON.stringify(jobOffer)}`;
+    */
 
     try {
         const chatSession = model.startChat({
             generationConfig,
-            history: [], // TODO I am not sure what is this but I feel we are going to need it
+            // history is for multi-turn conversations. An empty array is correct for this single-shot generation.
+            history: [],
         });
 
         // We send the user entry
@@ -431,9 +436,11 @@ JSON Field-by-Field Instructions:
             },
         );
     } catch (error) {
+        console.error('Critical Error during resume generation:', error);
         return new Response(
             JSON.stringify({
-                message: `Critical Error during resume generation ` + error,
+                message:
+                    'An unexpected error occurred while generating the resume. Please try again later.',
             }),
             {
                 status: 500,

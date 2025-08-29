@@ -6,7 +6,7 @@ import { SubscriptionPlan, TokenPack } from '@/utils/interfaces';
  */
 export const TOKEN_COSTS = {
     // Cost for one AI resume generation
-    AI_RESUME_GENERATION: 100,
+    AI_RESUME_GENERATION: 1,
 
     // Cost for AI-powered quick import from a document
     AI_QUICK_IMPORT: 50,
