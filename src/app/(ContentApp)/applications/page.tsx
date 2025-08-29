@@ -3,8 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { Title, Text, rem, Stack, Loader, Center } from '@mantine/core';
 import { ApplicationData } from '@/utils/interfaces';
-import { getUserApplications } from '@/app/db/user_queries';
+import {
+    getUserApplications,
+    deleteUserApplication,
+} from '@/app/db/user_queries';
 import { ApplicationCard } from '@/app/components/applications/ApplicationCard';
+import { notifications } from '@mantine/notifications';
 
 export default function MyApplications() {
     const [applications, setApplications] = useState<ApplicationData[]>([]);
@@ -45,6 +49,23 @@ export default function MyApplications() {
         fetchApplications();
     }, []); // The empty array ensures this runs only once when the component mounts
 
+    const handleDeleteApplication = async (id: string) => {
+        const response = await deleteUserApplication(id);
+
+        if (response.status) {
+            // If successful, remove the application from the state
+            setApplications((currentApps) =>
+                currentApps.filter((app) => app.id !== id),
+            );
+            // Optional: Show a success notification
+            // notifications.show({ title: 'Success', message: 'Application deleted!', color: 'green' });
+        } else {
+            // Optional: Show an error notification
+            // notifications.show({ title: 'Error', message: response.message, color: 'red' });
+            console.error(response.message);
+        }
+    };
+
     const renderContent = () => {
         if (isLoading) {
             return (
@@ -73,7 +94,11 @@ export default function MyApplications() {
         return (
             <Stack gap="md">
                 {applications.map((app) => (
-                    <ApplicationCard key={app.id} application={app} />
+                    <ApplicationCard
+                        key={app.id}
+                        application={app}
+                        onDelete={handleDeleteApplication}
+                    />
                 ))}
             </Stack>
         );

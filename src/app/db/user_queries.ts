@@ -219,3 +219,40 @@ export async function getUserApplications() {
         };
     }
 }
+
+// funciton to delete resumes
+export async function deleteUserApplication(applicationId: string) {
+    const { supabase, user } = await setSupabaseClient();
+    if (!supabase || !user) {
+        return {
+            status: false,
+            message: `Error: User is not authenticated`,
+        };
+    }
+
+    try {
+        const { error } = await supabase
+            .from('job_offer') // The table to delete from
+            .delete()
+            .eq('id', applicationId); // Match the specific ID
+
+        if (error) {
+            return {
+                status: false,
+                message: `Error deleting application: ${error.message}`,
+            };
+        }
+
+        return {
+            status: true,
+            message: 'Application successfully deleted.',
+        };
+    } catch (error) {
+        return {
+            status: false,
+            message: `An unexpected error occurred: ${
+                (error as Error).message
+            }`,
+        };
+    }
+}
