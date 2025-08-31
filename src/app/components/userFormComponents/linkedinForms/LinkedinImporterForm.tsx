@@ -1,3 +1,4 @@
+/*
 'use client';
 
 import {
@@ -25,7 +26,6 @@ import {
     IconListCheck,
     IconMail,
     IconDownload,
-    IconFileZip,
     IconAlertCircle,
     IconBriefcase,
     IconSchool,
@@ -478,3 +478,4 @@ export function LinkedInImporter() {
         </Paper>
     );
 }
+*/

@@ -450,6 +450,7 @@ JSON Field-by-Field Instructions:
     }
 }
 
+/*
 function jobOfferDummyData() {
     return [
         {
@@ -676,3 +677,4 @@ function userDummyData() {
         },
     };
 }
+*/

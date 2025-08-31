@@ -6,20 +6,20 @@ import {
     Group,
     Button,
     Text,
-    ActionIcon,
+    //ActionIcon,
     Burger,
     Drawer,
     Stack,
     rem,
     Anchor,
-    TextInput,
+    //TextInput,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
     IconCoinFilled,
-    IconSearch,
+    //IconSearch,
     IconBriefcase,
-    IconX,
+    //IconX,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import styles from './header.module.css'; // Use the new styles
@@ -34,7 +34,8 @@ export default function Header() {
     // NOTE: This state is for toggling the mobile menu.
     // The logic to close it on navigation would be added later.
     const [opened, { toggle }] = useDisclosure(false);
-    const [searchOpened, { toggle: toggleSearch }] = useDisclosure(false);
+    // TODO this is for the search bar in the header maybe we should move it to its own component
+    //const [searchOpened, { toggle: toggleSearch }] = useDisclosure(false);
     const [modalOpened, { open: openModal, close: closeModal }] =
         useDisclosure(false);
     const [tokenCount, setTokenCount] = useState(0);

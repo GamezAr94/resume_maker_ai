@@ -1,3 +1,4 @@
+/*
 import {
     FormPersonalStructure,
     FormExperienceStructure,
@@ -63,12 +64,14 @@ function parseWebsites(websitesString: string | undefined) {
 
     return urls;
 }
+    */
 
 /**
  * Transforms raw data parsed from LinkedIn CSVs into the application's data structures.
  * @param {ParsedLinkedInData} rawData - The raw data from PapaParse.
  * @returns {TransformedData} - The data structured for your application's state.
  */
+/*
 export function transformLinkedInData(
     rawData: ParsedLinkedInData,
 ): TransformedData {
@@ -142,3 +145,4 @@ export function transformLinkedInData(
     // This return statement now correctly matches the TransformedData interface
     return { personal, experience, education, skills, projects };
 }
+*/

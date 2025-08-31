@@ -178,6 +178,10 @@ export async function getUserApplications() {
                 )
             `,
             )
+            .order('created_at', {
+                referencedTable: 'job_offer',
+                ascending: false,
+            })
             .eq('supabase_id', user.id)
             .single();
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Title, Text, rem, Stack, Loader, Center } from '@mantine/core';
-import { ApplicationData } from '@/utils/interfaces';
+import { ApplicationData, RawApplicationFromDB } from '@/utils/interfaces';
 import {
     getUserApplications,
     deleteUserApplication,
@@ -24,21 +24,23 @@ export default function MyApplications() {
 
             if (response.status && response.data) {
                 // Map the database fields to the component's expected props
-                const formattedData = response.data.map((app: any) => ({
-                    id: app.id,
-                    jobTitle: app.job_position,
-                    company: app.company_name,
-                    description: app.job_description,
-                    // Format the date to be more readable
-                    appliedDate: `Applied ${new Date(
-                        app.created_at,
-                    ).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                    })}`,
-                    link: 'resume/' + app.id, // Add a placeholder link
-                }));
+                const formattedData = response.data.map(
+                    (app: RawApplicationFromDB) => ({
+                        id: app.id,
+                        jobTitle: app.job_position,
+                        company: app.company_name,
+                        description: app.job_description,
+                        // Format the date to be more readable
+                        appliedDate: `Applied ${new Date(
+                            app.created_at,
+                        ).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                        })}`,
+                        link: 'resume/' + app.id, // Add a placeholder link
+                    }),
+                );
                 setApplications(formattedData);
             } else {
                 setError(response.message);
@@ -57,11 +59,17 @@ export default function MyApplications() {
             setApplications((currentApps) =>
                 currentApps.filter((app) => app.id !== id),
             );
-            // Optional: Show a success notification
-            // notifications.show({ title: 'Success', message: 'Application deleted!', color: 'green' });
+            notifications.show({
+                title: 'Success',
+                message: 'Application deleted!',
+                color: 'green',
+            });
         } else {
-            // Optional: Show an error notification
-            // notifications.show({ title: 'Error', message: response.message, color: 'red' });
+            notifications.show({
+                title: 'Error',
+                message: response.message,
+                color: 'red',
+            });
             console.error(response.message);
         }
     };
@@ -86,7 +94,9 @@ export default function MyApplications() {
         if (applications.length === 0) {
             return (
                 <Center>
-                    <Text>You haven't created any job applications yet.</Text>
+                    <Text>
+                        You haven&apos;t created any job applications yet.
+                    </Text>
                 </Center>
             );
         }

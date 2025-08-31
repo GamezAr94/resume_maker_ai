@@ -295,3 +295,11 @@ export interface ApplicationData {
     description: string;
     link: string; // We'll add a placeholder for this
 }
+
+export interface RawApplicationFromDB {
+    id: string; // Or number, if your ID is not a UUID
+    company_name: string;
+    job_position: string;
+    job_description: string;
+    created_at: string; // Supabase returns timestamps as strings
+}
