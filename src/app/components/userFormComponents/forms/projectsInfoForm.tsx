@@ -397,7 +397,7 @@ export default function ProjectsInfoForm({
                                     : ''
                             }
                             data={experienceInfo.map((item) => ({
-                                label: item.company,
+                                label: item.company_name,
                                 value: String(item.id),
                             }))}
                             onChange={(event) => {
