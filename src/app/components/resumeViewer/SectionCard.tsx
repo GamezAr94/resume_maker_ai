@@ -1,6 +1,6 @@
 import React from 'react';
 import { Accordion, Group, Text, ActionIcon } from '@mantine/core';
-import { IconEye, IconEyeOff, IconGridDots } from '@tabler/icons-react';
+import { IconEye, IconEyeOff /*, IconGridDots*/ } from '@tabler/icons-react';
 import type { ResumeLayoutItem } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
 
@@ -35,7 +35,9 @@ export function SectionCard({
             <Accordion.Control>
                 <Group justify="space-between">
                     <Group>
+                        {/*
                         <IconGridDots className={classes.dragHandle} />
+                        */}
                         <Text>{section.title}</Text>
                     </Group>
                     <Group>

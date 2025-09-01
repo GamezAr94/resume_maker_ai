@@ -17,6 +17,20 @@ import {
     ProjectsSection,
     SkillsSection,
 } from '@/utils/interfaces';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { SectionCard } from './SectionCard';
 import { NarrativePanel } from './ItemsCards/NarrativePanel';
 import { SkillsPanel } from './ItemsCards/SkillsPanel';
@@ -41,6 +55,8 @@ interface DataFormProps {
     handleVisibilityToggle: (e: React.MouseEvent<HTMLElement>) => void;
     handleNestedAccordionChange: (sectionId: string, value: string[]) => void;
     activeNestedAccordions: Record<string, string[]>;
+    handleReorderExperience: (oldIndex: number, newIndex: number) => void;
+    handleReorderProjects: (oldIndex: number, newIndex: number) => void;
 }
 
 export function DataForm({
@@ -52,7 +68,32 @@ export function DataForm({
     handleVisibilityToggle,
     handleNestedAccordionChange,
     activeNestedAccordions,
+    handleReorderExperience,
+    handleReorderProjects,
 }: DataFormProps) {
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+    );
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            // The `id`s we will use are just the array indices (0, 1, 2, ...)
+            const oldIndex = active.data.current?.sortable.index;
+            const newIndex = over.data.current?.sortable.index;
+            handleReorderExperience(oldIndex, newIndex);
+        }
+    };
+    const handleProjectsDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            const oldIndex = active.data.current?.sortable.index;
+            const newIndex = over.data.current?.sortable.index;
+            handleReorderProjects(oldIndex, newIndex);
+        }
+    };
     return (
         <Accordion
             value={activeAccordion}
@@ -200,82 +241,147 @@ export function DataForm({
                                                 `Experience section has ${count} hidden items`,
                                             );
                                             */
+                                        const experienceItems = (
+                                            section as ExperienceSection
+                                        ).items;
+                                        // The IDs for dnd-kit will be the item's index in the array
+                                        const itemIds = experienceItems.map(
+                                            (_, index) => index,
+                                        );
+
                                         return (
-                                            <Accordion
-                                                multiple
-                                                variant="contained"
-                                                radius="md"
-                                                mt="lg"
-                                                value={
-                                                    activeNestedAccordions[
-                                                        section.id
-                                                    ] || []
+                                            <DndContext
+                                                sensors={sensors}
+                                                collisionDetection={
+                                                    closestCenter
                                                 }
-                                                onChange={(value) =>
-                                                    handleNestedAccordionChange(
-                                                        section.id,
-                                                        value,
-                                                    )
-                                                }
+                                                onDragEnd={handleDragEnd}
                                             >
-                                                {(
-                                                    section as ExperienceSection
-                                                ).items.map((item, itemIdx) => (
-                                                    <ExperienceItemCard
-                                                        key={itemIdx}
-                                                        item={item}
-                                                        idx={idx}
-                                                        sectionId={section.id}
-                                                        itemIndex={itemIdx}
-                                                        onVisibilityToggle={
-                                                            handleVisibilityToggle
+                                                {/* NEW: Wrap the list part in the SortableContext */}
+                                                <SortableContext
+                                                    items={itemIds}
+                                                    strategy={
+                                                        verticalListSortingStrategy
+                                                    }
+                                                >
+                                                    <Accordion
+                                                        multiple
+                                                        variant="contained"
+                                                        radius="md"
+                                                        mt="lg"
+                                                        value={
+                                                            activeNestedAccordions[
+                                                                section.id
+                                                            ] || []
                                                         }
-                                                        onItemChange={
-                                                            handleItemChange
+                                                        onChange={(value) =>
+                                                            handleNestedAccordionChange(
+                                                                section.id,
+                                                                value,
+                                                            )
                                                         }
-                                                    />
-                                                ))}
-                                            </Accordion>
+                                                    >
+                                                        {(
+                                                            section as ExperienceSection
+                                                        ).items.map(
+                                                            (item, itemIdx) => (
+                                                                <ExperienceItemCard
+                                                                    key={
+                                                                        itemIdx
+                                                                    }
+                                                                    item={item}
+                                                                    idx={idx}
+                                                                    sectionId={
+                                                                        section.id
+                                                                    }
+                                                                    itemIndex={
+                                                                        itemIdx
+                                                                    }
+                                                                    onVisibilityToggle={
+                                                                        handleVisibilityToggle
+                                                                    }
+                                                                    onItemChange={
+                                                                        handleItemChange
+                                                                    }
+                                                                />
+                                                            ),
+                                                        )}
+                                                    </Accordion>
+                                                </SortableContext>
+                                            </DndContext>
                                         );
 
                                     // Render nested accordion for Projects
                                     case 'projects':
+                                        const projectItems = (
+                                            section as ProjectsSection
+                                        ).items;
+                                        const itemIdsProjects =
+                                            projectItems.map(
+                                                (_, index) => index,
+                                            );
+
                                         return (
-                                            <Accordion
-                                                multiple
-                                                variant="contained"
-                                                radius="md"
-                                                mt="lg"
-                                                value={
-                                                    activeNestedAccordions[
-                                                        section.id
-                                                    ] || []
+                                            <DndContext
+                                                sensors={sensors}
+                                                collisionDetection={
+                                                    closestCenter
                                                 }
-                                                onChange={(value) =>
-                                                    handleNestedAccordionChange(
-                                                        section.id,
-                                                        value,
-                                                    )
+                                                onDragEnd={
+                                                    handleProjectsDragEnd
                                                 }
                                             >
-                                                {(
-                                                    section as ProjectsSection
-                                                ).items.map((item, itemIdx) => (
-                                                    <ProjectItemCard
-                                                        key={itemIdx}
-                                                        item={item}
-                                                        sectionId={section.id}
-                                                        idx={idx}
-                                                        itemIndex={itemIdx}
-                                                        onVisibilityToggle={
-                                                            handleVisibilityToggle
+                                                <SortableContext
+                                                    items={itemIdsProjects}
+                                                    strategy={
+                                                        verticalListSortingStrategy
+                                                    }
+                                                >
+                                                    <Accordion
+                                                        multiple
+                                                        variant="contained"
+                                                        radius="md"
+                                                        mt="lg"
+                                                        value={
+                                                            activeNestedAccordions[
+                                                                section.id
+                                                            ] || []
                                                         }
-                                                        onItemChange={
-                                                            handleItemChange
+                                                        onChange={(value) =>
+                                                            handleNestedAccordionChange(
+                                                                section.id,
+                                                                value,
+                                                            )
                                                         }
-                                                    />
-                                                ))}
-                                            </Accordion>
+                                                    >
+                                                        {(
+                                                            section as ProjectsSection
+                                                        ).items.map(
+                                                            (item, itemIdx) => (
+                                                                <ProjectItemCard
+                                                                    key={
+                                                                        itemIdx
+                                                                    }
+                                                                    item={item}
+                                                                    sectionId={
+                                                                        section.id
+                                                                    }
+                                                                    idx={idx}
+                                                                    itemIndex={
+                                                                        itemIdx
+                                                                    }
+                                                                    onVisibilityToggle={
+                                                                        handleVisibilityToggle
+                                                                    }
+                                                                    onItemChange={
+                                                                        handleItemChange
+                                                                    }
+                                                                />
+                                                            ),
+                                                        )}
+                                                    </Accordion>
+                                                </SortableContext>
+                                            </DndContext>
                                         );
 
                                     // Render nested accordion for Education

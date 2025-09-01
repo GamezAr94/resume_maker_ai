@@ -6,6 +6,8 @@ import { Box, Tabs } from '@mantine/core';
 // Import your data structure type - MAKE SURE PATH IS CORRECT
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
 
+import { arrayMove } from '@dnd-kit/sortable';
+
 // Import the CSS module
 import classes from './resumeEditor.module.css';
 import { DataForm } from './DataForm';
@@ -204,6 +206,79 @@ export default function ResumeEditor({
             };
         });
     };
+
+    // function to handle reordering only the experience items.
+    const handleReorderExperienceItems = (
+        oldIndex: number,
+        newIndex: number,
+    ) => {
+        setDataResume((prev) => {
+            const newLayout = JSON.parse(
+                JSON.stringify(prev.resume_generated.layout),
+            );
+
+            // Find the experience section specifically
+            const expSection = newLayout.find(
+                (sec: any) => sec.id === 'experience',
+            );
+
+            if (
+                expSection &&
+                'items' in expSection &&
+                Array.isArray(expSection.items)
+            ) {
+                // Use the utility to create the newly ordered array
+                expSection.items = arrayMove(
+                    expSection.items,
+                    oldIndex,
+                    newIndex,
+                );
+            }
+
+            return {
+                ...prev,
+                resume_generated: {
+                    ...prev.resume_generated,
+                    layout: newLayout,
+                },
+            };
+        });
+    };
+
+    // function to reorder project items
+    const handleReorderProjectItems = (oldIndex: number, newIndex: number) => {
+        setDataResume((prev) => {
+            const newLayout = JSON.parse(
+                JSON.stringify(prev.resume_generated.layout),
+            );
+
+            // Find the projects section specifically
+            const projSection = newLayout.find(
+                (sec: any) => sec.id === 'projects',
+            );
+
+            if (
+                projSection &&
+                'items' in projSection &&
+                Array.isArray(projSection.items)
+            ) {
+                projSection.items = arrayMove(
+                    projSection.items,
+                    oldIndex,
+                    newIndex,
+                );
+            }
+
+            return {
+                ...prev,
+                resume_generated: {
+                    ...prev.resume_generated,
+                    layout: newLayout,
+                },
+            };
+        });
+    };
+
     return (
         <Box className={classes.editorContainer}>
             <Tabs
@@ -233,6 +308,8 @@ export default function ResumeEditor({
                             handleNestedAccordionChange
                         }
                         handleItemChange={handleItemChange}
+                        handleReorderExperience={handleReorderExperienceItems}
+                        handleReorderProjects={handleReorderProjectItems}
                     />
                 </Tabs.Panel>
 

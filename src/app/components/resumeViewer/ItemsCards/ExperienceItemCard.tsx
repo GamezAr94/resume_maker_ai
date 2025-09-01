@@ -9,6 +9,9 @@ import {
     Textarea,
 } from '@mantine/core';
 import { IconEye, IconEyeOff, IconGridDots } from '@tabler/icons-react';
+
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { Experience } from '@/utils/interfaces';
 
 interface ExperienceItemCardProps {
@@ -43,87 +46,104 @@ export function ExperienceItemCard({
     onVisibilityToggle,
     onItemChange,
 }: ExperienceItemCardProps) {
+    // We use the itemIndex as the unique ID for this item.
+    const { attributes, listeners, setNodeRef, transform, transition } =
+        useSortable({ id: itemIndex });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
     const isVisible = item.display !== false;
     const key = `${sectionId}-item-${itemIndex}`;
 
     return (
-        <Accordion.Item value={key} className={classes.nestedAccordionItem}>
-            <Accordion.Control>
-                <Group justify="space-between">
-                    <Group gap="xs" align="center">
-                        <IconGridDots className={classes.dragHandle} />
-                        <Text size="sm" fw={500}>
-                            {item.title} at {item.company}
-                        </Text>
+        <div ref={setNodeRef} style={style}>
+            <Accordion.Item value={key} className={classes.nestedAccordionItem}>
+                <Accordion.Control>
+                    <Group justify="space-between">
+                        <Group gap="xs" align="center">
+                            <div
+                                {...attributes}
+                                {...listeners}
+                                style={{ cursor: 'grab' }}
+                            >
+                                <IconGridDots className={classes.dragHandle} />
+                            </div>
+                            <Text size="sm" fw={500}>
+                                {item.title} at {item.company}
+                            </Text>
+                        </Group>
+                        <Group gap="xs">
+                            <ActionIcon
+                                component="div"
+                                variant="subtle"
+                                color="gray"
+                                title={isVisible ? `Hide` : `Show`}
+                                onClick={(e) => {
+                                    // Prevent the click from also toggling the accordion open/closed
+                                    e.stopPropagation();
+                                    // Call the handler function passed from the parent component
+                                    onVisibilityToggle(e);
+                                }}
+                                data-section={sectionId.toString()}
+                                data-iterator={idx.toString()}
+                                data-subitem-index={itemIndex.toString()}
+                            >
+                                {isVisible ? (
+                                    <IconEye size={16} />
+                                ) : (
+                                    <IconEyeOff size={16} />
+                                )}
+                            </ActionIcon>
+                        </Group>
                     </Group>
-                    <Group gap="xs">
-                        <ActionIcon
-                            component="div"
-                            variant="subtle"
-                            color="gray"
-                            title={isVisible ? `Hide` : `Show`}
-                            onClick={(e) => {
-                                // Prevent the click from also toggling the accordion open/closed
-                                e.stopPropagation();
-                                // Call the handler function passed from the parent component
-                                onVisibilityToggle(e);
-                            }}
-                            data-section={sectionId.toString()}
-                            data-iterator={idx.toString()}
-                            data-subitem-index={itemIndex.toString()}
-                        >
-                            {isVisible ? (
-                                <IconEye size={16} />
-                            ) : (
-                                <IconEyeOff size={16} />
-                            )}
-                        </ActionIcon>
-                    </Group>
-                </Group>
-            </Accordion.Control>
-            <Accordion.Panel>
-                <Stack>
-                    <TextInput
-                        label="Job Title"
-                        defaultValue={item.title}
-                        onChange={(e) =>
-                            onItemChange(
-                                idx,
-                                itemIndex,
-                                'title',
-                                e.currentTarget.value,
-                            )
-                        }
-                    />
-                    <TextInput
-                        label="Company"
-                        defaultValue={item.company}
-                        onChange={(e) =>
-                            onItemChange(
-                                idx,
-                                itemIndex,
-                                'company',
-                                e.currentTarget.value,
-                            )
-                        }
-                    />
-                    {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
-                    <Textarea
-                        label="Responsibilities"
-                        value={item.responsabilities}
-                        autosize
-                        minRows={4}
-                        onChange={(e) =>
-                            onItemChange(
-                                idx,
-                                itemIndex,
-                                'responsabilities',
-                                e.currentTarget.value,
-                            )
-                        }
-                    />
-                </Stack>
-            </Accordion.Panel>
-        </Accordion.Item>
+                </Accordion.Control>
+                <Accordion.Panel>
+                    <Stack>
+                        <TextInput
+                            label="Job Title"
+                            defaultValue={item.title}
+                            onChange={(e) =>
+                                onItemChange(
+                                    idx,
+                                    itemIndex,
+                                    'title',
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                        <TextInput
+                            label="Company"
+                            defaultValue={item.company}
+                            onChange={(e) =>
+                                onItemChange(
+                                    idx,
+                                    itemIndex,
+                                    'company',
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                        {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
+                        <Textarea
+                            label="Responsibilities"
+                            value={item.responsabilities}
+                            autosize
+                            minRows={4}
+                            onChange={(e) =>
+                                onItemChange(
+                                    idx,
+                                    itemIndex,
+                                    'responsabilities',
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                    </Stack>
+                </Accordion.Panel>
+            </Accordion.Item>
+        </div>
     );
 }
