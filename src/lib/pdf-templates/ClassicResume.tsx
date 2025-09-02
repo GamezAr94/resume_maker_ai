@@ -396,6 +396,8 @@ export const ClassicResumeTemplate = ({
                                                         >
                                                             {pro.name}
                                                         </Text>
+                                                        {/*
+                                                       // TODO I dont think it is important to show the start and end dates 
                                                         <Text
                                                             style={
                                                                 styles.companyAndDate
@@ -405,6 +407,7 @@ export const ClassicResumeTemplate = ({
                                                                 pro.start_end_dates
                                                             }
                                                         </Text>
+                                                        */}
                                                         <Text
                                                             style={
                                                                 styles.description
