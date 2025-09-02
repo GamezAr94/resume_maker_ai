@@ -466,7 +466,12 @@ export default function ProjectsInfoForm({
                                 rows={4}
                                 classNames={{ input: styles.formInput }}
                                 // Add padding to the inner textarea element
-                                styles={{ input: { paddingBottom: '2rem' } }}
+                                styles={{
+                                    input: {
+                                        paddingBottom: '2rem',
+                                        resize: 'vertical',
+                                    },
+                                }}
                                 error={!!formErrors.project_description}
                                 name="project_description"
                                 placeholder="Describe your project..."

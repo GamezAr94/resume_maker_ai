@@ -4,7 +4,11 @@ import React, { useState, SetStateAction, ChangeEvent } from 'react';
 import { Box, Tabs } from '@mantine/core';
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
-import { FormJobOfferDataStructure } from '@/utils/interfaces';
+import {
+    ExperienceSection,
+    FormJobOfferDataStructure,
+    ProjectsSection,
+} from '@/utils/interfaces';
 
 import { arrayMove } from '@dnd-kit/sortable';
 
@@ -219,7 +223,7 @@ export default function ResumeEditor({
 
             // Find the experience section specifically
             const expSection = newLayout.find(
-                (sec: any) => sec.id === 'experience',
+                (sec: ExperienceSection) => sec.id === 'experience',
             );
 
             if (
@@ -254,7 +258,7 @@ export default function ResumeEditor({
 
             // Find the projects section specifically
             const projSection = newLayout.find(
-                (sec: any) => sec.id === 'projects',
+                (sec: ProjectsSection) => sec.id === 'projects',
             );
 
             if (

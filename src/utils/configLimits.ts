@@ -5,15 +5,15 @@ export const CHARACTER_LIMITS = {
     url: 100, // A standard length for URLs
 
     // --- Education ---
-    school: 30,
-    degree: 50,
-    fieldOfStudy: 30,
+    school: 60,
+    degree: 60,
+    fieldOfStudy: 60,
     grades: 10,
 
     // --- Experience & Projects ---
     title: 90, // Reusable for Job Title and Project Name
     company: 70,
-    description: 2000, // A generous limit for descriptions
+    description: 8000, // A generous limit for descriptions
 
     // --- Skills ---
     skill: 20,
