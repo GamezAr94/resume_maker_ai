@@ -175,6 +175,32 @@ export function DataForm({
                                 data-field="linkedin"
                                 className={classes.inputField}
                             />
+                            <TextInput
+                                label="GitHub Profile URL"
+                                placeholder="github.com/yourprofile"
+                                name="personalInfo"
+                                value={
+                                    dataResume.resume_generated?.contact_info
+                                        ?.github || ''
+                                }
+                                onChange={handleChange}
+                                data-section="github"
+                                data-field="github"
+                                className={classes.inputField}
+                            />
+                            <TextInput
+                                label="Portfolio URL"
+                                placeholder="yourportfolio.com"
+                                name="personalInfo"
+                                value={
+                                    dataResume.resume_generated?.contact_info
+                                        ?.portfolio || ''
+                                }
+                                onChange={handleChange}
+                                data-section="portfolio"
+                                data-field="portfolio"
+                                className={classes.inputField}
+                            />
                         </Stack>
                     </Paper>
                 </Accordion.Panel>

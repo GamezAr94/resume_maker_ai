@@ -87,7 +87,6 @@ export default function Resume() {
                     desiredSectionsOrder,
                     'id',
                 );
-                console.log(userInfo.data);
 
                 // set the data returned from the database to the state and prepare
                 // it to set the data for the resumeViewer and the resumeEditor
@@ -113,6 +112,12 @@ export default function Resume() {
                             linkedin: resumeData.contact_info?.linkedin
                                 ? resumeData.contact_info.linkedin
                                 : userInfo.data.linkedin_url,
+                            github: resumeData.contact_info?.github
+                                ? resumeData.contact_info.github
+                                : userInfo.data.github_url,
+                            portfolio: resumeData.contact_info?.portfolio
+                                ? resumeData.contact_info.portfolio
+                                : userInfo.data.portfolio_url,
                         },
                         styles: {
                             theme: resumeData.styles?.theme || 'classic',

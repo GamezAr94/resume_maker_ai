@@ -139,6 +139,8 @@ interface ContactInfo {
     email: string;
     phone: string;
     linkedin: string;
+    github: string;
+    portfolio: string;
 }
 
 export interface Experience {
@@ -242,6 +244,8 @@ export const emptyStateGeminiReponse: GeminiResponse = {
         email: '',
         phone: '',
         linkedin: '',
+        github: '',
+        portfolio: '',
     },
     layout: [], // Initialize with an empty layout array.
     keywords: [],

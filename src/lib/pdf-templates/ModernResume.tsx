@@ -8,23 +8,7 @@ import {
     Font,
     Link,
 } from '@react-pdf/renderer';
-import { ResumeLayoutItem } from '@/utils/interfaces';
-// Assuming this interface is in your project
-// import { FormJobOfferDataStructure } from '@/utils/interfaces';
-
-// A mock interface for demonstration purposes if the actual one is not available.
-interface FormJobOfferDataStructure {
-    job_position: string;
-    resume_generated: {
-        contact_info: {
-            name: string;
-            phone: string;
-            email: string;
-            linkedin: string;
-        };
-        layout: ResumeLayoutItem[];
-    };
-}
+import { FormJobOfferDataStructure } from '@/utils/interfaces';
 
 // --- FONT REGISTRATION ---
 // Using 'Roboto' for a modern, clean look.
@@ -194,6 +178,10 @@ export const ModernResumeTemplate = ({
         );
     }
 
+    function getCleanUrl(urlString: string) {
+        return urlString.replace(/^(https?:\/\/)?(www\.)?/, '');
+    }
+
     const { resume_generated, job_position } = dataResume;
 
     return (
@@ -221,12 +209,42 @@ export const ModernResumeTemplate = ({
                             </Link>
                         </Text>
                         <Text style={styles.contactItem}>
-                            <Link
-                                style={styles.contactLink}
-                                src={resume_generated.contact_info.linkedin}
-                            >
-                                LinkedIn
-                            </Link>
+                            {resume_generated.contact_info.linkedin ? (
+                                <Link
+                                    style={styles.contactLink}
+                                    src={resume_generated.contact_info.linkedin}
+                                >
+                                    {getCleanUrl(
+                                        resume_generated.contact_info.linkedin,
+                                    )}
+                                </Link>
+                            ) : null}
+                        </Text>
+                        <Text style={styles.contactItem}>
+                            {resume_generated.contact_info.github ? (
+                                <Link
+                                    style={styles.contactLink}
+                                    src={resume_generated.contact_info.github}
+                                >
+                                    {getCleanUrl(
+                                        resume_generated.contact_info.github,
+                                    )}
+                                </Link>
+                            ) : null}
+                        </Text>
+                        <Text style={styles.contactItem}>
+                            {resume_generated.contact_info.portfolio ? (
+                                <Link
+                                    style={styles.contactLink}
+                                    src={
+                                        resume_generated.contact_info.portfolio
+                                    }
+                                >
+                                    {getCleanUrl(
+                                        resume_generated.contact_info.portfolio,
+                                    )}
+                                </Link>
+                            ) : null}
                         </Text>
                     </View>
                 </View>
@@ -385,15 +403,6 @@ export const ModernResumeTemplate = ({
                                                             }
                                                         >
                                                             {pro.name}
-                                                        </Text>
-                                                        <Text
-                                                            style={
-                                                                styles.entryDate
-                                                            }
-                                                        >
-                                                            {
-                                                                pro.start_end_dates
-                                                            }
                                                         </Text>
                                                     </View>
                                                     <Text

@@ -313,6 +313,7 @@ export default function PersonalInfoForm({
                     }
                     error={formErrors.portfolio_url || undefined}
                 />
+                {/*
                 <TextInput
                     label="Other Website URL"
                     placeholder="e.g., your personal blog"
@@ -329,6 +330,7 @@ export default function PersonalInfoForm({
                     }
                     error={formErrors.other_url || undefined}
                 />
+                */}
 
                 <Button type="submit" mt="md" loading={isSubmitting}>
                     Save Changes

@@ -187,6 +187,10 @@ export const ClassicResumeTemplate = ({
         );
     }
 
+    function getCleanUrl(urlString: string) {
+        return urlString.replace(/^(https?:\/\/)?(www\.)?/, '');
+    }
+
     const { resume_generated, job_position } = dataResume;
 
     return (
@@ -207,12 +211,36 @@ export const ClassicResumeTemplate = ({
                         >
                             {resume_generated.contact_info.email}
                         </Link>
-                        <Link
-                            style={styles.contactLink}
-                            src={resume_generated.contact_info.linkedin}
-                        >
-                            {resume_generated.contact_info.linkedin}
-                        </Link>
+                        {resume_generated.contact_info.linkedin ? (
+                            <Link
+                                style={styles.contactLink}
+                                src={resume_generated.contact_info.linkedin}
+                            >
+                                {getCleanUrl(
+                                    resume_generated.contact_info.linkedin,
+                                )}
+                            </Link>
+                        ) : null}
+                        {resume_generated.contact_info.github ? (
+                            <Link
+                                style={styles.contactLink}
+                                src={resume_generated.contact_info.github}
+                            >
+                                {getCleanUrl(
+                                    resume_generated.contact_info.github,
+                                )}
+                            </Link>
+                        ) : null}
+                        {resume_generated.contact_info.portfolio ? (
+                            <Link
+                                style={styles.contactLink}
+                                src={resume_generated.contact_info.portfolio}
+                            >
+                                {getCleanUrl(
+                                    resume_generated.contact_info.portfolio,
+                                )}
+                            </Link>
+                        ) : null}
                     </View>
 
                     {resume_generated?.layout?.map((section, idx) => {

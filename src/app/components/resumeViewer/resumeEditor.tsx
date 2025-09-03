@@ -142,6 +142,10 @@ export default function ResumeEditor({
                     newData.resume_generated.contact_info.phone = value;
                 } else if (sectionId === 'linkedin') {
                     newData.resume_generated.contact_info.linkedin = value;
+                } else if (sectionId === 'github') {
+                    newData.resume_generated.contact_info.github = value;
+                } else if (sectionId === 'portfolio') {
+                    newData.resume_generated.contact_info.portfolio = value;
                 }
                 return newData;
             }
