@@ -449,7 +449,7 @@ export default function ProjectsInfoForm({
 
                     <div className={styles.inputWrapper}>
                         <Input.Wrapper
-                            label="Project Description"
+                            label="Project Description (Include any quantificable metric)"
                             error={
                                 formErrors.project_description
                                     ? formErrors.project_description

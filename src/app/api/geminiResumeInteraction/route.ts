@@ -228,7 +228,7 @@ JSON Field-by-Field Instructions:
 
     // with this configuration you can configure the responses of gemini
     const generationConfig = {
-        temperature: 0.8,
+        temperature: 0.9,
         topP: 0.95,
         topK: 40,
         // NOTE I checked on the gemini studio the number of tokens for a resume that I found on the
