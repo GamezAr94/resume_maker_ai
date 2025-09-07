@@ -7,7 +7,7 @@ import {
     Stack,
     TextInput,
 } from '@mantine/core';
-import { IconEye, IconEyeOff /*, IconGridDots*/ } from '@tabler/icons-react';
+import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import type { Education } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
 
@@ -41,9 +41,6 @@ export function EducationItemCard({
             <Accordion.Control>
                 <Group justify="space-between">
                     <Group align="center" gap="xs">
-                        {/*
-                        <IconGridDots className={classes.dragHandle} />
-                    */}
                         <Text size="sm" fw={500}>
                             {item.degree} at {item.school}
                         </Text>
