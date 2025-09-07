@@ -306,7 +306,7 @@ export default function ResumeBuilderForm({
             />
             <div className={styles.header}>
                 <Title order={2} className={styles.mainTitle}>
-                    AI Resume Builder
+                    Job Offer Details
                 </Title>
                 <Text className={styles.subTitle}>
                     Enter the job details below to generate a tailored

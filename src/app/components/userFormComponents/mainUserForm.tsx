@@ -207,7 +207,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                 </Text>
                             }
                         >
-                            Enter Data Manually (Free)
+                            Enter Data Manually
                         </Button>
                         {/*
                        // TODO for future update when we want to implement other imprt methods 

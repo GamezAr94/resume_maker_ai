@@ -18,7 +18,6 @@ import { useDisclosure } from '@mantine/hooks';
 import {
     IconCoinFilled,
     //IconSearch,
-    IconBriefcase,
     //IconX,
 } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -115,11 +114,7 @@ export default function Header() {
                         style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                         <Group className={styles.logoSection}>
-                            <IconBriefcase
-                                size={28}
-                                color="var(--mantine-color-blue-5)"
-                            />{' '}
-                            {/* Your Logo */}
+                            {/* TODO Your Logo */}
                             <Text className={styles.logoText}>Fazume</Text>
                         </Group>
                     </Link>
