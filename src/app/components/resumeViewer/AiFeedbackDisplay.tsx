@@ -81,8 +81,8 @@ export default function AiFeedbackDisplay({
 
                 {!hasFeedback && (
                     <Alert color="blue" title="No Feedback Yet">
-                        Generate a resume to see the AI's recommendations and
-                        rationale here.
+                        Generate a resume to see the AI&apos;s recommendations
+                        and rationale here.
                     </Alert>
                 )}
             </Stack>
