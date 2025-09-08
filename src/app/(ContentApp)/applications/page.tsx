@@ -31,7 +31,7 @@ export default function MyApplications() {
                         company: app.company_name,
                         description: app.job_description,
                         // Format the date to be more readable
-                        appliedDate: `Applied ${new Date(
+                        appliedDate: `Saved ${new Date(
                             app.created_at,
                         ).toLocaleDateString('en-US', {
                             year: 'numeric',

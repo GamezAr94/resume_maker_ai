@@ -159,13 +159,30 @@ export default function ResumeBuilderForm({
             }
 
             // After getting responseGemini.message (which is the JSON string from Gemini)
-            const geminiJsonString = responseGemini.message;
+            let geminiJsonString = responseGemini.message;
             let resumeGeneratedObject;
             try {
+                const firstBrace = geminiJsonString.indexOf('{');
+                const lastBrace = geminiJsonString.lastIndexOf('}');
+
+                if (
+                    firstBrace !== -1 &&
+                    lastBrace !== -1 &&
+                    lastBrace > firstBrace
+                ) {
+                    geminiJsonString = geminiJsonString.substring(
+                        firstBrace,
+                        lastBrace + 1,
+                    );
+                }
                 resumeGeneratedObject = JSON.parse(geminiJsonString);
             } catch (e) {
                 // TODO we can enable this to log the error in the console
                 console.error('Error parsing Gemini response:', e);
+                console.error(
+                    'Failed to parse the following string:',
+                    geminiJsonString,
+                );
                 notifications.update({
                     id: 'generating-resume',
                     color: 'red',

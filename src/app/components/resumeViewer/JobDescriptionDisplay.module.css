@@ -1,0 +1,7 @@
+.descriptionText {
+    white-space: pre-wrap; /* This preserves newlines and wraps long text */
+    word-wrap: break-word; /* Ensures long unbroken strings don't overflow */
+    line-height: 1.6; /* Improves readability */
+    font-size: var(--mantine-font-size-sm);
+    color: var(--mantine-color-gray-8);
+}

@@ -117,12 +117,38 @@ JSON Field-by-Field Instructions:
         Compile a comprehensive list of the most critical keywords and phrases extracted from the job description. This list should be used to tailor the rest of the resume content for ATS optimization.
 
     recommendations (String):
-        Provide actionable and constructive recommendations for the user. This should not be part of the resume itself but rather feedback for the user.
-        Suggest specific ways they could further enhance their profile or resume, such as additional skills to acquire, certifications to pursue, or experiences to highlight in an interview.
+    ### Profile Enhancement
+    Analyze the user's source profile and identify the single biggest area for improvement. Focus on the quality of their descriptions.
+    - If their accomplishment descriptions lack quantifiable metrics (numbers, percentages, dollar amounts), explicitly point this out and provide a formulaic example. For instance: "Your project descriptions are good, but they would be more impactful with metrics. Try to frame them as '[Action] resulted in [Quantifiable Outcome] by [Method].'"
+    - If they describe tasks instead of impact, explain the difference. For example: "Shift your focus from listing tasks (e.g., 'managed the database') to describing the outcome (e.g., 'Improved query performance by 30% by restructuring the database schema')."
+
+    ### Bridging the Gap
+    Identify the most significant gap between the user's current profile and the requirements of the target job description. Suggest a concrete, small-scale project the user could undertake to fill this gap.
+    - Be specific. Don't just say "learn a skill." Instead, suggest a tangible project.
+    - Example for a front-end role missing data visualization experience: "To align more closely with this role's need for data visualization, consider building a personal dashboard that pulls data from a public API (like a crypto tracker or a public health dataset) and displays it using a library like Chart.js or D3.js. This would be a powerful talking point in an interview."
+    - Give a probability of getting a call from this job offer with the current user's information in Percentages from 0% to 100%
+
+    ### Company-Specific Preparation
+    Based on the company name and job description, provide targeted advice for the interview process. (please specify if you dont know the company or you are unsure of which company)
+    - If the company has a well-known culture or set of values (e.g., Amazon's Leadership Principles, Netflix's Culture Memo), tell the user to prepare specific examples from their career that align with those values.
+    - Suggest specific technical topics to review that are relevant to the company's known tech stack or business domain.
+    - Example: "As you're applying to [Company Name], which is a leader in [Industry], be prepared to discuss concepts like [Specific Tech Concept #1] and [Specific Tech Concept #2]. Reviewing their engineering blog for recent articles on these topics would be highly beneficial."
+
+    Ensure the overall tone is constructive, encouraging, and highly professional.
 
     explanation (String):
-        Generate a concise, well-reasoned explanation for your content choices. This is for user feedback, not for the resume.
-        Justify why the selected experiences and projects are the most relevant to the target job, referencing the job description's requirements.
+    Start with a 1-2 sentence summary of the core strategy used. For example: "The primary strategy for this resume was to frame you as a [Primary Archetype, e.g., 'Product-Minded Engineer'] by highlighting your direct contributions to [Key Business Outcome, e.g., 'user engagement and platform security'], which directly aligns with the core requirements of the job description."
+
+    ### Section-by-Section Rationale
+    Provide a bulleted list explaining the key decisions for the most important sections:
+    - **Professional Summary:** Briefly state the 'hook' identified in the job description and explain why the selected accomplishment from the user's profile was the perfect evidence to lead with.
+    - **Experience & Projects:** Justify why specific roles and projects were prioritized. Most importantly, comment on the quality of the user's source data. If you had to significantly enhance a user's description, point it out as a learning moment. For example: "Your role at Acme Corp was prioritized as it directly addressed the need for 'scalable systems'. Note that I transformed your original point 'Wrote backend services' into 'Architected and deployed microservices that improved API response time by 30%.' This demonstrates quantifiable impact, which is critical. Providing more metrics like this in your master profile will make future resumes even stronger."
+    - **Skills:** Explain why the skills are ordered in this specific way, referencing the job description. For example: "The skills list was sequenced to immediately present the technologies explicitly mentioned in the job's 'must-have' qualifications, such as 'React' and 'AWS'."
+
+    ### How to Improve Your Master Profile
+    Conclude with 1-2 highly actionable suggestions for the user to improve their source data for next time. This should focus on the information they provide, not their career path.
+    - Example 1 (if lacking metrics): "To get even better results, revisit your experience and project descriptions in your master profile. For each accomplishment, ask yourself: 'How can I measure this?' Think in terms of percentages, dollar amounts, user numbers, or time saved."
+    - Example 2 (if lacking detail): "Your 'Data Analysis Project' is promising. To make it more powerful, add details about the size of the dataset you worked with, the specific tools you used (e.g., Python with Pandas, SQL), and the key insight you discovered."
 
     layout (Object):
 
@@ -184,6 +210,7 @@ JSON Field-by-Field Instructions:
                 List the user's relevant educational background.
                 show if available 3 with display true and up to 5 with display false
                 For each item, set display to true.
+            Do NOT forget to include the Field of study, do not put only the school name and the degree type, but also include the name of the degree in your response either in the Degree or School elements
 
         skills (Object):
             title: Use the title "Skills."
@@ -233,7 +260,7 @@ JSON Field-by-Field Instructions:
         topK: 40,
         // NOTE I checked on the gemini studio the number of tokens for a resume that I found on the
         // internet and it was around 500 tokens. I am going to use 2000 tokens to be safe
-        maxOutputTokens: 2000,
+        maxOutputTokens: 3500,
         responseMimeType: 'application/json',
         responseSchema: {
             type: 'object' as SchemaType,

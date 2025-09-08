@@ -74,6 +74,8 @@ export const styles = StyleSheet.create({
     mainContent: {
         width: '67%',
         padding: '20px 30px',
+        marginBottom: 0,
+        paddingBottom: 0,
     },
     header: {
         marginBottom: 0,
@@ -92,7 +94,8 @@ export const styles = StyleSheet.create({
         fontWeight: 400,
     },
     sidebarSection: {
-        marginBottom: 20,
+        marginBottom: 0,
+        paddingBottom: 0,
     },
     sidebarTitle: {
         fontSize: 14,
@@ -111,6 +114,7 @@ export const styles = StyleSheet.create({
         color: theme.textPrimary,
         textDecoration: 'none',
         fontWeight: 400,
+        marginBottom: 5,
     },
     skill: {
         fontSize: 10,

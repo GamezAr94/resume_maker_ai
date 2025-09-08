@@ -4,16 +4,14 @@ import React, { useState, SetStateAction, ChangeEvent } from 'react';
 import { Box, Tabs } from '@mantine/core';
 
 // Import your data structure type - MAKE SURE PATH IS CORRECT
-import {
-    ExperienceSection,
-    FormJobOfferDataStructure,
-    ProjectsSection,
-} from '@/utils/interfaces';
+import { FormJobOfferDataStructure } from '@/utils/interfaces';
 
 // Import the CSS module
 import classes from './resumeEditor.module.css';
 import { DataForm } from './DataForm';
 import StylesForm from './StylesForm';
+import JobDescriptionDisplay from './JobDescriptionDisplay';
+import AiFeedbackDisplay from './AiFeedbackDisplay';
 
 // Interface using YOUR prop names
 interface ResumeEditorProps {
@@ -212,6 +210,7 @@ export default function ResumeEditor({
             };
         });
     };
+
     return (
         <Box className={classes.editorContainer}>
             <Tabs
@@ -226,6 +225,34 @@ export default function ResumeEditor({
                 <Tabs.List>
                     <Tabs.Tab value="data">Data</Tabs.Tab>
                     <Tabs.Tab value="styles">Styles</Tabs.Tab>
+                    <Tabs.Tab value="job_desc">Job Description</Tabs.Tab>
+                    <Tabs.Tab
+                        value="ai_feedback"
+                        rightSection={
+                            <Box
+                                style={{
+                                    position: 'relative',
+                                    display: 'flex',
+                                    height: '12px',
+                                    width: '12px',
+                                }}
+                            >
+                                {/* The solid dot in the center */}
+                                <Box
+                                    style={{
+                                        position: 'relative',
+                                        borderRadius: '9999px', // full circle
+                                        height: '8px',
+                                        width: '8px',
+                                        backgroundColor:
+                                            'var(--mantine-color-orange-6)',
+                                    }}
+                                />
+                            </Box>
+                        }
+                    >
+                        Feedback
+                    </Tabs.Tab>
                 </Tabs.List>
 
                 {/* Data Panel: Contains all the form fields */}
@@ -249,6 +276,23 @@ export default function ResumeEditor({
                     <StylesForm
                         changeTheme={changeTheme}
                         dataResume={dataResume}
+                    />
+                </Tabs.Panel>
+
+                <Tabs.Panel value="job_desc" pt="xs">
+                    <JobDescriptionDisplay
+                        jobDescription={dataResume.job_description}
+                        jobPosition={dataResume.job_position}
+                        companyName={dataResume.company_name}
+                    />
+                </Tabs.Panel>
+
+                <Tabs.Panel value="ai_feedback" pt="xs">
+                    <AiFeedbackDisplay
+                        recommendations={
+                            dataResume.resume_generated.recommendations
+                        }
+                        explanation={dataResume.resume_generated.explanation}
                     />
                 </Tabs.Panel>
             </Tabs>

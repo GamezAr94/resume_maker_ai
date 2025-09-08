@@ -94,6 +94,8 @@ export default function Resume() {
                     ...data.data[0],
                     resume_generated: {
                         layout: reorderedLayoutArray,
+                        recommendations: resumeData.recommendations,
+                        explanation: resumeData.explanation,
                         // TODO: hmm not sure if this is the best way to do it using the selected_narrative
                         selected_narrative:
                             resumeData.selected_narrative || 'summary',
