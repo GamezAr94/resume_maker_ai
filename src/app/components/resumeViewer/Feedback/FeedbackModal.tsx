@@ -174,8 +174,8 @@ export default function FeedbackModal({
             <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <h2 style={styles.title}>Share Your Feedback</h2>
                 <p style={styles.text}>
-                    We'd love to know what you think! Your feedback helps us
-                    improve.
+                    We&apos;d love to know what you think! Your feedback helps
+                    us improve.
                 </p>
                 <p style={styles.ratingLabel}>Rate your experience</p>
                 <div
