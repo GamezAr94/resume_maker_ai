@@ -14,6 +14,7 @@ import {
     styles as pdfStyles,
 } from '@/lib/pdf-templates/ClassicResume';
 import { ModernResumeTemplate } from '@/lib/pdf-templates/ModernResume';
+import FeedbackModal from './Feedback/FeedbackModal';
 
 interface Props {
     dataResume: FormJobOfferDataStructure;
@@ -24,6 +25,8 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
+    const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
 
     useEffect(() => {
         // This code runs only on the client side after the component mounts
@@ -150,40 +153,94 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
         }
     }
 
+    const handleDownloadClick = () => {
+        setFeedbackModalOpen(true);
+    };
+
+    const handleFeedbackSubmit = async ({
+        rating,
+        message,
+    }: {
+        rating: number;
+        message: string;
+    }) => {
+        setIsSubmittingFeedback(true);
+        try {
+            const response = await fetch('/api/sendFeedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userEmail: dataResume.resume_generated.contact_info.email,
+                    resumeID: dataResume.id,
+                    rating,
+                    message,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to send feedback.');
+            }
+
+            // You can add a success notification here if you want
+            console.log('Feedback sent successfully!');
+
+            setFeedbackModalOpen(false);
+            await gettingPDF(); // Proceed to download after feedback
+        } catch (error) {
+            // You can add an error notification here
+            console.error(error);
+        } finally {
+            setIsSubmittingFeedback(false);
+        }
+    };
+
+    const handleSkipFeedback = async () => {
+        setFeedbackModalOpen(false);
+        await gettingPDF(); // Proceed to download if skipped
+    };
+
     return (
-        <div className={styles_css.resume_viewer_container}>
-            {isFirefox && (
-                <div className={styles_css.firefox_cover_container}></div>
-            )}
-            <PDFViewer
-                key={viewerKey}
-                showToolbar={false}
-                style={pdfStyles.viewer}
-            >
-                {dataResume &&
-                dataResume.resume_generated.styles.theme === 'classic' ? (
-                    <ClassicResumeTemplate dataResume={dataResume} />
-                ) : (
-                    <ModernResumeTemplate dataResume={dataResume} />
+        <>
+            <FeedbackModal
+                opened={isFeedbackModalOpen}
+                onClose={handleSkipFeedback}
+                onSubmit={handleFeedbackSubmit}
+                isSubmitting={isSubmittingFeedback}
+            />
+            <div className={styles_css.resume_viewer_container}>
+                {isFirefox && (
+                    <div className={styles_css.firefox_cover_container}></div>
                 )}
-            </PDFViewer>
-            <div className={styles_css.action_buttons_container}>
-                <Button
-                    variant="outline"
-                    onClick={handleSave}
-                    disabled={isDownloading || isSaving}
-                    loading={isSaving}
+                <PDFViewer
+                    key={viewerKey}
+                    showToolbar={false}
+                    style={pdfStyles.viewer}
                 >
-                    Save
-                </Button>
-                <Button
-                    onClick={gettingPDF}
-                    disabled={isDownloading || isSaving} // <<<--- DISABLE BUTTON WHEN DOWNLOADING OR SAVING
-                    loading={isDownloading} // <<<--- SHOW MANTINE'S LOADING SPINNER
-                >
-                    Download PDF
-                </Button>
+                    {dataResume &&
+                    dataResume.resume_generated.styles.theme === 'classic' ? (
+                        <ClassicResumeTemplate dataResume={dataResume} />
+                    ) : (
+                        <ModernResumeTemplate dataResume={dataResume} />
+                    )}
+                </PDFViewer>
+                <div className={styles_css.action_buttons_container}>
+                    <Button
+                        variant="outline"
+                        onClick={handleSave}
+                        disabled={isDownloading || isSaving}
+                        loading={isSaving}
+                    >
+                        Save
+                    </Button>
+                    <Button
+                        onClick={handleDownloadClick}
+                        disabled={isDownloading || isSaving} // <<<--- DISABLE BUTTON WHEN DOWNLOADING OR SAVING
+                        loading={isDownloading} // <<<--- SHOW MANTINE'S LOADING SPINNER
+                    >
+                        Download PDF
+                    </Button>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

@@ -365,9 +365,6 @@ export default function SignUpPage() {
                     <Button leftSection={<GoogleIcon />} variant="default">
                         Google
                     </Button>
-                    <Button leftSection={<GithubIcon />} variant="default">
-                        GitHub
-                    </Button>
                 </Group>
             </Paper>
 

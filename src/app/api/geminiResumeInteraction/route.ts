@@ -59,7 +59,6 @@ export async function POST(req: Request) {
 
     const resumeCost = TOKEN_COSTS.AI_RESUME_GENERATION;
 
-    console.log(resumeCost);
     // Check if the user has enough tokens to generate a resume
     if (!userData.token_balance || userData.token_balance < resumeCost) {
         // TODO maybe we need to show the user a modal to buy more tokens
