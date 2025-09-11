@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
     const next = searchParams.get('next') ?? '/';
 
     if (code) {
-        // --- THIS IS THE CRITICAL FIX ---
         // We add 'await' here to resolve the promise from cookies()
         const cookieStore = await cookies();
 
