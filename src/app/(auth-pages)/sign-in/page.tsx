@@ -27,6 +27,7 @@ import {
 import Link from 'next/link';
 import { signInAction } from '@/app/actions';
 import ActionMsg from '../message';
+import { createClient } from '@/utils/supabase/client';
 
 // You can create a separate component for these SVG icons if you want
 const GoogleIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
@@ -62,6 +63,16 @@ const GoogleIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
 );
 
 export default function SignInPage() {
+    const handleSignInWithGoogle = async () => {
+        const supabase = createClient();
+        await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${location.origin}/auth/callback`,
+            },
+        });
+    };
+
     return (
         <Container size={460} my={30} style={{ width: '100%' }}>
             <Anchor
@@ -146,12 +157,13 @@ export default function SignInPage() {
                 />
 
                 <Group grow>
-                    {/*
-                    TODO button to login using google
-                    <Button leftSection={<GoogleIcon />} variant="default">
+                    <Button
+                        leftSection={<GoogleIcon />}
+                        onClick={handleSignInWithGoogle}
+                        variant="default"
+                    >
                         Google
                     </Button>
-                    */}
                 </Group>
             </Paper>
 

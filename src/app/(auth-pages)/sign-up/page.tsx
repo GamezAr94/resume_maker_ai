@@ -34,6 +34,7 @@ import Link from 'next/link';
 import { signUpAction } from '@/app/actions';
 import ActionMsg from '../message';
 import { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
 
 // --- Start of Password Strength Component ---
 function PasswordRequirement({ met, label }: { met: boolean; label: string }) {
@@ -157,6 +158,18 @@ export default function SignUpPage() {
         }
 
         // If all checks pass, the form will submit to the server action as normal.
+    };
+
+    const handleSignInWithGoogle = async () => {
+        const supabase = createClient();
+        await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                // You can specify a redirect URL here if needed,
+                // otherwise it will redirect to your site's base URL.
+                redirectTo: `${location.origin}/auth/callback`,
+            },
+        });
     };
 
     return (
@@ -347,12 +360,13 @@ export default function SignUpPage() {
                 />
 
                 <Group grow>
-                    {/*
-                    TODO button to login using google
-                    <Button leftSection={<GoogleIcon />} variant="default">
+                    <Button
+                        leftSection={<GoogleIcon />}
+                        onClick={handleSignInWithGoogle}
+                        variant="default"
+                    >
                         Google
                     </Button>
-                    */}
                 </Group>
             </Paper>
 

@@ -1,25 +1,45 @@
-import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 
-export async function GET(request: Request) {
-    // The `/auth/callback` route is required for the server-side auth flow implemented
-    // by the SSR package. It exchanges an auth code for the user's session.
-    // https://supabase.com/docs/guides/auth/server-side/nextjs
-    const requestUrl = new URL(request.url);
-    const code = requestUrl.searchParams.get('code');
-    const origin = requestUrl.origin;
-    const redirectTo = requestUrl.searchParams.get('redirect_to')?.toString();
+export async function GET(request: NextRequest) {
+    const { searchParams, origin } = new URL(request.url);
+    const code = searchParams.get('code');
+    const next = searchParams.get('next') ?? '/';
 
     if (code) {
-        const supabase = await createClient();
-        await supabase.auth.exchangeCodeForSession(code);
+        // --- THIS IS THE CRITICAL FIX ---
+        // We add 'await' here to resolve the promise from cookies()
+        const cookieStore = await cookies();
+
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    getAll() {
+                        return cookieStore.getAll();
+                    },
+                    setAll(cookiesToSet) {
+                        try {
+                            cookiesToSet.forEach(({ name, value, options }) => {
+                                cookieStore.set(name, value, options);
+                            });
+                        } catch {
+                            // The `setAll` method was called from a Server Component.
+                            // This can be ignored if you have middleware refreshing
+                            // user sessions.
+                        }
+                    },
+                },
+            },
+        );
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error) {
+            return NextResponse.redirect(`${origin}${next}`);
+        }
     }
 
-    if (redirectTo) {
-        return NextResponse.redirect(`${origin}${redirectTo}`);
-    }
-
-    // URL to redirect to after sign up process completes
-    //return NextResponse.redirect(`${origin}/protected`);
-    return NextResponse.redirect(`${origin}`);
+    // If there's an error or no code, redirect to an error page
+    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
