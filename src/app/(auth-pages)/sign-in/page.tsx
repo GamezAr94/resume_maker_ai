@@ -124,7 +124,7 @@ export default function SignInPage() {
                         mt="md"
                     />
                     <Group justify="space-between" mt="lg">
-                        <Checkbox label="Remember me" />
+                        <Checkbox label="Remember me" name="rememberMe" />
                         <Anchor
                             component={Link}
                             href="/forgot-password"
@@ -146,9 +146,12 @@ export default function SignInPage() {
                 />
 
                 <Group grow>
+                    {/*
+                    TODO button to login using google
                     <Button leftSection={<GoogleIcon />} variant="default">
                         Google
                     </Button>
+                    */}
                 </Group>
             </Paper>
 

@@ -347,9 +347,12 @@ export default function SignUpPage() {
                 />
 
                 <Group grow>
+                    {/*
+                    TODO button to login using google
                     <Button leftSection={<GoogleIcon />} variant="default">
                         Google
                     </Button>
+                    */}
                 </Group>
             </Paper>
 

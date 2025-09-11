@@ -95,15 +95,28 @@ export const signUpAction = async (formData: FormData) => {
 export const signInAction = async (formData: FormData) => {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const rememberMe = formData.get('rememberMe') === 'on';
+
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const {
+        data: { session },
+        error,
+    } = await supabase.auth.signInWithPassword({
         email,
         password,
     });
 
     if (error) {
         return encodedRedirect('error', '/sign-in', error.message);
+    }
+
+    if (rememberMe && session) {
+        // With the session, we can now set a long-lived cookie
+        await supabase.auth.setSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+        });
     }
 
     return redirect('/');
@@ -124,7 +137,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${origin}/auth/callback?redirect_to=/protected/reset-password`,
+        redirectTo: `${origin}/auth/callback?redirect_to=/reset-password`,
     });
 
     if (error) {
@@ -156,17 +169,13 @@ export const resetPasswordAction = async (formData: FormData) => {
     if (!password || !confirmPassword) {
         encodedRedirect(
             'error',
-            '/protected/reset-password',
+            '/reset-password',
             'Password and confirm password are required',
         );
     }
 
     if (password !== confirmPassword) {
-        encodedRedirect(
-            'error',
-            '/protected/reset-password',
-            'Passwords do not match',
-        );
+        encodedRedirect('error', '/reset-password', 'Passwords do not match');
     }
 
     const { error } = await supabase.auth.updateUser({
@@ -174,14 +183,10 @@ export const resetPasswordAction = async (formData: FormData) => {
     });
 
     if (error) {
-        encodedRedirect(
-            'error',
-            '/protected/reset-password',
-            'Password update failed',
-        );
+        encodedRedirect('error', '/reset-password', 'Password update failed');
     }
 
-    encodedRedirect('success', '/protected/reset-password', 'Password updated');
+    encodedRedirect('success', '/reset-password', 'Password updated');
 };
 
 export const signOutAction = async () => {
