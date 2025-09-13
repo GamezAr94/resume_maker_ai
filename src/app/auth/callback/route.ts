@@ -1,44 +1,25 @@
-import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 
 export async function GET(request: NextRequest) {
     const { searchParams, origin } = new URL(request.url);
     const code = searchParams.get('code');
-    const next = searchParams.get('next') ?? '/';
+
+    const finalRedirectPath =
+        searchParams.get('redirect_to') || searchParams.get('next') || '/';
 
     if (code) {
-        // We add 'await' here to resolve the promise from cookies()
-        const cookieStore = await cookies();
+        const supabase = createClient();
+        const { error } = await (
+            await supabase
+        ).auth.exchangeCodeForSession(code);
 
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    getAll() {
-                        return cookieStore.getAll();
-                    },
-                    setAll(cookiesToSet) {
-                        try {
-                            cookiesToSet.forEach(({ name, value, options }) => {
-                                cookieStore.set(name, value, options);
-                            });
-                        } catch {
-                            // The `setAll` method was called from a Server Component.
-                            // This can be ignored if you have middleware refreshing
-                            // user sessions.
-                        }
-                    },
-                },
-            },
-        );
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-            return NextResponse.redirect(`${origin}${next}`);
+            // Use the corrected redirect path
+            return NextResponse.redirect(`${origin}${finalRedirectPath}`);
         }
     }
 
-    // If there's an error or no code, redirect to an error page
+    // Redirect to an error page if something goes wrong
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
