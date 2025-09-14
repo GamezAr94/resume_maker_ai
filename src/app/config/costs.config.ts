@@ -18,57 +18,63 @@ export const TOKEN_COSTS = {
     TOKEN_PACKAGES: {
         // Define token packages with their respective costs
         BASIC: {
-            id: 'basic-5-tokens',
-            tokens: 5,
-            price: 9.5, // Cost in dollars
+            id: 'basic-20-tokens',
+            tokens: 20,
+            price: 12, // Cost in dollars
             isPopular: false,
         },
         PREMIUM: {
-            id: 'premium-10-tokens',
-            tokens: 10,
-            price: 16, // Cost in dollars
+            id: 'premium-70-tokens',
+            tokens: 70,
+            price: 35, // Cost in dollars
             isPopular: true,
         },
         ULTIMATE: {
-            id: 'ultimate-20-tokens',
-            tokens: 15,
-            price: 20, // Cost in dollars
+            id: 'ultimate-125-tokens',
+            tokens: 125,
+            price: 57, // Cost in dollars
             isPopular: false,
         },
     } as Record<string, TokenPack>,
 
     TOKEN_PLANS: {
         MONTHLY: {
-            id: 'price_1RkVExPxaFwrUyBLBwjpCFCe', // Replace with your monthly plan Price ID
+            id: 'price_1S6xt6PxaFwrUyBL5WKsVtBV', // Replace with your monthly plan Price ID - PRODUCTION
+            //id: 'price_1S75qIL71lvTP9oNjKP81tlr', // Replace with your monthly plan Price ID - DEVELOPMENT
             tierIdentifier: 'monthly',
             name: 'Monthly Pro',
-            price: 14,
+            price: 22,
             priceAnnotation: '/month',
-            tokens: 10, // Monthly tokens included
+            tokens: 50, // Monthly tokens included
             features: [
-                '10 tokens/month',
+                '50 tokens/month',
                 'Priority support',
-                'Advanced features',
+                'Exclusive 10% discount on all credit top-ups',
+                //'Advanced features',
                 'Discounted top-ups',
             ],
             isPopular: true,
         },
         YEARLY: {
-            id: 'price_1Rq4K1PxaFwrUyBLfKQaGgM0', // Replace with your yearly plan Price ID
+            id: 'price_1S6xs0PxaFwrUyBLp54pgRbr', // Replace with your yearly plan Price ID - PRODUCTION
+            //id: 'price_1S75sRL71lvTP9oNdTWdMopn', // Replace with your yearly plan Price ID - DEVELOPMENT
             tierIdentifier: 'yearly',
             name: 'Yearly Pro',
-            price: 12,
-            priceAnnotation: '/month',
-            tokens: 130, // Yearly tokens included
+            price: 18.33, //$220 per year $18.33 a month billed annually
+            priceAnnotation: '/month, billed annually',
+            tokens: 600, // Yearly tokens included
             features: [
-                '130 tokens/year',
+                '600 tokens/year',
+                'Get 2 months free',
                 'Priority support',
-                'Advanced features',
+                'Exclusive 20% discount on all credit top-ups',
+                //'Advanced features',
                 'Discounted top-ups',
-                '2 months free',
+                'Billed annually at $220',
             ],
             isPopular: false,
-            discountBadge: '14% off',
+            //discountBadge: '16% off',
+            discountBadge: '2 months free!',
         },
     } as Record<string, SubscriptionPlan>,
 
