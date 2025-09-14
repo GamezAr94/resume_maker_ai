@@ -39,8 +39,8 @@ export const TOKEN_COSTS = {
 
     TOKEN_PLANS: {
         MONTHLY: {
-            id: 'price_1S6xt6PxaFwrUyBL5WKsVtBV', // Replace with your monthly plan Price ID - PRODUCTION
-            //id: 'price_1S75qIL71lvTP9oNjKP81tlr', // Replace with your monthly plan Price ID - DEVELOPMENT
+            //id: 'price_1S6xt6PxaFwrUyBL5WKsVtBV', // Replace with your monthly plan Price ID - PRODUCTION
+            id: 'price_1S75qIL71lvTP9oNjKP81tlr', // Replace with your monthly plan Price ID - DEVELOPMENT
             tierIdentifier: 'monthly',
             name: 'Monthly Pro',
             price: 22,
@@ -56,8 +56,8 @@ export const TOKEN_COSTS = {
             isPopular: true,
         },
         YEARLY: {
-            id: 'price_1S6xs0PxaFwrUyBLp54pgRbr', // Replace with your yearly plan Price ID - PRODUCTION
-            //id: 'price_1S75sRL71lvTP9oNdTWdMopn', // Replace with your yearly plan Price ID - DEVELOPMENT
+            //id: 'price_1S6xs0PxaFwrUyBLp54pgRbr', // Replace with your yearly plan Price ID - PRODUCTION
+            id: 'price_1S75sRL71lvTP9oNdTWdMopn', // Replace with your yearly plan Price ID - DEVELOPMENT
             tierIdentifier: 'yearly',
             name: 'Yearly Pro',
             price: 18.33, //$220 per year $18.33 a month billed annually
