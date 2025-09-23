@@ -4,6 +4,8 @@ import { createClient } from '@/utils/supabase/server';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { TOKEN_COSTS } from '@/app/config/costs.config';
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
     const supabase = await createClient();
 
