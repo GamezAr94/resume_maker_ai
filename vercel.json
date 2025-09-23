@@ -1,7 +1,7 @@
 {
     "functions": {
         "app/api/geminiResumeInteraction/route.ts": {
-            "maxDuration": 90
+            "maxDuration": 60
         }
     }
 }
