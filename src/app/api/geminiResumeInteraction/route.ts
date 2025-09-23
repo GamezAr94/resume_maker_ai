@@ -7,7 +7,7 @@ import { TOKEN_COSTS } from '@/app/config/costs.config';
 export async function POST(req: Request) {
     const supabase = await createClient();
 
-    // Get the user from the request
+    // Get the user from the request this will help for the authentication of the request
     const {
         data: { user },
     } = await supabase.auth.getUser();
