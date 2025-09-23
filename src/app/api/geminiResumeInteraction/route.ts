@@ -1,5 +1,3 @@
-'use server';
-
 import { createClient } from '@/utils/supabase/server';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { TOKEN_COSTS } from '@/app/config/costs.config';
