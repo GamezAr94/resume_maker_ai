@@ -69,8 +69,9 @@ export async function POST(req: Request) {
 
         // --- Email Content ---
         const mailOptions = {
-            from: `"Fazume Feedback" <${process.env.EMAIL_FROM}>`,
+            from: `"Fazume Feedback" <${process.env.EMAIL_SERVER_USER}>`,
             to: process.env.EMAIL_TO,
+            replyTo: process.env.EMAIL_FROM,
             subject: `Fazume Feedback - ${rating} Stars`, // Subject line for easy filtering
             html: `
                 <div style="font-family: sans-serif; line-height: 1.6;">
