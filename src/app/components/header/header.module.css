@@ -5,7 +5,7 @@
     left: 0;
     right: 0;
     height: rem(60px);
-    z-index: 1000;
+    z-index: 9999;
     /* Dark background color similar to screenshot */
     background-color: #1a202c;
     /* Default text color for all children will be light */
