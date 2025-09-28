@@ -419,7 +419,9 @@ export default function TokensModal({
     // --- MAIN MODAL RENDER ---
     return (
         <Modal
-            opened={opened}
+            // TODO set opened={opened} so that we can open the tokens modal again this is only temporary for the beta users
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            opened={(opened = false)}
             onClose={onClose}
             title={
                 <Text fw={700} size="xl">
