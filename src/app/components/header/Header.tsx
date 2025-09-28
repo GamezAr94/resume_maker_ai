@@ -173,7 +173,6 @@ export default function Header() {
 
                         <Group gap="xl">
                             {/*
-
                             <Anchor
                                 component={Link}
                                 href="/dashboard"
@@ -189,6 +188,9 @@ export default function Header() {
                             >
                                 My Applications
                             </Anchor>
+
+                            {/*
+                                TODO: Enable the settings again to allow the users to manage their payment methods, this is temporary for the beta users only
                             <Anchor
                                 variant="transparent"
                                 onClick={handleManageBilling}
@@ -196,6 +198,7 @@ export default function Header() {
                             >
                                 Settings
                             </Anchor>
+                                */}
                             <form action={signOutAction} style={{ margin: 0 }}>
                                 <Button
                                     type="submit"
@@ -271,6 +274,8 @@ export default function Header() {
                             >
                                 My Applications
                             </Anchor>
+                            {/*
+                                TODO: Enable the settings again to allow the users to manage their payment methods, this is temporary for the beta users only
                             <Anchor
                                 variant="transparent"
                                 onClick={() => {
@@ -281,6 +286,7 @@ export default function Header() {
                             >
                                 Settings
                             </Anchor>
+                                */}
 
                             {/* Logout button at the bottom of the drawer */}
                             <form
