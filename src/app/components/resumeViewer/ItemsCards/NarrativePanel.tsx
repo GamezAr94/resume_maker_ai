@@ -1,6 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { Textarea } from '@mantine/core';
 import type { NarrativeSection } from '@/utils/interfaces';
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 interface NarrativePanelProps {
     section: NarrativeSection;
@@ -21,6 +22,7 @@ export function NarrativePanel({
         <Textarea
             label="Summary Content"
             placeholder="Write your professional summary here..."
+            maxLength={CHARACTER_LIMITS.description}
             defaultValue={section.items}
             onChange={onSectionChange}
             data-section={section.id}

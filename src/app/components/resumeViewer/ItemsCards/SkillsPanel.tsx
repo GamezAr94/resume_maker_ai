@@ -2,6 +2,7 @@ import React, { ChangeEvent } from 'react';
 import { Textarea } from '@mantine/core';
 import type { SkillsSection } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 interface SkillsPanelProps {
     section: SkillsSection;
@@ -28,6 +29,7 @@ export function SkillsPanel({
         <Textarea
             label="Skills List"
             placeholder="Enter each skill on a new line..."
+            maxLength={CHARACTER_LIMITS.description}
             value={skillsText}
             onChange={onSectionChange}
             data-section={section.id}

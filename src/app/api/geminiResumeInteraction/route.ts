@@ -149,6 +149,7 @@ JSON Field-by-Field Instructions:
     - Example 1 (if lacking metrics): "To get even better results, revisit your experience and project descriptions in your master profile. For each accomplishment, ask yourself: 'How can I measure this?' Think in terms of percentages, dollar amounts, user numbers, or time saved."
     - Example 2 (if lacking detail): "Your 'Data Analysis Project' is promising. To make it more powerful, add details about the size of the dataset you worked with, the specific tools you used (e.g., Python with Pandas, SQL), and the key insight you discovered."
 
+    ### IMPORTANT! : You CANNOT generate fake entries such as experience, education, or projects, you should ONLY use the elements that are available on the user's profile.
     layout (Object):
 
         This object will contain the visual and textual content of the resume itself.
@@ -177,7 +178,7 @@ JSON Field-by-Field Instructions:
             display: Set to true.
             items (Array of Objects):
                 Select up to four of the most relevant job experiences from the user's profile, ordered from most to least relevant to the target job.
-                For each item, set display to true. You must ensure at least three experiences are set to true if available and if available up to 3 more with display false.
+                For each item, set display to true. You must ensure at least three experiences are set to true if available and if available up to 3 more with display false.(ONLY if are available if not select the number that is available and you cannot add fake experiences)
                 responsabilities: This is the most critical part. Your goal is to transform the user's descriptions into 3-5 high-impact bullet points per role. You must avoid listing simple tasks. For each bullet point you generate, you will follow this **Hierarchy of Impact**:
 
                 1.  Select up to THREE of the user's most relevant job experiences.
@@ -209,6 +210,7 @@ JSON Field-by-Field Instructions:
                 List the user's relevant educational background.
                 show if available 3 with display true and up to 5 with display false
                 For each item, set display to true.
+                Do NOT generate fake data just use what the user has in the profile
             Do NOT forget to include the Field of study, do not put only the school name and the degree type, but also include the name of the degree in your response either in the Degree or School elements
 
         skills (Object):
@@ -228,7 +230,7 @@ JSON Field-by-Field Instructions:
                 For each item, set display to true. You must ensure at least TWO projects (max 4) are set to true if available.
 
                 1.  Analyze the job description for its core technical requirements.
-                2.  You MUST select the TWO projects from the user's master list that most directly showcase these specific requirements.
+                2.  You MUST select the TWO projects from the user's master list that most directly showcase these specific requirements (ONLY if are available if not select the number that is available and you CANNOT add fake projects).
                 3.  **Example of strategic choice:** If a job requires "AWS and containerization," you MUST select a "Homelab" project over a "Freelance E-commerce" project, even if the e-commerce project has stronger sales metrics.
                 4.  For each project's description, create a 2-3 sentence summary using the "Hierarchy of Impact" logic.
 
@@ -259,7 +261,7 @@ JSON Field-by-Field Instructions:
         topK: 40,
         // NOTE I checked on the gemini studio the number of tokens for a resume that I found on the
         // internet and it was around 500 tokens. I am going to use 2000 tokens to be safe
-        maxOutputTokens: 3500,
+        maxOutputTokens: 4000,
         responseMimeType: 'application/json',
         responseSchema: {
             type: 'object' as SchemaType,

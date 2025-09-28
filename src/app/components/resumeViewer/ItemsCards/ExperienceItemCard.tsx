@@ -10,6 +10,7 @@ import {
 } from '@mantine/core';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import type { Experience } from '@/utils/interfaces';
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 interface ExperienceItemCardProps {
     item: Experience;
@@ -84,6 +85,7 @@ export function ExperienceItemCard({
                 <Stack>
                     <TextInput
                         label="Job Title"
+                        maxLength={CHARACTER_LIMITS.title}
                         defaultValue={item.title}
                         onChange={(e) =>
                             onItemChange(
@@ -96,6 +98,7 @@ export function ExperienceItemCard({
                     />
                     <TextInput
                         label="Company"
+                        maxLength={CHARACTER_LIMITS.company}
                         defaultValue={item.company}
                         onChange={(e) =>
                             onItemChange(
@@ -110,6 +113,7 @@ export function ExperienceItemCard({
                     <Textarea
                         label="Responsibilities"
                         value={item.responsabilities}
+                        maxLength={CHARACTER_LIMITS.description}
                         autosize
                         minRows={4}
                         onChange={(e) =>

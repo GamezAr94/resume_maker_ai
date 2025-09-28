@@ -34,3 +34,14 @@ export const PROFILE_COMPLETION_WEIGHTS = {
     EDUCATION_ENTRY: 10, // Points for the first education entry
     MAX_EDUCATION_FOR_SCORE: 1, // Cap points from projects after this many entries (2 * 5 = 10)
 };
+
+/**
+ * Defines the maximum number of records a user can create for each section.
+ * This is crucial for controlling the size of the data sent to the Gemini API.
+ */
+export const PROFILE_RECORD_LIMITS = {
+    EXPERIENCE: 20,
+    EDUCATION: 15,
+    SKILLS: 50,
+    PROJECTS: 25,
+};

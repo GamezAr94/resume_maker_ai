@@ -100,26 +100,38 @@ export default function Resume() {
                         selected_narrative:
                             resumeData.selected_narrative || 'summary',
                         contact_info: {
-                            name: resumeData.contact_info?.name
-                                ? resumeData.contact_info.name
-                                : userInfo.data.first_name +
-                                  ' ' +
-                                  userInfo.data.last_name,
-                            email: resumeData.contact_info?.email
-                                ? resumeData.contact_info.email
-                                : userInfo.data.email,
-                            phone: resumeData.contact_info?.phone
-                                ? resumeData.contact_info.phone
-                                : userInfo.data.phone,
-                            linkedin: resumeData.contact_info?.linkedin
-                                ? resumeData.contact_info.linkedin
-                                : userInfo.data.linkedin_url,
-                            github: resumeData.contact_info?.github
-                                ? resumeData.contact_info.github
-                                : userInfo.data.github_url,
-                            portfolio: resumeData.contact_info?.portfolio
-                                ? resumeData.contact_info.portfolio
-                                : userInfo.data.portfolio_url,
+                            name:
+                                resumeData.contact_info?.name !== null &&
+                                resumeData.contact_info?.name !== undefined
+                                    ? resumeData.contact_info.name
+                                    : userInfo.data.first_name +
+                                      ' ' +
+                                      userInfo.data.last_name,
+                            email:
+                                resumeData.contact_info?.email !== null &&
+                                resumeData.contact_info?.email !== undefined
+                                    ? resumeData.contact_info.email
+                                    : userInfo.data.email,
+                            phone:
+                                resumeData.contact_info?.phone !== null &&
+                                resumeData.contact_info?.phone !== undefined
+                                    ? resumeData.contact_info.phone
+                                    : userInfo.data.phone,
+                            linkedin:
+                                resumeData.contact_info?.linkedin !== null &&
+                                resumeData.contact_info?.linkedin !== undefined
+                                    ? resumeData.contact_info.linkedin
+                                    : userInfo.data.linkedin_url,
+                            github:
+                                resumeData.contact_info?.github !== null &&
+                                resumeData.contact_info?.github !== undefined
+                                    ? resumeData.contact_info.github
+                                    : userInfo.data.github_url,
+                            portfolio:
+                                resumeData.contact_info?.portfolio !== null &&
+                                resumeData.contact_info?.portfolio !== undefined
+                                    ? resumeData.contact_info.portfolio
+                                    : userInfo.data.portfolio_url,
                         },
                         styles: {
                             theme: resumeData.styles?.theme || 'classic',
