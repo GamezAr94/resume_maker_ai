@@ -10,6 +10,7 @@ import {
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import type { Education } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 interface EducationItemCardProps {
     item: Education;
@@ -75,6 +76,7 @@ export function EducationItemCard({
                     <TextInput
                         label="Degree"
                         defaultValue={item.degree}
+                        maxLength={CHARACTER_LIMITS.title}
                         onChange={(e) =>
                             onItemChange(
                                 idx,
@@ -87,6 +89,7 @@ export function EducationItemCard({
                     <TextInput
                         label="School"
                         defaultValue={item.school}
+                        maxLength={CHARACTER_LIMITS.title}
                         onChange={(e) =>
                             onItemChange(
                                 idx,

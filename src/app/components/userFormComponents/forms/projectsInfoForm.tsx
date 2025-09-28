@@ -223,6 +223,24 @@ export default function ProjectsInfoForm({
             education_id: null,
             experience_id: null,
         }));
+
+        setEditRecord((prev) => {
+            if (!prev) return emptyStateProject; // Handle case where prev is null
+
+            const updatedRecord = { ...prev };
+
+            if (event === 'Experience') {
+                updatedRecord.education_id = null; // Clear education
+            } else if (event === 'Education') {
+                updatedRecord.experience_id = null; // Clear experience
+            } else {
+                // It's a "Personal" project, clear both
+                updatedRecord.education_id = null;
+                updatedRecord.experience_id = null;
+            }
+            return updatedRecord;
+        });
+
         if (event == null) {
             setSelectedType('personal_type');
         }

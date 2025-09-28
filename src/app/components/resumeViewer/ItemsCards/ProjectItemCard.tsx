@@ -11,6 +11,7 @@ import {
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import classes from './resumeEditor.module.css';
 import { Project } from '@/utils/interfaces';
+import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 interface ProjectItemCardProps {
     item: Project;
@@ -75,6 +76,7 @@ export function ProjectItemCard({
                 <Stack>
                     <TextInput
                         label="Project Name"
+                        maxLength={CHARACTER_LIMITS.title}
                         defaultValue={item.name}
                         onChange={(e) =>
                             onItemChange(
@@ -88,6 +90,7 @@ export function ProjectItemCard({
                     {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
                     <Textarea
                         label="Description"
+                        maxLength={CHARACTER_LIMITS.description}
                         defaultValue={item.description}
                         autosize
                         minRows={4}

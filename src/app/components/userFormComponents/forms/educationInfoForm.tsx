@@ -113,7 +113,6 @@ export default function EducationInfoForm({
 
             // if the user data is not valid, store the errors in the state and return
             if (!parseUser.success) {
-                console.error('Validation errors:', parseUser.error);
                 const error = parseUser.error;
                 let newErrors = emptyStateEducation;
                 for (const issue of error.errors) {
@@ -401,14 +400,10 @@ export default function EducationInfoForm({
                         onChange={(event) => {
                             const { checked } = event.currentTarget;
                             // Also clear end_date if user checks this box
-                            const newEndDateState = checked
-                                ? ''
-                                : getEditRecord?.end_date;
-                            setEditRecord((prev) => ({
-                                ...(prev || emptyStateEducation),
-                                is_current: checked,
-                                end_date: newEndDateState as string,
-                            }));
+                            handleInputChange('is_current', checked);
+                            if (checked) {
+                                handleInputChange('end_date', ''); // This will now correctly clear the date field
+                            }
                         }}
                     />
                     <TextInput
