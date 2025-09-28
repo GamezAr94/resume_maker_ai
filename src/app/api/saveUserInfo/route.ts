@@ -131,7 +131,7 @@ async function updatePerType(
         }
     }
 
-    let validationResult;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let schema: z.ZodType<any>;
 
     // Select the correct schema based on the type
@@ -163,7 +163,7 @@ async function updatePerType(
     }
 
     // Validate the incoming data using the selected schema
-    validationResult = schema.safeParse(requestBodyData);
+    const validationResult = schema.safeParse(requestBodyData);
 
     if (!validationResult.success) {
         console.error(

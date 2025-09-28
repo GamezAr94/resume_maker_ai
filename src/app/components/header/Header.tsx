@@ -17,6 +17,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import {
     IconCoinFilled,
+    IconMessageCircle,
     //IconSearch,
     //IconX,
 } from '@tabler/icons-react';
@@ -28,6 +29,7 @@ import { useState, useEffect } from 'react';
 import { getCurrentUserProfile } from '@/app/db/user_queries';
 import { SubscriptionTier, UserSubscription } from '@/utils/interfaces';
 import { TOKEN_COSTS } from '@/app/config/costs.config';
+import FeedbackModal from '../Feedback/FeedbackModal';
 
 export default function Header() {
     // NOTE: This state is for toggling the mobile menu.
@@ -37,7 +39,13 @@ export default function Header() {
     //const [searchOpened, { toggle: toggleSearch }] = useDisclosure(false);
     const [modalOpened, { open: openModal, close: closeModal }] =
         useDisclosure(false);
+    const [
+        feedbackModalOpened,
+        { open: openFeedbackModal, close: closeFeedbackModal },
+    ] = useDisclosure(false);
+
     const [tokenCount, setTokenCount] = useState(0);
+    const [userEmail, setUserEmail] = useState('');
 
     // This state now holds the complete user subscription object.
     const [userSubscription, setUserSubscription] = useState<UserSubscription>({
@@ -96,16 +104,21 @@ export default function Header() {
 
     // Fetch the token count when the component mounts
     useEffect(() => {
-        const fetchTokenCount = async () => {
+        const fetchUserData = async () => {
             const { data, status } = await getCurrentUserProfile();
-            if (status && data && data.token_balance) {
-                setTokenCount(data.token_balance);
+            if (status && data) {
+                if (data.token_balance) {
+                    setTokenCount(data.token_balance);
+                }
+                if (data.email) {
+                    setUserEmail(data.email);
+                }
                 handleSubscriptionChange(
                     data.subscription_tier as SubscriptionTier,
                 );
             }
         };
-        fetchTokenCount();
+        fetchUserData();
     }, []);
 
     return (
@@ -192,6 +205,15 @@ export default function Header() {
                                 My Applications
                             </Anchor>
 
+                            <Button
+                                variant="default"
+                                size="xs"
+                                leftSection={<IconMessageCircle size={16} />}
+                                onClick={openFeedbackModal}
+                            >
+                                Feedback
+                            </Button>
+
                             {/*
                                 TODO: Enable the settings again to allow the users to manage their payment methods, this is temporary for the beta users only
                             <Anchor
@@ -277,6 +299,31 @@ export default function Header() {
                             >
                                 My Applications
                             </Anchor>
+
+                            <Button
+                                variant="default"
+                                fullWidth
+                                leftSection={<IconMessageCircle size={18} />}
+                                classNames={{
+                                    root: styles.mobileNavLink,
+                                    label: styles.mobileNavLink,
+                                }}
+                                onClick={() => {
+                                    openFeedbackModal();
+                                    toggle(); // Also close the drawer
+                                }}
+                                styles={{
+                                    root: {
+                                        height: 'auto',
+                                        border: '1px solid var(--mantine-color-gray-3)',
+                                        padding: 'var(--mantine-spacing-md) 0',
+                                    },
+                                    label: { borderBottom: 'none' },
+                                }}
+                            >
+                                Feedback
+                            </Button>
+
                             {/*
                                 TODO: Enable the settings again to allow the users to manage their payment methods, this is temporary for the beta users only
                             <Anchor
@@ -315,6 +362,11 @@ export default function Header() {
                 userSubscription={
                     userSubscription as UserSubscription
                 } /* Cast to UserSubscription type */
+            />
+            <FeedbackModal
+                opened={feedbackModalOpened}
+                onClose={closeFeedbackModal}
+                userEmail={userEmail}
             />
         </>
     );

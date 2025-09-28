@@ -4,7 +4,6 @@ import { FormExperienceStructure, RefreshSections } from '@/utils/interfaces';
 import ExperienceForm from '../forms/experienceForm';
 import ShowUserDataSection from '../showUserDataSection';
 import styles from './formContainerStyles.module.css';
-import { PROFILE_RECORD_LIMITS } from '@/app/config/profile.config';
 
 interface Params {
     setExperienceInfo: Dispatch<

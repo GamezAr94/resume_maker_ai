@@ -1,0 +1,14 @@
+.headerContainer {
+    background-color: var(--mantine-color-orange-6);
+    border-top-left-radius: var(--mantine-radius-md);
+    border-top-right-radius: var(--mantine-radius-md);
+    border-bottom: none;
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-lg);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: var(--mantine-spacing-xs);
+    color: white;
+}
