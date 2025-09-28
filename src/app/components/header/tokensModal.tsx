@@ -74,9 +74,6 @@ export default function TokensModal({
     const [balanceVisible, setBalanceVisible] = useState(true);
 
     const handleManageBilling = async () => {
-        // TODO this assignment doesnt make any sense this is for the beta users, I need to remove it I added it because vercel doesn't let me deploy if the opened is assigned but never user
-        // this is to open/close the modal but I removed it for now
-        opened = false;
         try {
             // Call your new API route
             const response = await fetch('/api/stripe/create-portal-link', {
@@ -423,8 +420,7 @@ export default function TokensModal({
     return (
         <Modal
             // TODO set opened={opened} so that we can open the tokens modal again this is only temporary for the beta users
-            //opened={opened}
-            opened={false}
+            opened={(opened = false)}
             onClose={onClose}
             title={
                 <Text fw={700} size="xl">
