@@ -44,6 +44,8 @@ export default function Header() {
         tier: 'free' as SubscriptionTier, // Default to 'free'
     });
 
+    /*
+    TODO: enable this function when we enable the settings page in the header to let the users manage their payments, this is for the beta users
     const handleManageBilling = async () => {
         try {
             // Call your API route with the required headers and body
@@ -73,6 +75,7 @@ export default function Header() {
             // TODO: Optionally show an error message to the user in the UI
         }
     };
+    */
 
     // Function to easily change the subscription tier
     const handleSubscriptionChange = (tier: SubscriptionTier) => {
