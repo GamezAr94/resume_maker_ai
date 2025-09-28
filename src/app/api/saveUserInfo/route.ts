@@ -20,6 +20,7 @@ import {
 } from '@/utils/zod_schemas';
 import { createClient } from '@/utils/supabase/server';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { PROFILE_RECORD_LIMITS } from '@/app/config/profile.config';
 
 // Helper function to format Zod errors into a user-friendly string
 function formatZodError(error: ZodError): string {
@@ -82,9 +83,6 @@ async function updatePerType(
     supabase: SupabaseClient<any, 'public', any>,
     user_id: string,
 ): Promise<{ id: string | null; message: string; status: number }> {
-    let error: string | null = null;
-    let data: { id: string }[] | null = null;
-
     // Get the user id from the database
     const { data: userData, error: userError } = await supabase
         .from('user')
@@ -98,6 +96,39 @@ async function updatePerType(
             message: 'Failed to process data: ' + (userError as Error).message,
             status: 500,
         };
+    }
+
+    // This check applies only when creating a NEW record (no ID is present)
+    if (type !== SectionTypes.Personal && !('id' in requestBodyData)) {
+        const { count, error: countError } = await supabase
+            .from(type)
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userData.id);
+
+        if (countError) {
+            return {
+                id: null,
+                message: 'Could not verify record count.',
+                status: 500,
+            };
+        }
+
+        const limits = {
+            [SectionTypes.Experience]: PROFILE_RECORD_LIMITS.EXPERIENCE,
+            [SectionTypes.Education]: PROFILE_RECORD_LIMITS.EDUCATION,
+            [SectionTypes.Skill]: PROFILE_RECORD_LIMITS.SKILLS,
+            [SectionTypes.Project]: PROFILE_RECORD_LIMITS.PROJECTS,
+        };
+
+        const limit = limits[type as keyof typeof limits];
+
+        if (limit !== undefined && count !== null && count >= limit) {
+            return {
+                id: null,
+                message: `You have reached the maximum of ${limit} records for this section.`,
+                status: 403, // 403 Forbidden is a good status code here
+            };
+        }
     }
 
     let validationResult;
