@@ -19,6 +19,7 @@
     "@stripe/stripe-js": "^7.4.0",
     "@supabase/ssr": "^0.5.2",
     "@tabler/icons-react": "^3.28.1",
+    "@vercel/analytics": "^1.5.0",
     "jszip": "^3.10.1",
     "next": "^15.3.2",
     "nodemailer": "^7.0.6",
