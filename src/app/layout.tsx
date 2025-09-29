@@ -10,6 +10,7 @@ import {
     mantineHtmlProps,
 } from '@mantine/core';
 import '@mantine/notifications/styles.css';
+import { Analytics } from '@vercel/analytics/next';
 
 import './globals.css';
 
@@ -81,6 +82,7 @@ export default function RootLayout({
                 <MantineProvider theme={theme}>
                     <Notifications position="top-right" zIndex={9999} />
                     {children}
+                    <Analytics />
                 </MantineProvider>
             </body>
         </html>
