@@ -117,6 +117,8 @@ export default function SignUpPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [clientError, setClientError] = useState('');
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const checks = requirements.map((requirement, index) => (
         <PasswordRequirement
             key={index}
@@ -128,6 +130,7 @@ export default function SignUpPage() {
     const color = strength === 100 ? 'teal' : strength > 50 ? 'yellow' : 'red';
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        setIsLoading(true);
         setClientError(''); // Reset errors on a new submission attempt
 
         // --- CLIENT-SIDE CHECKS ---
@@ -348,7 +351,7 @@ export default function SignUpPage() {
                     )}
                     <ActionMsg />
 
-                    <Button type="submit" fullWidth mt="xl">
+                    <Button type="submit" fullWidth mt="xl" loading={isLoading}>
                         Create account
                     </Button>
                 </form>
@@ -364,6 +367,7 @@ export default function SignUpPage() {
                         leftSection={<GoogleIcon />}
                         onClick={handleSignInWithGoogle}
                         variant="default"
+                        loading={isLoading}
                     >
                         Google
                     </Button>

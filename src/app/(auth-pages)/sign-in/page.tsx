@@ -1,6 +1,7 @@
 // src/app/(auth-pages)/sign-in/page.tsx
 'use client';
 
+import { useState } from 'react';
 import {
     Paper,
     Title,
@@ -63,6 +64,8 @@ const GoogleIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
 );
 
 export default function SignInPage() {
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleSignInWithGoogle = async () => {
         const supabase = createClient();
         await supabase.auth.signInWithOAuth({
@@ -107,7 +110,7 @@ export default function SignInPage() {
                     Sign in to your ResumeAI account
                 </Text>
 
-                <form action={signInAction}>
+                <form action={signInAction} onSubmit={() => setIsLoading(true)}>
                     <TextInput
                         leftSectionPointerEvents="none"
                         leftSection={
@@ -145,7 +148,7 @@ export default function SignInPage() {
                         </Anchor>
                     </Group>
                     <ActionMsg />
-                    <Button type="submit" fullWidth mt="xl">
+                    <Button type="submit" fullWidth mt="xl" loading={isLoading}>
                         Sign in
                     </Button>
                 </form>
@@ -161,6 +164,7 @@ export default function SignInPage() {
                         leftSection={<GoogleIcon />}
                         onClick={handleSignInWithGoogle}
                         variant="default"
+                        loading={isLoading}
                     >
                         Google
                     </Button>
