@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 
 import { ClassicResumeTemplate } from '@/lib/pdf-templates/ClassicResume';
 import { ModernResumeTemplate } from '@/lib/pdf-templates/ModernResume';
+import { MinimalistResumeTemplate } from '@/lib/pdf-templates/MinimalistResume';
 
 export async function POST(req: Request) {
     const requestBody = await req.json();
@@ -21,14 +22,23 @@ export async function POST(req: Request) {
     }
 
     try {
-        const stream = await ReactPDF.renderToStream(
-            // TODO this is a very rustic way to handle the template selection, consider using a more robust method
-            pdfData.resume_generated.styles.theme === 'classic' ? (
-                <ClassicResumeTemplate dataResume={pdfData} />
-            ) : (
-                <ModernResumeTemplate dataResume={pdfData} />
-            ),
-        );
+        let resumeTemplate;
+        // Logic to select the correct template component based on the theme
+        switch (pdfData.resume_generated.styles.theme) {
+            case 'classic':
+                resumeTemplate = <ClassicResumeTemplate dataResume={pdfData} />;
+                break;
+            case 'minimalist':
+                resumeTemplate = (
+                    <MinimalistResumeTemplate dataResume={pdfData} />
+                );
+                break;
+            case 'modern':
+            default:
+                resumeTemplate = <ModernResumeTemplate dataResume={pdfData} />;
+        }
+
+        const stream = await ReactPDF.renderToStream(resumeTemplate);
 
         return new NextResponse(stream as unknown as ReadableStream, {
             headers: {

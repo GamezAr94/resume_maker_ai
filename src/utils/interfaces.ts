@@ -232,7 +232,7 @@ export interface GeminiResponse {
     recommendations: string;
     explanation: string;
     styles: {
-        theme: 'modern' | 'classic'; // Assuming these are the only two themes for now.
+        theme: 'modern' | 'classic' | 'minimalist'; // Assuming these are the only two themes for now.
     };
     // selected_narrative can be inferred from the presence of summary vs career_objective in the layout
 }
@@ -252,7 +252,7 @@ export const emptyStateGeminiReponse: GeminiResponse = {
     recommendations: '',
     explanation: '',
     styles: {
-        theme: 'classic', // Default theme, can be changed later.
+        theme: 'minimalist', // Default theme, can be changed later.
     },
 };
 

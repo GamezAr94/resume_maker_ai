@@ -14,6 +14,7 @@ import {
     styles as pdfStyles,
 } from '@/lib/pdf-templates/ClassicResume';
 import { ModernResumeTemplate } from '@/lib/pdf-templates/ModernResume';
+import { MinimalistResumeTemplate } from '@/lib/pdf-templates/MinimalistResume';
 import FeedbackModal from './Feedback/FeedbackModal';
 
 interface Props {
@@ -216,12 +217,35 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
                     showToolbar={false}
                     style={pdfStyles.viewer}
                 >
-                    {dataResume &&
-                    dataResume.resume_generated.styles.theme === 'classic' ? (
-                        <ClassicResumeTemplate dataResume={dataResume} />
-                    ) : (
-                        <ModernResumeTemplate dataResume={dataResume} />
-                    )}
+                    {(() => {
+                        if (!dataResume?.resume_generated?.styles?.theme) {
+                            return (
+                                <ModernResumeTemplate dataResume={dataResume} />
+                            );
+                        }
+
+                        switch (dataResume.resume_generated.styles.theme) {
+                            case 'classic':
+                                return (
+                                    <ClassicResumeTemplate
+                                        dataResume={dataResume}
+                                    />
+                                );
+                            case 'minimalist':
+                                return (
+                                    <MinimalistResumeTemplate
+                                        dataResume={dataResume}
+                                    />
+                                );
+                            case 'modern':
+                            default:
+                                return (
+                                    <ModernResumeTemplate
+                                        dataResume={dataResume}
+                                    />
+                                );
+                        }
+                    })()}
                 </PDFViewer>
                 <div className={styles_css.action_buttons_container}>
                     <Button

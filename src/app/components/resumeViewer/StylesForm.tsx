@@ -48,7 +48,8 @@ interface StylesFormProps {
 // Define your themes in an array for easy mapping
 const availableThemes = [
     { name: 'Modern', color: '#F97316' },
-    { name: 'Classic', color: '#F97316' },
+    { name: 'Classic', color: '#CCBA71' },
+    { name: 'Minimalist', color: '#636b77' },
 ];
 
 export default function StylesForm({
