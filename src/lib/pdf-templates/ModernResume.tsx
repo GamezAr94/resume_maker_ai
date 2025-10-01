@@ -9,6 +9,7 @@ import {
     Link,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
+import { renderBulletPoints } from './pdfUtils';
 
 // --- FONT REGISTRATION ---
 // Using 'Roboto' for a modern, clean look.
@@ -156,6 +157,19 @@ export const styles = StyleSheet.create({
         borderRadius: 5,
         marginRight: 6,
         marginBottom: 6,
+    },
+    bulletPoint: {
+        flexDirection: 'row',
+        marginBottom: 4,
+    },
+    bullet: {
+        width: 15,
+        fontSize: 10, // Match description font size
+    },
+    bulletText: {
+        flex: 1,
+        fontSize: 10, // Match description font size
+        textAlign: 'justify',
     },
 });
 
@@ -312,13 +326,10 @@ export const ModernResumeTemplate = ({
                                                     >
                                                         {exp.company}
                                                     </Text>
-                                                    <Text
-                                                        style={
-                                                            styles.description
-                                                        }
-                                                    >
-                                                        {exp.responsabilities}
-                                                    </Text>
+                                                    {renderBulletPoints(
+                                                        exp.responsabilities,
+                                                        styles,
+                                                    )}
                                                 </View>
                                             ),
                                     )}
@@ -405,13 +416,10 @@ export const ModernResumeTemplate = ({
                                                             {pro.name}
                                                         </Text>
                                                     </View>
-                                                    <Text
-                                                        style={
-                                                            styles.description
-                                                        }
-                                                    >
-                                                        {pro.description}
-                                                    </Text>
+                                                    {renderBulletPoints(
+                                                        pro.description,
+                                                        styles,
+                                                    )}
                                                 </View>
                                             ),
                                     )}

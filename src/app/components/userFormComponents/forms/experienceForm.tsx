@@ -303,6 +303,7 @@ export default function ExperienceForm({
                         <DatePickerInput
                             label="Start Date"
                             placeholder="Pick start date"
+                            valueFormat="MMM YYYY"
                             value={getEditRecord?.start_date || null}
                             onChange={(newStartDateString) => {
                                 const dateValue = newStartDateString || '';
@@ -329,6 +330,7 @@ export default function ExperienceForm({
                         />
                         <DatePickerInput
                             label="End Date"
+                            valueFormat="MMM YYYY"
                             placeholder="Pick end date"
                             value={getEditRecord?.end_date || null}
                             onChange={(value) =>

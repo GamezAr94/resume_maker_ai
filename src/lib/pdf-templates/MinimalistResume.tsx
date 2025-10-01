@@ -9,6 +9,7 @@ import {
     Font,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
+import { renderBulletPoints } from './pdfUtils';
 
 // Using Lato for a clean, standard look.
 Font.register({
@@ -150,21 +151,6 @@ export const MinimalistResumeTemplate = ({
 
     const { resume_generated } = dataResume;
 
-    // Helper to render bullet points from a single string with newlines
-    const renderResponsibilities = (responsibilities: string) => {
-        const points = responsibilities
-            .split('\n')
-            .filter((p) => p.trim() !== '');
-        return points.map((point, index) => (
-            <View key={index} style={styles.bulletPoint}>
-                <Text style={styles.bullet}>•</Text>
-                <Text style={styles.bulletText}>
-                    {point.replace(/^- /, '')}
-                </Text>
-            </View>
-        ));
-    };
-
     // Helper to render skills in 4 columns
     const renderSkills = (skills: string[]) => {
         const columns: string[][] = [[], [], [], []];
@@ -294,8 +280,9 @@ export const MinimalistResumeTemplate = ({
                                                             }
                                                         </Text>
                                                     </View>
-                                                    {renderResponsibilities(
+                                                    {renderBulletPoints(
                                                         exp.responsabilities,
+                                                        styles,
                                                     )}
                                                 </View>
                                             ),
@@ -392,6 +379,7 @@ export const MinimalistResumeTemplate = ({
                                                         >
                                                             {pro.name}
                                                         </Text>
+                                                        {/*
                                                         {pro.start_end_dates && (
                                                             <Text
                                                                 style={
@@ -403,14 +391,21 @@ export const MinimalistResumeTemplate = ({
                                                                 }
                                                             </Text>
                                                         )}
+                                                            */}
                                                     </View>
+                                                    {renderBulletPoints(
+                                                        pro.description,
+                                                        styles,
+                                                    )}
+                                                    {/*
+                                                    IMPORTANT: this will display the content as text, not as bullet points
                                                     <Text
                                                         style={
                                                             styles.description
                                                         }
                                                     >
                                                         {pro.description}
-                                                    </Text>
+                                                    </Text>*/}
                                                 </View>
                                             ),
                                     )}

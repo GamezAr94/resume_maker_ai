@@ -9,6 +9,7 @@ import {
     Link,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
+import { renderBulletPoints } from './pdfUtils';
 
 // --- FONT REGISTRATION ---
 /*
@@ -170,6 +171,19 @@ export const styles = StyleSheet.create({
         fontSize: 10,
         textAlign: 'justify',
         fontWeight: 400,
+    },
+    bulletPoint: {
+        flexDirection: 'row',
+        marginBottom: 4,
+    },
+    bullet: {
+        width: 15,
+        fontSize: 10, // Match description font size
+    },
+    bulletText: {
+        flex: 1,
+        fontSize: 10, // Match description font size
+        textAlign: 'justify',
     },
 });
 
@@ -388,15 +402,11 @@ export const ClassicResumeTemplate = ({
                                                                 exp.start_end_dates
                                                             }
                                                         </Text>
-                                                        <Text
-                                                            style={
-                                                                styles.description
-                                                            }
-                                                        >
-                                                            {
-                                                                exp.responsabilities
-                                                            }
-                                                        </Text>
+
+                                                        {renderBulletPoints(
+                                                            exp.responsabilities,
+                                                            styles,
+                                                        )}
                                                     </View>
                                                 ),
                                         )}
@@ -440,13 +450,19 @@ export const ClassicResumeTemplate = ({
                                                             }
                                                         </Text>
                                                         */}
+                                                        {renderBulletPoints(
+                                                            pro.description,
+                                                            styles,
+                                                        )}
+                                                        {/*
+                                                        IMPORTANT: this will display the content as text, not as bullet points
                                                         <Text
                                                             style={
                                                                 styles.description
                                                             }
                                                         >
                                                             {pro.description}
-                                                        </Text>
+                                                        </Text>*/}
                                                     </View>
                                                 ),
                                         )}

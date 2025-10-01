@@ -318,6 +318,7 @@ export default function EducationInfoForm({
                     />
                     <Group grow>
                         <DatePickerInput
+                            valueFormat="MMM YYYY"
                             label="Start Date"
                             placeholder="Pick start date"
                             name="start_date"
@@ -347,6 +348,7 @@ export default function EducationInfoForm({
                             required
                         />
                         <DatePickerInput
+                            valueFormat="MMM YYYY"
                             label="End Date"
                             placeholder="Pick end date"
                             name="end_date"
