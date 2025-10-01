@@ -117,7 +117,7 @@ JSON Field-by-Field Instructions:
 
     recommendations (String):
     ### Profile Enhancement
-    Analyze the user's source profile and identify the single biggest area for improvement. Focus on the quality of their descriptions.
+    Analyze the user's source profile and identify the single biggest area for improvement. Focus on the quality of their descriptions. Make sure to review the user profile and details to provide high quality feedback
     - If their accomplishment descriptions lack quantifiable metrics (numbers, percentages, dollar amounts), explicitly point this out and provide a formulaic example. For instance: "Your project descriptions are good, but they would be more impactful with metrics. Try to frame them as '[Action] resulted in [Quantifiable Outcome] by [Method].'"
     - If they describe tasks instead of impact, explain the difference. For example: "Shift your focus from listing tasks (e.g., 'managed the database') to describing the outcome (e.g., 'Improved query performance by 30% by restructuring the database schema')."
 
@@ -179,6 +179,7 @@ JSON Field-by-Field Instructions:
             items (Array of Objects):
                 Select up to four of the most relevant job experiences from the user's profile, ordered from most to least relevant to the target job.
                 For each item, set display to true. You must ensure at least three experiences are set to true if available and if available up to 3 more with display false.(ONLY if are available if not select the number that is available and you cannot add fake experiences)
+                start_end_dates: Format this string as "Month YYYY – Month YYYY" or "Month YYYY – Present". For example, "May 2023 – Jan 2024" or "Jun 2024 – Present".
                 responsabilities: This is the most critical part. Your goal is to transform the user's descriptions into 3-5 high-impact bullet points per role. You must avoid listing simple tasks. For each bullet point you generate, you will follow this **Hierarchy of Impact**:
 
                 1.  Select up to THREE of the user's most relevant job experiences.
@@ -208,6 +209,7 @@ JSON Field-by-Field Instructions:
             display: Set to true.
             items (Array of Objects):
                 List the user's relevant educational background.
+                start_end_dates: Format this string as "Month YYYY – Month YYYY" or "Month YYYY – Present". For example, "Sep 2020 – May 2024".
                 show if available 3 with display true and up to 5 with display false
                 For each item, set display to true.
                 Do NOT generate fake data just use what the user has in the profile
@@ -232,7 +234,7 @@ JSON Field-by-Field Instructions:
                 1.  Analyze the job description for its core technical requirements.
                 2.  You MUST select the TWO projects from the user's master list that most directly showcase these specific requirements (ONLY if are available if not select the number that is available and you CANNOT add fake projects).
                 3.  **Example of strategic choice:** If a job requires "AWS and containerization," you MUST select a "Homelab" project over a "Freelance E-commerce" project, even if the e-commerce project has stronger sales metrics.
-                4.  For each project's description, create a 2-3 sentence summary using the "Hierarchy of Impact" logic.
+                description: This is the most critical part. Your goal is to transform the user's descriptions into 3-5 high-impact bullet points per role. You must avoid listing simple tasks. For each bullet point you generate, you will follow this **Hierarchy of Impact**:
 
                 **Priority #1: Use Quantifiable Data (if available)**
                 Your first priority is to find a specific metric. Scour the user's text for any numbers, percentages, dollar amounts, or time saved (e.g., "increased sales by 13%", "reduced query time by 300ms", "saved 5 hours per week").
@@ -251,6 +253,8 @@ JSON Field-by-Field Instructions:
 
                 **Final Rule:** Under no circumstances should you generate a simple task like "Wrote code for features" or "Maintained the platform." Every bullet point must clearly communicate value through **quantifiable results**, **scope**, or **technical complexity**.
                 d if possible 3 with display false.
+        
+            IMPORTANT! and again, you should never generate fake entries, if the user has very little experience, or no projects, or no educations leave as is, you can recommend it in the feedback section, so is prohibited to create 'FAKE experience 1 ' etc, and give some fake description
         `,
     });
 

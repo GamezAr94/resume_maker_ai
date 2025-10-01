@@ -134,7 +134,7 @@ export default function Resume() {
                                     : userInfo.data.portfolio_url,
                         },
                         styles: {
-                            theme: resumeData.styles?.theme || 'classic',
+                            theme: resumeData.styles?.theme || 'minimalist',
                         },
                     },
                 });

@@ -27,7 +27,7 @@ export default function AiFeedbackDisplay({
                     <Group gap="xs">
                         <IconBulb size={24} stroke={1.5} />
                         <Text fw={700} size="lg">
-                            Actionable Recommendations
+                            Actionable Recommendations (Beta)
                         </Text>
                     </Group>
                     {recommendations ? (

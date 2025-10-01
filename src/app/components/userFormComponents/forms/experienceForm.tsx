@@ -19,7 +19,7 @@ import {
     Checkbox,
     Textarea,
 } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
+import { MonthPickerInput } from '@mantine/dates';
 import { notifications } from '@mantine/notifications';
 
 import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter';
@@ -300,9 +300,11 @@ export default function ExperienceForm({
                     />
 
                     <Group grow>
-                        <DatePickerInput
+                        <MonthPickerInput
                             label="Start Date"
+                            defaultLevel="decade"
                             placeholder="Pick start date"
+                            valueFormat="MMM YYYY"
                             value={getEditRecord?.start_date || null}
                             onChange={(newStartDateString) => {
                                 const dateValue = newStartDateString || '';
@@ -327,8 +329,10 @@ export default function ExperienceForm({
                             }
                             required
                         />
-                        <DatePickerInput
+                        <MonthPickerInput
                             label="End Date"
+                            valueFormat="MMM YYYY"
+                            defaultLevel="decade"
                             placeholder="Pick end date"
                             value={getEditRecord?.end_date || null}
                             onChange={(value) =>

@@ -7,7 +7,7 @@ import {
     RefreshSections,
 } from '@/utils/interfaces';
 import { Button, TextInput, Group, Text, Stack, Checkbox } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
+import { MonthPickerInput } from '@mantine/dates';
 import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { z } from 'zod';
@@ -317,7 +317,9 @@ export default function EducationInfoForm({
                         required
                     />
                     <Group grow>
-                        <DatePickerInput
+                        <MonthPickerInput
+                            defaultLevel="decade"
+                            valueFormat="MMM YYYY"
                             label="Start Date"
                             placeholder="Pick start date"
                             name="start_date"
@@ -346,7 +348,9 @@ export default function EducationInfoForm({
                             }
                             required
                         />
-                        <DatePickerInput
+                        <MonthPickerInput
+                            defaultLevel="decade"
+                            valueFormat="MMM YYYY"
                             label="End Date"
                             placeholder="Pick end date"
                             name="end_date"
