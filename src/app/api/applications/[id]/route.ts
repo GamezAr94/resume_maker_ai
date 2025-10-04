@@ -3,10 +3,15 @@
 import { createClient } from '@/utils/supabase/server';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-    request: NextRequest,
-    { params }: { params: { id: string } },
-) {
+// Define a type for the route's context
+type Context = {
+    params: {
+        id: string;
+    };
+};
+
+export async function GET(request: NextRequest, context: Context) {
+    const { id } = context.params;
     const supabase = await createClient();
     const {
         data: { user },
@@ -19,7 +24,7 @@ export async function GET(
         );
     }
 
-    const applicationId = params.id;
+    const applicationId = context.params.id;
 
     try {
         const { data: userData, error: userError } = await supabase
@@ -59,10 +64,9 @@ export async function GET(
 }
 
 // This function handles DELETE requests to /api/applications/[id]
-export async function DELETE(
-    request: Request,
-    { params }: { params: { id: string } },
-) {
+export async function DELETE(request: NextRequest, context: Context) {
+    const { id } = context.params;
+
     const supabase = await createClient();
     const {
         data: { user },
@@ -75,7 +79,7 @@ export async function DELETE(
         );
     }
 
-    const applicationId = params.id; // Get the ID from the URL
+    const applicationId = context.params.id;
 
     try {
         // First, get the internal user ID from the 'user' table
