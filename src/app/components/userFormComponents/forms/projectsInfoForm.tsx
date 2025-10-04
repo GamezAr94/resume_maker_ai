@@ -137,15 +137,6 @@ export default function ProjectsInfoForm({
                 return;
             }
 
-            if (setInfo) {
-                const projectInfoResp = await getDBTableInfo(
-                    SectionTypes.Project,
-                );
-                if (!projectInfoResp) {
-                    return;
-                }
-                setInfo(projectInfoResp.data);
-            }
             notifications.show({
                 title: 'Success!',
                 message: 'Your project has been saved.',

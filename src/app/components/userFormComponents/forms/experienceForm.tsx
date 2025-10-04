@@ -143,15 +143,6 @@ export default function ExperienceForm({
                 return;
             }
 
-            if (setInfo) {
-                const experienceInfoResp = await getDBTableInfo(
-                    SectionTypes.Experience,
-                );
-                if (!experienceInfoResp) {
-                    return;
-                }
-                setInfo(experienceInfoResp.data);
-            }
             notifications.show({
                 title: 'Success!',
                 message: 'Your experience has been saved.',

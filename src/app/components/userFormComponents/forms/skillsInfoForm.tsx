@@ -115,13 +115,6 @@ export default function SkillsInfoForm({
                 return;
             }
 
-            if (setInfo) {
-                const skillInfoResp = await getDBTableInfo(SectionTypes.Skill);
-                if (!skillInfoResp) {
-                    return;
-                }
-                setInfo(skillInfoResp.data);
-            }
             notifications.show({
                 title: 'Success!',
                 message: 'Your skill has been saved.',

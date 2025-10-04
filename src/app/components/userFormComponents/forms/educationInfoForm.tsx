@@ -147,15 +147,6 @@ export default function EducationInfoForm({
                 return;
             }
 
-            if (setInfo) {
-                const experienceInfoResp = await getDBTableInfo(
-                    SectionTypes.Education,
-                );
-                if (!experienceInfoResp) {
-                    return;
-                }
-                setInfo(experienceInfoResp.data);
-            }
             notifications.show({
                 title: 'Success!',
                 message: 'Your education has been saved.',
