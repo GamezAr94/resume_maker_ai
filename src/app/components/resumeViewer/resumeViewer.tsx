@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styles_css from './resumeViewer.module.css';
 import { PDFViewer } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
@@ -20,9 +20,14 @@ import FeedbackModal from './Feedback/FeedbackModal';
 interface Props {
     dataResume: FormJobOfferDataStructure;
     viewerKey: number;
+    setDataResume: Dispatch<SetStateAction<FormJobOfferDataStructure>>;
 }
 
-export default function ResumeViewer({ dataResume, viewerKey }: Props) {
+export default function ResumeViewer({
+    dataResume,
+    viewerKey,
+    setDataResume,
+}: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -89,8 +94,9 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
     // Function to validate the user data and save it
     async function gettingPDF() {
         // Prevent multiple calls if already downloading
-        if (isDownloading) return;
-
+        if (isDownloading) {
+            return;
+        }
         setIsDownloading(true);
         notifications.show({
             id: 'download-pdf',
@@ -102,7 +108,30 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
         });
 
         try {
-            const res = await fetch('../api/pdfResume', {
+            // Only update the resume state if was downloaded and it was FALSE
+            if (dataResume.id && !dataResume.was_downloaded) {
+                console.log('First time download, marking in DB...');
+
+                // Call the new, structured API route
+                const res = await fetch(
+                    `/api/resume/${dataResume.id}/download-status`,
+                    {
+                        method: 'POST',
+                    },
+                );
+
+                // Optional but recommended: Update local state if the API call was successful
+                if (res.ok) {
+                    // This prevents a second API call if the user clicks download
+                    // again before reloading the page.
+                    setDataResume((prev) => ({
+                        ...prev,
+                        was_downloaded: true,
+                    }));
+                }
+            }
+
+            const pdfRes = await fetch('../api/pdfResume', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -110,12 +139,12 @@ export default function ResumeViewer({ dataResume, viewerKey }: Props) {
                 }),
             });
             // verify we get a good response
-            if (!res.ok) {
-                const errorData = await res.json();
+            if (!pdfRes.ok) {
+                const errorData = await pdfRes.json();
                 throw new Error(errorData.message || 'Failed to download PDF');
             }
 
-            const blob = await res.blob(); // Get the PDF as a Blob
+            const blob = await pdfRes.blob(); // Get the PDF as a Blob
             const url = window.URL.createObjectURL(blob); // Create a temporary URL
 
             // Create a temporary link and click it to trigger the download

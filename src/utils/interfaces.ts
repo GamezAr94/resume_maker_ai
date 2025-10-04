@@ -279,6 +279,7 @@ export const emptyStateJobDataOffer: FormJobOfferDataStructure = {
     job_position: '',
     job_description: '',
     resume_generated: emptyStateGeminiReponse,
+    was_downloaded: false,
 };
 // Interface for the form job offer structure
 export interface FormJobOfferDataStructure {
@@ -288,6 +289,7 @@ export interface FormJobOfferDataStructure {
     job_position: string;
     job_description: string;
     resume_generated: GeminiResponse;
+    was_downloaded: boolean;
 }
 
 // The Interface for my applications/resumes generated

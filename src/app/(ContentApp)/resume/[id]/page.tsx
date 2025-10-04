@@ -167,6 +167,7 @@ export default function Resume() {
                 <DynamicResumeViewer
                     dataResume={dataResume}
                     viewerKey={viewerKey}
+                    setDataResume={setDataResume}
                 />
             ) : (
                 // Mientras carga los datos o si el ID es inválido, no muestra el viewer
