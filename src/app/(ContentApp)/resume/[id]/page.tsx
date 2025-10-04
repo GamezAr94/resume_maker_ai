@@ -1,6 +1,4 @@
 'use client';
-import { getDBTableInfo } from '@/app/db/user_queries';
-import { SectionTypes } from '@/utils/enums';
 import {
     emptyStateJobDataOffer,
     FormJobOfferDataStructure,
@@ -38,106 +36,101 @@ export default function Resume() {
             !isNaN(Number(id))
         ) {
             const fetchData = async () => {
-                const data = await getDBTableInfo(
-                    SectionTypes.JobOffer,
-                    null,
-                    +id,
-                );
-                if (
-                    data.data == undefined ||
-                    data.data == null ||
-                    data.data.length <= 0
-                ) {
-                    // Redirect to the dashboard if there is NO resume
-                    router.push(`/`);
-                }
-                // TODO I need to fetch the user info as well so that I can populate the contact info in the object
-                // TODO I need to make sure the json is correct because if the section 'recommendations' has this symbol "" it will break the entire json object
-                // console.log(data.data[0].resume_generated);
-                /*
-                data.data[0].contact_info.name = 'Arturo';
-                data.data[0].contact_info.email = 'Arturo';
-                data.data[0].contact_info.phone = 'Arturo';
-                data.data[0].contact_info.linkedin = 'Arturo';
-                */
+                try {
+                    const appResponse = await fetch(`/api/applications/${id}`);
+                    if (!appResponse.ok) {
+                        router.push(`/`); // Redirect if resume not found or not authorized
+                        return;
+                    }
+                    const data = { data: [await appResponse.json()] }; // Match original structure
 
-                let resumeData = data.data[0].resume_generated;
-                // make sure we are sending a JSON object
-                if (typeof resumeData != 'object') {
-                    resumeData = JSON.parse(resumeData);
-                }
-                // TODO validate the response of this request
-                const userInfo = await getDBTableInfo('');
-                // TODO we dont need to fetch the supabase_id from the user info
+                    const userResponse = await fetch('/api/profile');
+                    if (!userResponse.ok)
+                        throw new Error('Could not fetch user profile.');
+                    const userInfo = { data: await userResponse.json() }; // Match original structure
 
-                // IMPORTANT: The order of the layout items is important for the viewer
-                // We want to reorder the layout items to match the desired order
-                // The desired order is:
-                const desiredSectionsOrder = {
-                    narrative: 0,
-                    experience: 1,
-                    projects: 2,
-                    education: 3,
-                    skills: 4,
-                };
+                    let resumeData = data.data[0].resume_generated;
+                    // make sure we are sending a JSON object
+                    if (typeof resumeData != 'object') {
+                        resumeData = JSON.parse(resumeData);
+                    }
 
-                // TODO we also need to sort the items in the experience and projects sections
-                const reorderedLayoutArray = ensureLayoutIsOrderedArray(
-                    resumeData.layout,
-                    desiredSectionsOrder,
-                    'id',
-                );
+                    // IMPORTANT: The order of the layout items is important for the viewer
+                    // We want to reorder the layout items to match the desired order
+                    // The desired order is:
+                    const desiredSectionsOrder = {
+                        narrative: 0,
+                        experience: 1,
+                        projects: 2,
+                        education: 3,
+                        skills: 4,
+                    };
 
-                // set the data returned from the database to the state and prepare
-                // it to set the data for the resumeViewer and the resumeEditor
-                setDataResume({
-                    ...data.data[0],
-                    resume_generated: {
-                        layout: reorderedLayoutArray,
-                        recommendations: resumeData.recommendations,
-                        explanation: resumeData.explanation,
-                        // TODO: hmm not sure if this is the best way to do it using the selected_narrative
-                        selected_narrative:
-                            resumeData.selected_narrative || 'summary',
-                        contact_info: {
-                            name:
-                                resumeData.contact_info?.name !== null &&
-                                resumeData.contact_info?.name !== undefined
-                                    ? resumeData.contact_info.name
-                                    : userInfo.data.first_name +
-                                      ' ' +
-                                      userInfo.data.last_name,
-                            email:
-                                resumeData.contact_info?.email !== null &&
-                                resumeData.contact_info?.email !== undefined
-                                    ? resumeData.contact_info.email
-                                    : userInfo.data.email,
-                            phone:
-                                resumeData.contact_info?.phone !== null &&
-                                resumeData.contact_info?.phone !== undefined
-                                    ? resumeData.contact_info.phone
-                                    : userInfo.data.phone,
-                            linkedin:
-                                resumeData.contact_info?.linkedin !== null &&
-                                resumeData.contact_info?.linkedin !== undefined
-                                    ? resumeData.contact_info.linkedin
-                                    : userInfo.data.linkedin_url,
-                            github:
-                                resumeData.contact_info?.github !== null &&
-                                resumeData.contact_info?.github !== undefined
-                                    ? resumeData.contact_info.github
-                                    : userInfo.data.github_url,
-                            portfolio:
-                                resumeData.contact_info?.portfolio !== null &&
-                                resumeData.contact_info?.portfolio !== undefined
-                                    ? resumeData.contact_info.portfolio
-                                    : userInfo.data.portfolio_url,
+                    // TODO we also need to sort the items in the experience and projects sections
+                    const reorderedLayoutArray = ensureLayoutIsOrderedArray(
+                        resumeData.layout,
+                        desiredSectionsOrder,
+                        'id',
+                    );
+
+                    // set the data returned from the database to the state and prepare
+                    // it to set the data for the resumeViewer and the resumeEditor
+                    setDataResume({
+                        ...data.data[0],
+                        resume_generated: {
+                            layout: reorderedLayoutArray,
+                            recommendations: resumeData.recommendations,
+                            explanation: resumeData.explanation,
+                            // TODO: hmm not sure if this is the best way to do it using the selected_narrative
+                            selected_narrative:
+                                resumeData.selected_narrative || 'summary',
+                            contact_info: {
+                                name:
+                                    resumeData.contact_info?.name !== null &&
+                                    resumeData.contact_info?.name !== undefined
+                                        ? resumeData.contact_info.name
+                                        : userInfo.data.first_name +
+                                          ' ' +
+                                          userInfo.data.last_name,
+                                email:
+                                    resumeData.contact_info?.email !== null &&
+                                    resumeData.contact_info?.email !== undefined
+                                        ? resumeData.contact_info.email
+                                        : userInfo.data.email,
+                                phone:
+                                    resumeData.contact_info?.phone !== null &&
+                                    resumeData.contact_info?.phone !== undefined
+                                        ? resumeData.contact_info.phone
+                                        : userInfo.data.phone,
+                                linkedin:
+                                    resumeData.contact_info?.linkedin !==
+                                        null &&
+                                    resumeData.contact_info?.linkedin !==
+                                        undefined
+                                        ? resumeData.contact_info.linkedin
+                                        : userInfo.data.linkedin_url,
+                                github:
+                                    resumeData.contact_info?.github !== null &&
+                                    resumeData.contact_info?.github !==
+                                        undefined
+                                        ? resumeData.contact_info.github
+                                        : userInfo.data.github_url,
+                                portfolio:
+                                    resumeData.contact_info?.portfolio !==
+                                        null &&
+                                    resumeData.contact_info?.portfolio !==
+                                        undefined
+                                        ? resumeData.contact_info.portfolio
+                                        : userInfo.data.portfolio_url,
+                            },
+                            styles: {
+                                theme: resumeData.styles?.theme || 'minimalist',
+                            },
                         },
-                        styles: {
-                            theme: resumeData.styles?.theme || 'minimalist',
-                        },
-                    },
-                });
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch resume data:', error);
+                }
             };
             fetchData();
         }

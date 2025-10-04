@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteProfileRecord, getDBTableInfo } from '@/app/db/user_queries';
+import { deleteProfileRecord } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
 import {
     emptyStateSkill,
