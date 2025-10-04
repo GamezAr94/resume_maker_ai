@@ -18,7 +18,6 @@ import { notifications } from '@mantine/notifications';
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 interface Params {
-    setInfo: React.Dispatch<false | [FormSkillStructure]> | null;
     infoQuery: FormSkillStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     setEditRecord: Dispatch<SetStateAction<FormSkillStructure | null>>;
@@ -37,7 +36,6 @@ const userSchema = z.object({
 });
 
 export default function SkillsInfoForm({
-    setInfo,
     infoQuery,
     setRefreshTrigger,
     setEditRecord,

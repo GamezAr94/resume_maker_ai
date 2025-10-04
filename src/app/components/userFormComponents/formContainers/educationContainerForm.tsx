@@ -6,15 +6,11 @@ import ShowUserDataSection from '../showUserDataSection';
 import styles from './formContainerStyles.module.css';
 
 interface Params {
-    setEducationInfo: Dispatch<
-        SetStateAction<false | [FormEducationStructure]>
-    >;
     educationInfo: [FormEducationStructure] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 
 export default function EducationContainerForm({
-    setEducationInfo,
     educationInfo,
     setRefreshTrigger,
 }: Params) {
@@ -30,7 +26,6 @@ export default function EducationContainerForm({
                 </h3>
                 <EducationInfoForm
                     infoQuery={null}
-                    setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
                     getEditRecord={getEditRecord}
                     setEditRecord={setEditRecord}
@@ -49,7 +44,6 @@ export default function EducationContainerForm({
                                 <EducationInfoForm
                                     key={index}
                                     infoQuery={item}
-                                    setInfo={setEducationInfo}
                                     setRefreshTrigger={setRefreshTrigger}
                                     setEditRecord={setEditRecord}
                                     getEditRecord={getEditRecord}

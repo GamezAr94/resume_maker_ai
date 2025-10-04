@@ -180,13 +180,9 @@ export default function Home() {
                             ref={mainFormRef}
                             className={styles.container_form}
                             projectInfo={projectInfo}
-                            setProjectInfo={setProjectInfo}
                             experienceInfo={experienceInfo}
-                            setExperienceInfo={setExperienceInfo}
                             educationInfo={educationInfo}
-                            setEducationInfo={setEducationInfo}
                             skillInfo={skillInfo}
-                            setSkillInfo={setSkillInfo}
                             userInfo={userInfo}
                             setUserInfo={setUserInfo}
                             setRefreshTrigger={setRefreshTrigger}

@@ -6,12 +6,10 @@ import ShowUserDataSection from '../showUserDataSection';
 import styles from './formContainerStyles.module.css';
 
 interface Params {
-    setSkillInfo: Dispatch<SetStateAction<false | [FormSkillStructure]>>;
     skillInfo: [FormSkillStructure] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 export default function SkillContainerForm({
-    setSkillInfo,
     skillInfo,
     setRefreshTrigger,
 }: Params) {
@@ -28,7 +26,6 @@ export default function SkillContainerForm({
                 </h3>
                 <SkillsInfoForm
                     infoQuery={null}
-                    setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
                     getEditRecord={getEditRecord}
                     setEditRecord={setEditRecord}
@@ -45,7 +42,6 @@ export default function SkillContainerForm({
                                 <SkillsInfoForm
                                     key={index}
                                     infoQuery={item}
-                                    setInfo={setSkillInfo}
                                     setRefreshTrigger={setRefreshTrigger}
                                     setEditRecord={setEditRecord}
                                     getEditRecord={getEditRecord}

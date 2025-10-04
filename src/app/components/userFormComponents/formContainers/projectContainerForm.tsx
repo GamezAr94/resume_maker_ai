@@ -11,14 +11,12 @@ import ShowUserDataSection from '../showUserDataSection';
 import styles from './formContainerStyles.module.css';
 
 interface Params {
-    setProjectInfo: Dispatch<SetStateAction<false | [FormProjectStructure]>>;
     projectInfo: [FormProjectStructure] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     educationInfo: [FormEducationStructure] | [];
     experienceInfo: [FormExperienceStructure] | [];
 }
 export default function ProjectContainerForm({
-    setProjectInfo,
     projectInfo,
     setRefreshTrigger,
     educationInfo,
@@ -40,7 +38,6 @@ export default function ProjectContainerForm({
                 <ProjectsInfoForm
                     // This form is now for both adding and editing
                     infoQuery={null} // This seems to be for display-only instances, so null is correct here
-                    setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
                     educationInfo={educationInfo}
                     experienceInfo={experienceInfo}
@@ -63,7 +60,6 @@ export default function ProjectContainerForm({
                                 <ProjectsInfoForm
                                     key={index}
                                     infoQuery={item} // Passing the item here makes it a display instance
-                                    setInfo={setProjectInfo}
                                     setRefreshTrigger={setRefreshTrigger}
                                     educationInfo={educationInfo}
                                     experienceInfo={experienceInfo}

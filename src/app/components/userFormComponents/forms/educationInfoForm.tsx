@@ -58,7 +58,6 @@ const userSchema = z
     });
 
 interface Params {
-    setInfo: React.Dispatch<false | [FormEducationStructure]> | null;
     infoQuery: FormEducationStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     setEditRecord: Dispatch<SetStateAction<FormEducationStructure | null>>;
@@ -66,7 +65,6 @@ interface Params {
 }
 export default function EducationInfoForm({
     infoQuery,
-    setInfo,
     setRefreshTrigger,
     setEditRecord,
     getEditRecord,

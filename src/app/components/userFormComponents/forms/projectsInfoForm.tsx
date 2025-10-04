@@ -22,7 +22,6 @@ import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
 
 interface Params {
-    setInfo: React.Dispatch<false | [FormProjectStructure]> | null;
     infoQuery: FormProjectStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     educationInfo: [FormEducationStructure] | [];
@@ -54,7 +53,6 @@ const userSchema = z.object({
 });
 
 export default function ProjectsInfoForm({
-    setInfo,
     infoQuery,
     setRefreshTrigger,
     educationInfo,

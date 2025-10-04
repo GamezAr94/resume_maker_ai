@@ -60,7 +60,6 @@ const userSchema = z
         path: ['end_date'],
     });
 interface Params {
-    setInfo: React.Dispatch<false | [FormExperienceStructure]> | null;
     infoQuery: FormExperienceStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     setEditRecord: Dispatch<SetStateAction<FormExperienceStructure | null>>;
@@ -68,7 +67,6 @@ interface Params {
 }
 export default function ExperienceForm({
     infoQuery,
-    setInfo,
     setRefreshTrigger,
     setEditRecord,
     getEditRecord,
