@@ -26,7 +26,6 @@ import styles from './header.module.css'; // Use the new styles
 import { signOutAction } from '@/app/actions';
 import TokensModal from './tokensModal';
 import { useState, useEffect } from 'react';
-import { getCurrentUserProfile } from '@/app/db/user_queries';
 import { SubscriptionTier, UserSubscription } from '@/utils/interfaces';
 import { TOKEN_COSTS } from '@/app/config/costs.config';
 import FeedbackModal from '../Feedback/FeedbackModal';
@@ -105,16 +104,37 @@ export default function Header() {
     // Fetch the token count when the component mounts
     useEffect(() => {
         const fetchUserData = async () => {
-            const { data, status } = await getCurrentUserProfile();
-            if (status && data) {
-                if (data.token_balance) {
-                    setTokenCount(data.token_balance);
+            try {
+                // Replace the old client-side call...
+                // const { data, status } = await getCurrentUserProfile();
+
+                // ...with the new server-side API call.
+                const response = await fetch('/api/profile');
+
+                if (!response.ok) {
+                    // If the server returns an error, we can't get user data
+                    console.error('Failed to fetch user profile.');
+                    return;
                 }
-                if (data.email) {
-                    setUserEmail(data.email);
+
+                const data = await response.json();
+
+                // The rest of the logic remains the same
+                if (data) {
+                    if (data.token_balance) {
+                        setTokenCount(data.token_balance);
+                    }
+                    if (data.email) {
+                        setUserEmail(data.email);
+                    }
+                    handleSubscriptionChange(
+                        data.subscription_tier as SubscriptionTier,
+                    );
                 }
-                handleSubscriptionChange(
-                    data.subscription_tier as SubscriptionTier,
+            } catch (error) {
+                console.error(
+                    'An error occurred while fetching user data:',
+                    error,
                 );
             }
         };
