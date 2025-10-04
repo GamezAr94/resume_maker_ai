@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Title, Text, rem, Stack, Loader, Center } from '@mantine/core';
 import { ApplicationData, RawApplicationFromDB } from '@/utils/interfaces';
-import { getUserApplications } from '@/app/db/user_queries';
 import { ApplicationCard } from '@/app/components/applications/ApplicationCard';
 import { notifications } from '@mantine/notifications';
 
@@ -16,33 +15,41 @@ export default function MyApplications() {
         const fetchApplications = async () => {
             setIsLoading(true);
             setError(null);
-            const response = await getUserApplications();
-            //console.log(response);
+            try {
+                const response = await fetch('/api/applications');
 
-            if (response.status && response.data) {
-                // Map the database fields to the component's expected props
-                const formattedData = response.data.map(
-                    (app: RawApplicationFromDB) => ({
-                        id: app.id,
-                        jobTitle: app.job_position,
-                        company: app.company_name,
-                        description: app.job_description,
-                        // Format the date to be more readable
-                        appliedDate: `Saved ${new Date(
-                            app.created_at,
-                        ).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                        })}`,
-                        link: 'resume/' + app.id, // Add a placeholder link
-                    }),
-                );
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(
+                        errorData.message || 'Failed to fetch applications.',
+                    );
+                }
+
+                const data: RawApplicationFromDB[] = await response.json();
+
+                // The rest of the logic remains the same
+                const formattedData = data.map((app: RawApplicationFromDB) => ({
+                    id: app.id,
+                    jobTitle: app.job_position,
+                    company: app.company_name,
+                    description: app.job_description,
+                    appliedDate: `Saved ${new Date(
+                        app.created_at,
+                    ).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                    })}`,
+                    link: 'resume/' + app.id,
+                }));
                 setApplications(formattedData);
-            } else {
-                setError(response.message);
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : 'An error occurred';
+                setError(errorMessage);
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
 
         fetchApplications();
