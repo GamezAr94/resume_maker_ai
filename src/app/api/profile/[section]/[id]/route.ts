@@ -2,7 +2,7 @@
 
 import { SectionTypes } from '@/utils/enums';
 import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // A whitelist of tables that are allowed to be modified via this route.
 // This is a crucial security measure.
@@ -14,8 +14,8 @@ const ALLOWED_TABLES = [
 ];
 
 export async function DELETE(
-    request: Request,
-    { params }: { params: { section: string; id: string } },
+    request: NextRequest,
+    context: { params: { section: string; id: string } },
 ) {
     const supabase = await createClient();
     const {
@@ -29,7 +29,7 @@ export async function DELETE(
         );
     }
 
-    const { section, id } = params;
+    const { section, id } = context.params; // Get section and id from context
 
     // Security Check 1: Ensure the requested table is on our allowlist.
     if (!ALLOWED_TABLES.includes(section as SectionTypes)) {

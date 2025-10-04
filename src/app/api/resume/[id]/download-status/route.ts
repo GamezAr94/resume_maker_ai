@@ -1,11 +1,11 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // This function handles POST requests to /api/resume/[id]/download-status
 export async function POST(
-    request: Request,
+    request: NextRequest,
     context: { params: { id: string } },
 ) {
     const supabase = await createClient();
