@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 // This function handles POST requests to /api/resume/[id]/download-status
 export async function POST(
     request: Request,
-    { params }: { params: { id: string } },
+    context: { params: { id: string } },
 ) {
     const supabase = await createClient();
     const {
@@ -20,7 +20,7 @@ export async function POST(
         );
     }
 
-    const resumeId = params.id; // Get the resume ID from the URL
+    const resumeId = context.params.id;
 
     try {
         // Find the user's internal ID to ensure ownership
