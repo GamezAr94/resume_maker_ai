@@ -1,6 +1,4 @@
 import { SectionTypes } from '@/utils/enums';
-import { createClient } from '@/utils/supabase/client';
-import { SupabaseClient, User } from '@supabase/supabase-js';
 
 /**
  * A reusable client-side function to call the DELETE API endpoint for any profile section.
