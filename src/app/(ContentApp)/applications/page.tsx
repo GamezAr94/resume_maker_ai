@@ -3,10 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Title, Text, rem, Stack, Loader, Center } from '@mantine/core';
 import { ApplicationData, RawApplicationFromDB } from '@/utils/interfaces';
-import {
-    getUserApplications,
-    deleteUserApplication,
-} from '@/app/db/user_queries';
+import { getUserApplications } from '@/app/db/user_queries';
 import { ApplicationCard } from '@/app/components/applications/ApplicationCard';
 import { notifications } from '@mantine/notifications';
 
@@ -52,10 +49,18 @@ export default function MyApplications() {
     }, []); // The empty array ensures this runs only once when the component mounts
 
     const handleDeleteApplication = async (id: string) => {
-        const response = await deleteUserApplication(id);
+        try {
+            const response = await fetch(`/api/applications/${id}`, {
+                method: 'DELETE',
+            });
 
-        if (response.status) {
-            // If successful, remove the application from the state
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(
+                    result.message || 'Failed to delete application.',
+                );
+            }
+
             setApplications((currentApps) =>
                 currentApps.filter((app) => app.id !== id),
             );
@@ -64,13 +69,17 @@ export default function MyApplications() {
                 message: 'Application deleted!',
                 color: 'green',
             });
-        } else {
+        } catch (error) {
+            // This single block now catches both network errors and server errors
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : 'An unknown error occurred.';
             notifications.show({
                 title: 'Error',
-                message: response.message,
+                message: errorMessage,
                 color: 'red',
             });
-            console.error(response.message);
         }
     };
 
