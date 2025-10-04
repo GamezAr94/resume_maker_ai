@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
     request: NextRequest,
-    context: { params: { id: string } },
+    { params }: { params: { id: string } },
 ) {
     const supabase = await createClient();
     const {
@@ -19,7 +19,7 @@ export async function GET(
         );
     }
 
-    const applicationId = context.params.id;
+    const applicationId = params.id;
 
     try {
         const { data: userData, error: userError } = await supabase
