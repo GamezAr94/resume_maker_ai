@@ -4,10 +4,8 @@ import { createClient } from '@/utils/supabase/server';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // This function handles POST requests to /api/resume/[id]/download-status
-export async function POST(
-    request: NextRequest,
-    context: { params: { id: string } },
-) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function POST(request: NextRequest, context: any) {
     const supabase = await createClient();
     const {
         data: { user },

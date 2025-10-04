@@ -2,47 +2,50 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { type NextRequest, NextResponse } from 'next/server';
+import { type SupabaseClient } from '@supabase/supabase-js';
 
-// Define a type for the route's context
-type Context = {
-    params: {
-        id: string;
-    };
-};
-
-export async function GET(request: NextRequest, context: Context) {
-    const supabase = await createClient();
+// Helper function to get the internal user ID from Supabase Auth ID
+async function getUserId(supabase: SupabaseClient) {
     const {
         data: { user },
+        error: authError,
     } = await supabase.auth.getUser();
-
-    if (!user) {
-        return NextResponse.json(
-            { message: 'Not authenticated' },
-            { status: 401 },
-        );
+    if (authError || !user) {
+        return { userId: null, error: 'Not authenticated' };
     }
 
-    const applicationId = context.params.id;
+    const { data: userData, error: userError } = await supabase
+        .from('user')
+        .select('id')
+        .eq('supabase_id', user.id)
+        .single();
+    if (userError || !userData) {
+        return { userId: null, error: 'User profile not found.' };
+    }
 
+    return { userId: userData.id, error: null };
+}
+
+// --- GET Handler ---
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function GET(request: NextRequest, context: any) {
     try {
-        const { data: userData, error: userError } = await supabase
-            .from('user')
-            .select('id')
-            .eq('supabase_id', user.id)
-            .single();
+        const supabase = await createClient();
+        const { id: applicationId } = context.params;
 
-        if (userError || !userData) throw new Error('User not found.');
+        const { userId, error: userError } = await getUserId(supabase);
+        if (userError) {
+            const status = userError === 'Not authenticated' ? 401 : 404;
+            return NextResponse.json({ message: userError }, { status });
+        }
 
         const { data, error } = await supabase
             .from('job_offer')
-            .select(`*`) // Fetch the job_offer and was_downloaded flag
+            .select(`*`)
             .eq('id', applicationId)
-            .eq('user_id', userData.id) // Security check to ensure ownership
+            .eq('user_id', userId)
             .single();
-
         if (error) {
-            // This will correctly send a 404 if the resume ID doesn't exist for this user
             return NextResponse.json(
                 { message: 'Application not found' },
                 { status: 404 },
@@ -51,54 +54,38 @@ export async function GET(request: NextRequest, context: Context) {
 
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
-        const errorMessage =
-            error instanceof Error
-                ? error.message
-                : 'An unexpected error occurred';
+        console.error('Unexpected error in GET handler:', error);
         return NextResponse.json(
-            { message: `Error fetching application: ${errorMessage}` },
+            { message: 'An unexpected error occurred.' },
             { status: 500 },
         );
     }
 }
 
-// This function handles DELETE requests to /api/applications/[id]
-export async function DELETE(request: NextRequest, context: Context) {
-    const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-        return NextResponse.json(
-            { message: 'Not authenticated' },
-            { status: 401 },
-        );
-    }
-
-    const applicationId = context.params.id;
-
+// --- DELETE Handler ---
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function DELETE(request: NextRequest, context: any) {
     try {
-        // First, get the internal user ID from the 'user' table
-        const { data: userData, error: userError } = await supabase
-            .from('user')
-            .select('id')
-            .eq('supabase_id', user.id)
-            .single();
+        const supabase = await createClient();
+        const { id: applicationId } = context.params;
 
-        if (userError || !userData) {
-            throw new Error('User profile not found.');
+        const { userId, error: userError } = await getUserId(supabase);
+        if (userError) {
+            const status = userError === 'Not authenticated' ? 401 : 404;
+            return NextResponse.json({ message: userError }, { status });
         }
 
-        // Now, perform the delete, ensuring the record belongs to the user
         const { error: deleteError } = await supabase
-            .from('job_offer') // The table is 'job_offer'
+            .from('job_offer')
             .delete()
             .eq('id', applicationId)
-            .eq('user_id', userData.id); // Security check!
-
+            .eq('user_id', userId);
         if (deleteError) {
-            throw new Error(deleteError.message);
+            console.error('Supabase delete error:', deleteError.message);
+            return NextResponse.json(
+                { message: 'Failed to delete application.' },
+                { status: 500 },
+            );
         }
 
         return NextResponse.json(
@@ -106,12 +93,9 @@ export async function DELETE(request: NextRequest, context: Context) {
             { status: 200 },
         );
     } catch (error) {
-        const errorMessage =
-            error instanceof Error
-                ? error.message
-                : 'An unexpected error occurred';
+        console.error('Unexpected error in DELETE handler:', error);
         return NextResponse.json(
-            { message: `Error deleting application: ${errorMessage}` },
+            { message: 'An unexpected error occurred.' },
             { status: 500 },
         );
     }
