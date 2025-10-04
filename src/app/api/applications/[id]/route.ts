@@ -11,7 +11,6 @@ type Context = {
 };
 
 export async function GET(request: NextRequest, context: Context) {
-    const { id } = context.params;
     const supabase = await createClient();
     const {
         data: { user },
@@ -65,8 +64,6 @@ export async function GET(request: NextRequest, context: Context) {
 
 // This function handles DELETE requests to /api/applications/[id]
 export async function DELETE(request: NextRequest, context: Context) {
-    const { id } = context.params;
-
     const supabase = await createClient();
     const {
         data: { user },
