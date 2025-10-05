@@ -82,7 +82,6 @@ export default function SignInPage() {
                 href="https://www.fazume.com"
                 c="dimmed"
                 size="sm"
-                target="_blank"
                 rel="noopener noreferrer"
             >
                 <Center inline>

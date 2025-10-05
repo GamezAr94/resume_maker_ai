@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import Script from 'next/script';
 import '@mantine/core/styles.css';
 import { Notifications } from '@mantine/notifications';
 import {
@@ -77,6 +78,10 @@ export default function RootLayout({
         <html lang="en" {...mantineHtmlProps}>
             <head>
                 <ColorSchemeScript />
+                <Script
+                    src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+                    strategy="beforeInteractive"
+                />
             </head>
             <body>
                 <MantineProvider theme={theme}>

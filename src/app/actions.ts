@@ -6,6 +6,51 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export const signUpAction = async (formData: FormData) => {
+    // --- reCAPTCHA VERIFICATION ---
+    const token = formData.get('recaptcha-token') as string;
+
+    if (!token) {
+        return encodedRedirect(
+            'error',
+            '/sign-up',
+            'reCAPTCHA validation failed. Please try again.',
+        );
+    }
+
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const response = await fetch(
+        'https://www.google.com/recaptcha/api/siteverify',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `secret=${secretKey}&response=${token}`,
+        },
+    );
+
+    const data = await response.json();
+
+    // Check if reCAPTCHA verification was successful and if the score is above a threshold (e.g., 0.5)
+    if (!data.success || data.score < 0.5) {
+        console.error('reCAPTCHA verification failed:', data['error-codes']);
+        return encodedRedirect(
+            'error',
+            '/sign-up',
+            'Bot activity detected. Please try again.',
+        );
+    }
+
+    // Also verify the action name matches what you set on the client
+    if (data.action !== 'signup') {
+        return encodedRedirect(
+            'error',
+            '/sign-up',
+            'Invalid action. Please try again.',
+        );
+    }
+
+    // --- REGULAR SIGN-UP LOGIC ---
     const email = formData.get('email')?.toString();
     const password = formData.get('password')?.toString();
     const firstName = formData.get('first_name')?.toString();

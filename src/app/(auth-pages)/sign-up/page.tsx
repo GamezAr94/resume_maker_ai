@@ -33,7 +33,7 @@ import {
 import Link from 'next/link';
 import { signUpAction } from '@/app/actions';
 import ActionMsg from '../message';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
 // --- Start of Password Strength Component ---
@@ -117,6 +117,9 @@ export default function SignUpPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [clientError, setClientError] = useState('');
 
+    // For the reCaptcha v3
+    const formRef = useRef<HTMLFormElement>(null);
+
     const [isLoading, setIsLoading] = useState(false);
 
     const checks = requirements.map((requirement, index) => (
@@ -130,6 +133,7 @@ export default function SignUpPage() {
     const color = strength === 100 ? 'teal' : strength > 50 ? 'yellow' : 'red';
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         setIsLoading(true);
         setClientError(''); // Reset errors on a new submission attempt
 
@@ -157,10 +161,34 @@ export default function SignUpPage() {
         if (password !== confirmPassword) {
             event.preventDefault(); // Stop the form submission
             setClientError('Passwords do not match. Please try again.');
+            setIsLoading(false);
             return;
         }
 
-        // If all checks pass, the form will submit to the server action as normal.
+        if (window.grecaptcha) {
+            console.log('hola');
+            window.grecaptcha.ready(() => {
+                window.grecaptcha
+                    .execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!, {
+                        action: 'signup', // Use a specific action name
+                    })
+                    .then((token: string) => {
+                        // Add token to a hidden input field
+                        if (formRef.current) {
+                            const formData = new FormData(formRef.current);
+                            formData.append('recaptcha-token', token);
+
+                            signUpAction(formData);
+                        }
+                    });
+            });
+        } else {
+            // Fallback in case grecaptcha doesn't load
+            setIsLoading(false);
+            setClientError(
+                'Could not initialize reCAPTCHA. Please try again later.',
+            );
+        }
     };
 
     const handleSignInWithGoogle = async () => {
@@ -181,7 +209,6 @@ export default function SignUpPage() {
                 href="https://www.fazume.com"
                 c="dimmed"
                 size="sm"
-                target="_blank"
                 rel="noopener noreferrer"
             >
                 <Center inline>
@@ -207,7 +234,7 @@ export default function SignUpPage() {
                     Start building professional resumes with AI
                 </Text>
 
-                <form action={signUpAction} onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} ref={formRef}>
                     <Group grow>
                         <TextInput
                             leftSectionPointerEvents="none"
