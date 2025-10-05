@@ -244,6 +244,10 @@ export interface AiFeedback {
     masterProfileSuggestions: MasterProfileSuggestion[];
     interviewPrep: InterviewPrep;
 }
+export interface NetworkingLink {
+    label: string;
+    url: string;
+}
 // NEW: The updated main response interface.
 export interface GeminiResponse {
     contact_info: ContactInfo;
@@ -253,6 +257,7 @@ export interface GeminiResponse {
     styles: {
         theme: 'modern' | 'classic' | 'minimalist'; // Assuming these are the only two themes for now.
     };
+    networkingLinks?: NetworkingLink[];
     // selected_narrative can be inferred from the presence of summary vs career_objective in the layout
 }
 
@@ -279,6 +284,7 @@ export const emptyStateGeminiReponse: GeminiResponse = {
             technicalTopics: [],
         },
     },
+    networkingLinks: [],
     styles: {
         theme: 'minimalist', // Default theme, can be changed later.
     },
