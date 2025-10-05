@@ -29,7 +29,7 @@ export async function DELETE(request: NextRequest, context: any) {
     }
 
     // The rest of your code remains the same
-    const { section, id } = context.params;
+    const { section, id } = await context.params;
 
     if (!ALLOWED_TABLES.includes(section as SectionTypes)) {
         return NextResponse.json(

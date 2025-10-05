@@ -31,7 +31,7 @@ async function getUserId(supabase: SupabaseClient) {
 export async function GET(request: NextRequest, context: any) {
     try {
         const supabase = await createClient();
-        const { id: applicationId } = context.params;
+        const { id: applicationId } = await context.params;
 
         const { userId, error: userError } = await getUserId(supabase);
         if (userError) {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest, context: any) {
 export async function DELETE(request: NextRequest, context: any) {
     try {
         const supabase = await createClient();
-        const { id: applicationId } = context.params;
+        const { id: applicationId } = await context.params;
 
         const { userId, error: userError } = await getUserId(supabase);
         if (userError) {
