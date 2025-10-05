@@ -200,7 +200,7 @@ export default function AiFeedbackDisplay({
                             <Group gap="xs">
                                 <IconClipboardText size={24} stroke={1.5} />
                                 <Text fw={700} size="lg">
-                                    ATS Keywords
+                                    ATS Keywords (Beta)
                                 </Text>
                             </Group>
                             <Paper p="md" withBorder bg="gray.0" radius="md">
