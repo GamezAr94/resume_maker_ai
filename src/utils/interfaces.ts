@@ -224,13 +224,32 @@ export type ResumeLayoutItem =
     | SkillsSection
     | ProjectsSection;
 
+export interface CandidateFit {
+    score: number;
+    summary: string;
+}
+
+export interface MasterProfileSuggestion {
+    suggestion: string;
+    example?: string;
+}
+
+export interface InterviewPrep {
+    companyFocus: string;
+    technicalTopics: string[];
+}
+
+export interface AiFeedback {
+    candidateFit: CandidateFit;
+    masterProfileSuggestions: MasterProfileSuggestion[];
+    interviewPrep: InterviewPrep;
+}
 // NEW: The updated main response interface.
 export interface GeminiResponse {
     contact_info: ContactInfo;
     layout: ResumeLayoutItem[]; // This ordered array replaces the fixed properties.
     keywords: string[];
-    recommendations: string;
-    explanation: string;
+    feedback: AiFeedback;
     styles: {
         theme: 'modern' | 'classic' | 'minimalist'; // Assuming these are the only two themes for now.
     };
@@ -249,8 +268,17 @@ export const emptyStateGeminiReponse: GeminiResponse = {
     },
     layout: [], // Initialize with an empty layout array.
     keywords: [],
-    recommendations: '',
-    explanation: '',
+    feedback: {
+        candidateFit: {
+            score: 0,
+            summary: '',
+        },
+        masterProfileSuggestions: [],
+        interviewPrep: {
+            companyFocus: '',
+            technicalTopics: [],
+        },
+    },
     styles: {
         theme: 'minimalist', // Default theme, can be changed later.
     },

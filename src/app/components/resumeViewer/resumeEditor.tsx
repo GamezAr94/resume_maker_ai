@@ -289,10 +289,8 @@ export default function ResumeEditor({
 
                 <Tabs.Panel value="ai_feedback" pt="xs">
                     <AiFeedbackDisplay
-                        recommendations={
-                            dataResume.resume_generated.recommendations
-                        }
-                        explanation={dataResume.resume_generated.explanation}
+                        feedback={dataResume.resume_generated.feedback}
+                        keywords={dataResume.resume_generated.keywords}
                     />
                 </Tabs.Panel>
             </Tabs>

@@ -73,15 +73,17 @@ export default function Resume() {
                         'id',
                     );
 
+                    console.log(resumeData.keywords);
                     // set the data returned from the database to the state and prepare
                     // it to set the data for the resumeViewer and the resumeEditor
                     setDataResume({
                         ...data.data[0],
                         resume_generated: {
                             layout: reorderedLayoutArray,
-                            recommendations: resumeData.recommendations,
-                            explanation: resumeData.explanation,
-                            // TODO: hmm not sure if this is the best way to do it using the selected_narrative
+                            feedback: {
+                                ...resumeData.feedback,
+                            },
+                            keywords: resumeData.keywords || [],
                             selected_narrative:
                                 resumeData.selected_narrative || 'summary',
                             contact_info: {

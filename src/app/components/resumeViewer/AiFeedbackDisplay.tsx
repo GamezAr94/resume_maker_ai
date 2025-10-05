@@ -1,89 +1,224 @@
 'use client';
 
-import { Paper, Stack, Group, Text, Divider, Alert } from '@mantine/core';
-// Import relevant icons from Tabler
-import { IconBulb, IconBrain } from '@tabler/icons-react';
+import {
+    Paper,
+    Stack,
+    Group,
+    Text,
+    Divider,
+    Alert,
+    RingProgress,
+    Chip,
+    ThemeIcon,
+    List,
+} from '@mantine/core';
+import {
+    IconBulb,
+    IconTargetArrow,
+    IconTools,
+    IconClipboardText,
+    IconCheck,
+} from '@tabler/icons-react';
 import React from 'react';
-// Import a new CSS module for this component
-import classes from './AiFeedbackDisplay.module.css';
+import { AiFeedback } from '@/utils/interfaces';
 
 interface AiFeedbackDisplayProps {
-    recommendations: string | null | undefined;
-    explanation: string | null | undefined;
+    feedback: AiFeedback | null | undefined;
+    keywords: string[] | null | undefined;
 }
 
+// Helper function to get rating and color from the score
+const getRatingDetails = (score: number) => {
+    if (score >= 85) {
+        return { rating: 'Strong Match', color: 'teal' };
+    }
+    if (score >= 70) {
+        return { rating: 'Good Match', color: 'blue' };
+    }
+    if (score >= 50) {
+        return { rating: 'Moderate Gap', color: 'orange' };
+    }
+    return { rating: 'Significant Gap', color: 'red' };
+};
+
 export default function AiFeedbackDisplay({
-    recommendations,
-    explanation,
+    feedback,
+    keywords,
 }: AiFeedbackDisplayProps) {
-    // Check if there is any feedback to display
-    const hasFeedback = recommendations || explanation;
+    const hasFeedback = feedback && feedback.candidateFit;
+
+    if (!hasFeedback) {
+        return (
+            <Alert color="blue" title="No Feedback Yet">
+                Generate a new resume to see the AI&apos;s analysis and
+                recommendations.
+            </Alert>
+        );
+    }
+
+    const { rating, color } = getRatingDetails(feedback.candidateFit.score);
 
     return (
         <Paper p="md" withBorder>
             <Stack gap="xl">
-                {/* --- Recommendations Section --- */}
+                {/* --- Candidate Fit Section --- */}
+                <Stack gap="md">
+                    <Group gap="xs">
+                        <IconTargetArrow size={24} stroke={1.5} />
+                        <Text fw={700} size="lg">
+                            Candidate-Role Fit
+                        </Text>
+                    </Group>
+                    <Paper p="md" withBorder bg="gray.0" radius="md">
+                        <Group>
+                            <RingProgress
+                                size={100}
+                                thickness={10}
+                                roundCaps
+                                sections={[
+                                    {
+                                        value: feedback.candidateFit.score,
+                                        color: color,
+                                    },
+                                ]}
+                                label={
+                                    <Text
+                                        c={color}
+                                        fw={700}
+                                        ta="center"
+                                        size="xl"
+                                    >
+                                        {feedback.candidateFit.score}%
+                                    </Text>
+                                }
+                            />
+                            <Stack gap="xs" style={{ flex: 1 }}>
+                                <Text fw={600} size="lg">
+                                    {rating}
+                                </Text>
+                                <Text size="sm" c="dimmed">
+                                    {feedback.candidateFit.summary}
+                                </Text>
+                            </Stack>
+                        </Group>
+                    </Paper>
+                </Stack>
+
+                {/* --- Master Profile Suggestions Section --- */}
+                {feedback.masterProfileSuggestions &&
+                    feedback.masterProfileSuggestions.length > 0 && (
+                        <>
+                            <Stack gap="md">
+                                <Group gap="xs">
+                                    <IconTools size={24} stroke={1.5} />
+                                    <Text fw={700} size="lg">
+                                        Profile Improvement Tips
+                                    </Text>
+                                </Group>
+                                <List
+                                    spacing="xs"
+                                    size="sm"
+                                    icon={
+                                        <ThemeIcon
+                                            color="blue"
+                                            size={20}
+                                            radius="xl"
+                                        >
+                                            <IconCheck
+                                                style={{
+                                                    width: 14,
+                                                    height: 14,
+                                                }}
+                                            />
+                                        </ThemeIcon>
+                                    }
+                                >
+                                    {feedback.masterProfileSuggestions.map(
+                                        (item, index) => (
+                                            <List.Item key={index}>
+                                                <b>{item.suggestion}</b>
+                                                {item.example && (
+                                                    <Text
+                                                        c="dimmed"
+                                                        size="sm"
+                                                        mt={4}
+                                                    >
+                                                        {item.example}
+                                                    </Text>
+                                                )}
+                                            </List.Item>
+                                        ),
+                                    )}
+                                </List>
+                            </Stack>
+                            <Divider />
+                        </>
+                    )}
+
+                {/* --- Interview Prep Section --- */}
                 <Stack gap="md">
                     <Group gap="xs">
                         <IconBulb size={24} stroke={1.5} />
                         <Text fw={700} size="lg">
-                            Actionable Recommendations (Beta)
+                            Interview Prep
                         </Text>
                     </Group>
-                    {recommendations ? (
-                        <Paper p="md" withBorder bg="gray.0" radius="md">
-                            {/* The 'div' allows us to apply the class for proper text formatting */}
-                            <div
-                                className={classes.feedbackText}
-                                dangerouslySetInnerHTML={{
-                                    __html: recommendations.replace(
-                                        /\n/g,
-                                        '<br />',
+                    <List
+                        spacing="xs"
+                        size="sm"
+                        icon={
+                            <ThemeIcon color="teal" size={20} radius="xl">
+                                <IconCheck style={{ width: 14, height: 14 }} />
+                            </ThemeIcon>
+                        }
+                    >
+                        <List.Item>
+                            <b>Company Focus:</b>{' '}
+                            {feedback.interviewPrep.companyFocus}
+                        </List.Item>
+                        <List.Item>
+                            <b>Technical Topics to Review:</b>
+                            <List withPadding listStyleType="disc" size="sm">
+                                {feedback.interviewPrep.technicalTopics.map(
+                                    (topic, index) => (
+                                        <List.Item key={index}>
+                                            {topic}
+                                        </List.Item>
                                     ),
-                                }}
-                            />
-                        </Paper>
-                    ) : (
-                        <Text c="dimmed" size="sm">
-                            No recommendations available.
-                        </Text>
-                    )}
+                                )}
+                            </List>
+                        </List.Item>
+                    </List>
                 </Stack>
 
                 <Divider />
 
-                {/* --- Explanation Section --- */}
-                <Stack gap="md">
-                    <Group gap="xs">
-                        <IconBrain size={24} stroke={1.5} />
-                        <Text fw={700} size="lg">
-                            AI Rationale
-                        </Text>
-                    </Group>
-                    {explanation ? (
-                        <Paper p="md" withBorder bg="gray.0" radius="md">
-                            <div
-                                className={classes.feedbackText}
-                                dangerouslySetInnerHTML={{
-                                    __html: explanation.replace(
-                                        /\n/g,
-                                        '<br />',
-                                    ),
-                                }}
-                            />
-                        </Paper>
-                    ) : (
-                        <Text c="dimmed" size="sm">
-                            No explanation available.
-                        </Text>
-                    )}
-                </Stack>
-
-                {!hasFeedback && (
-                    <Alert color="blue" title="No Feedback Yet">
-                        Generate a resume to see the AI&apos;s recommendations
-                        and rationale here.
-                    </Alert>
+                {/* --- ATS Keywords Section --- */}
+                {keywords && keywords.length > 0 && (
+                    <>
+                        <Stack gap="md">
+                            <Group gap="xs">
+                                <IconClipboardText size={24} stroke={1.5} />
+                                <Text fw={700} size="lg">
+                                    ATS Keywords
+                                </Text>
+                            </Group>
+                            <Paper p="md" withBorder bg="gray.0" radius="md">
+                                <Group gap="xs">
+                                    {keywords.map((keyword) => (
+                                        <Chip
+                                            key={keyword}
+                                            defaultChecked
+                                            variant="filled"
+                                        >
+                                            {keyword}
+                                        </Chip>
+                                    ))}
+                                </Group>
+                            </Paper>
+                        </Stack>
+                        <Divider />
+                    </>
                 )}
             </Stack>
         </Paper>
