@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { NetworkingLink } from './interfaces';
 
 /**
  * Redirects to a specified path with an encoded message as a query parameter.
@@ -93,4 +94,32 @@ export function ensureLayoutIsOrderedArray<T extends SortableItem>(
     // Return an empty array to ensure the rest of the app doesn't break.
     console.warn('Layout data was null or invalid; returning an empty array.');
     return [];
+}
+
+const LINKEDIN_BASE_URL =
+    'https://www.linkedin.com/search/results/people/?keywords=';
+
+export function generateNetworkingLinks(
+    companyName: string,
+    jobTitle: string,
+): NetworkingLink[] {
+    // Basic templates - you can make these more sophisticated later
+    const recruiterQuery = `("Technical Recruiter" OR "Talent Acquisition OR Recruiter") AND "${companyName}"`;
+    const managerQuery = `("Engineering Manager" OR "Hiring Manager" OR "${jobTitle} Manager OR Manager") AND "${companyName}"`;
+    const teammateQuery = `("${jobTitle}") AND "${companyName}"`;
+
+    return [
+        {
+            label: `Find Recruiters at ${companyName}`,
+            url: `${LINKEDIN_BASE_URL}${encodeURIComponent(recruiterQuery)}`,
+        },
+        {
+            label: `Find Hiring Managers at ${companyName}`,
+            url: `${LINKEDIN_BASE_URL}${encodeURIComponent(managerQuery)}`,
+        },
+        {
+            label: `Find Potential Teammates at ${companyName}`,
+            url: `${LINKEDIN_BASE_URL}${encodeURIComponent(teammateQuery)}`,
+        },
+    ];
 }

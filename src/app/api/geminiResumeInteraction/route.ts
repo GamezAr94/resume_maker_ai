@@ -112,40 +112,20 @@ JSON Field-by-Field Instructions:
     keywords (Array of Strings):
         Compile a comprehensive list of the most critical keywords and phrases extracted from the job description. This list should be used to tailor the rest of the resume content for ATS optimization.
 
-    recommendations (String):
-        ### Profile Enhancement
-        Your feedback must be based on a direct comparison between the user's **source data** and the resume you just generated. **Do not give generic or repetitive advice.**
-        - **If the user's source profile already contains strong, metric-driven accomplishments**, provide positive reinforcement. Example: "Your source profile is strong and provides excellent quantifiable data (like the 35% increase in engagement). This allowed me to craft highly impactful bullet points that directly showcase your value. Keep detailing your achievements with specific numbers in your master profile."
-        - **If the user's source profile lacks metrics or impact, use your own work as a "before and after" example.** Example: "To make your profile more powerful, focus on shifting from tasks to impact. For instance, in your source profile, you mentioned 'managed the company's main API.' I transformed this into 'Architected and implemented a new caching layer using Redis for the main API, resulting in a 40% reduction in average server response time.' Always try to connect your actions to a measurable business outcome."
+    feedback (Object): A structured object containing actionable advice.
 
-        ### Bridging the Gap
-        Identify the most significant gap between the user's current profile and the requirements of the target job description. Suggest a concrete, small-scale project the user could undertake to fill this gap.
-        - **Candidate-Role Fit Analysis:** Provide a qualitative analysis of the candidate's fit for the role (e.g., **Strong Match, Good Match, Moderate Gap**). Justify this rating in one sentence. Example: "**Fit: Strong Match.** Your background in building scalable APIs and prior experience as an SWE directly aligns with the core requirements for this technical, developer-facing PM role."
+        candidateFit (Object):
+            score (Integer): Provide a numerical score from 0 to 100 representing the candidate's fit for the role based on their original master profile. A higher score means a better match.
+            summary (String): A single, concise sentence justifying the score. Example: "Your background in building scalable APIs and prior experience as a SWE directly aligns with the core requirements for this role."
 
-        ### Company-Specific Preparation
-        Based on the company name and job description, provide targeted advice for the interview process.
-        - If the company has a well-known culture or set of values, tell the user to prepare specific examples from their career that align with those values.
-        - Suggest specific technical topics to review that are relevant to the company's known tech stack or business domain.
+        masterProfileSuggestions (Array of Objects): Provide 1-2 specific, actionable suggestions for how the user can improve their MASTER PROFILE for future resumes.
+            suggestion (String): The core advice. Example: "Quantify the impact of your work on developer productivity."
+            example (String): (Optional) Provide a concrete example. Example: "For instance, instead of 'managed the API,' try 'reduced API response time by 40% by implementing a Redis caching layer.'"
 
-    explanation (String):
-        ### Strategic Plan
-        Before generating the resume, first lay out your strategic plan here.
-        - **1. Job's Core Request:** In one sentence, what is the most important thing this job is looking for? (e.g., "This role requires a technical PM to build reliable internal platforms for other engineers.")
-        - **2. Chosen Core Narrative Angle:** State the angle you have chosen. (e.g., "Based on this, the Core Narrative Angle will be 'A Technical Product Manager for Internal Platforms.'")
-        - **3. Key Evidence to Highlight:** List the top 2-3 experiences or projects from the user's profile that best support this angle. (e.g., "The 'Scalable API Gateway' project and the 'Redis caching layer' experience are the strongest pieces of evidence.")
-        - **4. Reframing Strategy:** Describe how you will reframe the user's experience. (e.g., "I will reframe the CareConnect experience to de-emphasize patient-facing metrics and instead highlight the creation of foundational services and technical architecture.")
+        interviewPrep (Object): Provide targeted advice for the interview process.
+            companyFocus (String): Give one piece of advice based on the company's culture or values mentioned in the job description. Example: "Finch emphasizes 'internal trust,' so prepare an example of how you've fostered trust in a team."
+            technicalTopics (Array of Strings): List 2-3 specific technical topics or skills mentioned in the job description that the user should be prepared to discuss.
 
-        ### Section-by-Section Rationale
-        Provide a bulleted list explaining the key decisions for the most important sections:
-        - **Professional Summary:** Explain the 'hook' identified and why the selected accomplishment was the perfect evidence to lead with.
-        - **Experience & Projects:** Justify why specific roles/projects were prioritized. Explicitly state **how an accomplishment was reframed** to fit the Core Narrative Angle. Example: "Your role at CareConnect was prioritized for its health-tech experience. Crucially, your original point about 'improving patient engagement' was **reframed** to 'Owned the product strategy for our core scheduling services, leading the technical integration of the Twilio API...' to better align with the platform-focus of this role."
-        - **Skills:** Explain why the skills are ordered in this specific way.
-
-        ### How to Improve Your Master Profile
-        Conclude with 1-2 highly actionable suggestions for the user to improve their source data for next time.
-        
-        ### Final Check
-        - **Narrative Verification:** Briefly explain how the very first bullet point under the most recent work experience directly supports the chosen Core Narrative Angle. This confirms the tailoring was successful.
 
     layout (Object):
         {
@@ -217,12 +197,48 @@ JSON Field-by-Field Instructions:
                         type: SchemaType.STRING,
                     },
                 },
-                recommendations: {
-                    type: SchemaType.STRING,
+
+                feedback: {
+                    type: SchemaType.OBJECT,
+                    properties: {
+                        candidateFit: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                score: { type: SchemaType.INTEGER },
+                                summary: { type: SchemaType.STRING },
+                            },
+                            required: ['score', 'summary'],
+                        },
+                        masterProfileSuggestions: {
+                            type: SchemaType.ARRAY,
+                            items: {
+                                type: SchemaType.OBJECT,
+                                properties: {
+                                    suggestion: { type: SchemaType.STRING },
+                                    example: { type: SchemaType.STRING },
+                                },
+                                required: ['suggestion'],
+                            },
+                        },
+                        interviewPrep: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                companyFocus: { type: SchemaType.STRING },
+                                technicalTopics: {
+                                    type: SchemaType.ARRAY,
+                                    items: { type: SchemaType.STRING },
+                                },
+                            },
+                            required: ['companyFocus', 'technicalTopics'],
+                        },
+                    },
+                    required: [
+                        'candidateFit',
+                        'masterProfileSuggestions',
+                        'interviewPrep',
+                    ],
                 },
-                explanation: {
-                    type: SchemaType.STRING,
-                },
+
                 layout: {
                     type: SchemaType.OBJECT,
                     properties: {
@@ -386,7 +402,7 @@ JSON Field-by-Field Instructions:
                     ],
                 },
             },
-            required: ['keywords', 'recommendations', 'explanation', 'layout'],
+            required: ['keywords', 'feedback', 'layout'],
         },
     };
 

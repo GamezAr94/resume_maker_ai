@@ -12,6 +12,7 @@ import { DataForm } from './DataForm';
 import StylesForm from './StylesForm';
 import JobDescriptionDisplay from './JobDescriptionDisplay';
 import AiFeedbackDisplay from './AiFeedbackDisplay';
+import NetworkingDisplay from './NetworkingDisplay';
 
 // Interface using YOUR prop names
 interface ResumeEditorProps {
@@ -253,6 +254,7 @@ export default function ResumeEditor({
                     >
                         Feedback
                     </Tabs.Tab>
+                    <Tabs.Tab value="networking">Networking</Tabs.Tab>
                 </Tabs.List>
 
                 {/* Data Panel: Contains all the form fields */}
@@ -289,10 +291,19 @@ export default function ResumeEditor({
 
                 <Tabs.Panel value="ai_feedback" pt="xs">
                     <AiFeedbackDisplay
-                        recommendations={
-                            dataResume.resume_generated.recommendations
+                        feedback={dataResume.resume_generated.feedback}
+                        keywords={dataResume.resume_generated.keywords}
+                    />
+                </Tabs.Panel>
+
+                <Tabs.Panel value="networking" pt="xs">
+                    <NetworkingDisplay
+                        networkingLinks={
+                            dataResume.resume_generated.networkingLinks
                         }
-                        explanation={dataResume.resume_generated.explanation}
+                        userName={dataResume.resume_generated.contact_info.name}
+                        jobTitle={dataResume.company_name}
+                        companyName={dataResume.job_position}
                     />
                 </Tabs.Panel>
             </Tabs>

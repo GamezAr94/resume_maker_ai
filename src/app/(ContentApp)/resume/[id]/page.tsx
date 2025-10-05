@@ -8,7 +8,10 @@ import { useEffect, useState, SetStateAction } from 'react';
 import styles from './page.module.css';
 import ResumeEditor from '@/app/components/resumeViewer/resumeEditor';
 import dynamic from 'next/dynamic';
-import { ensureLayoutIsOrderedArray } from '@/utils/utils';
+import {
+    ensureLayoutIsOrderedArray,
+    generateNetworkingLinks,
+} from '@/utils/utils';
 const DynamicResumeViewer = dynamic(
     () => import('@/app/components/resumeViewer/resumeViewer'),
     {
@@ -55,6 +58,17 @@ export default function Resume() {
                         resumeData = JSON.parse(resumeData);
                     }
 
+                    // generating links for linkedin
+                    let networkingLinks = resumeData.networkingLinks;
+                    // Check if links are missing or empty
+                    if (!networkingLinks || networkingLinks.length === 0) {
+                        // Generate them since they don't exist
+                        networkingLinks = generateNetworkingLinks(
+                            data.data[0].company_name,
+                            data.data[0].job_position,
+                        );
+                    }
+
                     // IMPORTANT: The order of the layout items is important for the viewer
                     // We want to reorder the layout items to match the desired order
                     // The desired order is:
@@ -79,9 +93,11 @@ export default function Resume() {
                         ...data.data[0],
                         resume_generated: {
                             layout: reorderedLayoutArray,
-                            recommendations: resumeData.recommendations,
-                            explanation: resumeData.explanation,
-                            // TODO: hmm not sure if this is the best way to do it using the selected_narrative
+                            feedback: {
+                                ...resumeData.feedback,
+                            },
+                            keywords: resumeData.keywords || [],
+                            networkingLinks: networkingLinks,
                             selected_narrative:
                                 resumeData.selected_narrative || 'summary',
                             contact_info: {
