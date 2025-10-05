@@ -33,21 +33,9 @@ import '@mantine/dates/styles.css';
 interface Props {
     className: string;
     projectInfo: [FormProjectStructure] | false;
-    setProjectInfo: React.Dispatch<
-        React.SetStateAction<[FormProjectStructure] | false>
-    >;
     experienceInfo: [FormExperienceStructure] | false;
-    setExperienceInfo: React.Dispatch<
-        React.SetStateAction<[FormExperienceStructure] | false>
-    >;
     educationInfo: [FormEducationStructure] | false;
-    setEducationInfo: React.Dispatch<
-        React.SetStateAction<[FormEducationStructure] | false>
-    >;
     skillInfo: [FormSkillStructure] | false;
-    setSkillInfo: React.Dispatch<
-        React.SetStateAction<[FormSkillStructure] | false>
-    >;
     userInfo: FormPersonalStructure | false;
     setUserInfo: React.Dispatch<
         React.SetStateAction<FormPersonalStructure | false>
@@ -84,13 +72,9 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
         {
             className,
             projectInfo,
-            setProjectInfo,
             experienceInfo,
-            setExperienceInfo,
             educationInfo,
-            setEducationInfo,
             skillInfo,
-            setSkillInfo,
             userInfo,
             setUserInfo,
             setRefreshTrigger,
@@ -315,7 +299,6 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
 
                             {sectionDisplayed == 'job_experience' && (
                                 <ExperienceContainerForm
-                                    setExperienceInfo={setExperienceInfo}
                                     experienceInfo={
                                         experienceInfo === false
                                             ? []
@@ -327,7 +310,6 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
 
                             {sectionDisplayed == 'education' && (
                                 <EducationContainerForm
-                                    setEducationInfo={setEducationInfo}
                                     educationInfo={
                                         educationInfo === false
                                             ? []
@@ -339,17 +321,15 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
 
                             {sectionDisplayed == 'skills' && (
                                 <SkillContainerForm
-                                    setSkillInfo={setSkillInfo}
+                                    setRefreshTrigger={setRefreshTrigger}
                                     skillInfo={
                                         skillInfo === false ? [] : skillInfo
                                     }
-                                    setRefreshTrigger={setRefreshTrigger}
                                 />
                             )}
 
                             {sectionDisplayed == 'projects' && (
                                 <ProjectContainerForm
-                                    setProjectInfo={setProjectInfo}
                                     projectInfo={
                                         projectInfo === false ? [] : projectInfo
                                     }

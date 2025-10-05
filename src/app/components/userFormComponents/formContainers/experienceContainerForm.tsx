@@ -6,15 +6,11 @@ import ShowUserDataSection from '../showUserDataSection';
 import styles from './formContainerStyles.module.css';
 
 interface Params {
-    setExperienceInfo: Dispatch<
-        SetStateAction<false | [FormExperienceStructure]>
-    >;
     experienceInfo: [FormExperienceStructure] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 
 export default function ExperienceContainerForm({
-    setExperienceInfo,
     experienceInfo,
     setRefreshTrigger,
 }: Params) {
@@ -30,7 +26,6 @@ export default function ExperienceContainerForm({
                 </h3>
                 <ExperienceForm
                     infoQuery={null}
-                    setInfo={null}
                     setRefreshTrigger={setRefreshTrigger}
                     getEditRecord={getEditRecord}
                     setEditRecord={setEditRecord}
@@ -49,7 +44,6 @@ export default function ExperienceContainerForm({
                                 <ExperienceForm
                                     key={index}
                                     infoQuery={item}
-                                    setInfo={setExperienceInfo}
                                     setRefreshTrigger={setRefreshTrigger}
                                     setEditRecord={setEditRecord}
                                     getEditRecord={getEditRecord}

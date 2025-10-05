@@ -1,5 +1,5 @@
 'use client';
-import { deleteRecord, getDBTableInfo } from '@/app/db/user_queries';
+import { deleteProfileRecord } from '@/app/db/user_queries';
 import { SectionTypes } from '@/utils/enums';
 import {
     emptyStateEducation,
@@ -58,7 +58,6 @@ const userSchema = z
     });
 
 interface Params {
-    setInfo: React.Dispatch<false | [FormEducationStructure]> | null;
     infoQuery: FormEducationStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     setEditRecord: Dispatch<SetStateAction<FormEducationStructure | null>>;
@@ -66,7 +65,6 @@ interface Params {
 }
 export default function EducationInfoForm({
     infoQuery,
-    setInfo,
     setRefreshTrigger,
     setEditRecord,
     getEditRecord,
@@ -147,15 +145,6 @@ export default function EducationInfoForm({
                 return;
             }
 
-            if (setInfo) {
-                const experienceInfoResp = await getDBTableInfo(
-                    SectionTypes.Education,
-                );
-                if (!experienceInfoResp) {
-                    return;
-                }
-                setInfo(experienceInfoResp.data);
-            }
             notifications.show({
                 title: 'Success!',
                 message: 'Your education has been saved.',
@@ -175,38 +164,40 @@ export default function EducationInfoForm({
     }
 
     // Function to delete the record and refresh the UI
-    async function submitDeleteRecord(
-        table: SectionTypes,
-        column: string,
-        value: string,
-    ) {
-        const response = await deleteRecord(table, column, value);
-        if (!response) {
+    async function submitDeleteRecord(table: SectionTypes, value: string) {
+        try {
+            // Call the helper function and wait for its result
+            await deleteProfileRecord(table, value);
+
+            // --- This code only runs if deleteProfileRecord was successful ---
+            notifications.show({
+                title: 'Success!',
+                message: 'The education has been deleted.',
+                color: 'teal',
+                icon: <IconCheck />,
+            });
+
+            setRefreshTrigger((prevTrigger) => ({
+                ...prevTrigger,
+                education: !prevTrigger.education,
+                project: !prevTrigger.project,
+            }));
+            setEditRecord(null);
+        } catch (error) {
+            // --- This code runs if deleteProfileRecord threw an error ---
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : 'An unknown error occurred.';
             notifications.show({
                 title: 'Error Deleting',
-                message:
-                    'An error occurred while deleting the education entry.',
+                message: errorMessage,
                 color: 'red',
                 icon: <IconX />,
             });
-            return;
         }
-
-        notifications.show({
-            title: 'Success!',
-            message: 'The education entry has been deleted.',
-            color: 'teal',
-            icon: <IconCheck />,
-        });
-
-        // required to refresh the UI
-        setRefreshTrigger((prevTrigger) => ({
-            ...prevTrigger,
-            education: !prevTrigger.education,
-            project: !prevTrigger.project,
-        }));
-        setEditRecord(null);
     }
+
     function editRecord(value: FormEducationStructure | null) {
         // TODO this method it is ONLY working when you click the button cancel, if we want to make it work when pressing the edit button then we need to move the useState to the container component of this component so that we can share it accross that one and this one
         setFormErrors(emptyStateEducation);
@@ -262,7 +253,6 @@ export default function EducationInfoForm({
                             onClick={() => {
                                 submitDeleteRecord(
                                     SectionTypes.Education,
-                                    'id',
                                     infoQuery.id,
                                 );
                             }}
