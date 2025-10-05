@@ -10,8 +10,6 @@ import {
     Accordion,
     Textarea,
     CopyButton,
-    ActionIcon,
-    Tooltip,
     Divider,
 } from '@mantine/core';
 import {

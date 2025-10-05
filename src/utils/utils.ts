@@ -103,8 +103,6 @@ export function generateNetworkingLinks(
     companyName: string,
     jobTitle: string,
 ): NetworkingLink[] {
-    const encodedCompany = encodeURIComponent(companyName);
-
     // Basic templates - you can make these more sophisticated later
     const recruiterQuery = `("Technical Recruiter" OR "Talent Acquisition OR Recruiter") AND "${companyName}"`;
     const managerQuery = `("Engineering Manager" OR "Hiring Manager" OR "${jobTitle} Manager OR Manager") AND "${companyName}"`;
