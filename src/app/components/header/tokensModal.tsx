@@ -47,12 +47,7 @@ interface TokensModalProps {
 
 // --- Configuration & Mock Data ---
 
-// Replace these with your actual Stripe Price IDs
-const tokenPacks: TokenPack[] = [
-    TOKEN_COSTS.TOKEN_PACKAGES.BASIC,
-    TOKEN_COSTS.TOKEN_PACKAGES.PREMIUM,
-    TOKEN_COSTS.TOKEN_PACKAGES.ULTIMATE,
-];
+const tokenPacks: TokenPack[] = Object.values(TOKEN_COSTS.TOKEN_PACKAGES);
 
 const subscriptionPlans: SubscriptionPlan[] = [
     TOKEN_COSTS.TOKEN_PLANS.MONTHLY,
@@ -419,9 +414,7 @@ export default function TokensModal({
     // --- MAIN MODAL RENDER ---
     return (
         <Modal
-            // TODO set opened={opened} so that we can open the tokens modal again this is only temporary for the beta users
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            opened={(opened = false)}
+            opened={opened}
             onClose={onClose}
             title={
                 <Text fw={700} size="xl">
@@ -455,7 +448,7 @@ export default function TokensModal({
                                         {tokenCount.toLocaleString()} tokens
                                     </Text>
                                 </Group>
-                                {userSubscription.tier !== 'free' && (
+                                {/*userSubscription.tier !== 'free' && (
                                     <Badge
                                         color="teal"
                                         variant="light"
@@ -467,11 +460,14 @@ export default function TokensModal({
                                             userSubscription.tier.slice(1)}{' '}
                                         Pro
                                     </Badge>
-                                )}
+                                )*/}
                             </Group>
                         }
                     />
                 )}
+
+                {/*
+                // TODO Unncomment this section to enable the subscriptions
 
                 <Tabs
                     defaultValue="top-up"
@@ -498,7 +494,17 @@ export default function TokensModal({
                         {renderUpgradePlan()}
                     </Tabs.Panel>
                 </Tabs>
-                {userSubscription.tier === 'free' && (
+*/}
+                <Tabs
+                    defaultValue="top-up"
+                    variant="pills"
+                    radius="md"
+                    classNames={{ list: styles.tabsList, tab: styles.tab }}
+                >
+                    <Tabs.Panel value="top-up">{renderQuickTopUp()}</Tabs.Panel>
+                </Tabs>
+                {/* TODO unncoment this section whenever we want to add the subscriptions
+                userSubscription.tier === 'free' && (
                     <Alert
                         variant="light"
                         color="blue"
@@ -509,7 +515,7 @@ export default function TokensModal({
                         {TOKEN_COSTS.DISCOUNTED_PACKAGES.yearly * 100}% off all
                         token purchases + a recurring token allowance.
                     </Alert>
-                )}
+                )*/}
                 {userSubscription.tier === 'monthly' && (
                     <Alert
                         variant="light"

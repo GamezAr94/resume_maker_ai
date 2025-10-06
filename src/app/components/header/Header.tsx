@@ -51,8 +51,6 @@ export default function Header() {
         tier: 'free' as SubscriptionTier, // Default to 'free'
     });
 
-    /*
-    TODO: enable this function when we enable the settings page in the header to let the users manage their payments, this is for the beta users
     const handleManageBilling = async () => {
         try {
             // Call your API route with the required headers and body
@@ -82,7 +80,6 @@ export default function Header() {
             // TODO: Optionally show an error message to the user in the UI
         }
     };
-    */
 
     // Function to easily change the subscription tier
     const handleSubscriptionChange = (tier: SubscriptionTier) => {
@@ -234,8 +231,6 @@ export default function Header() {
                                 Feedback
                             </Button>
 
-                            {/*
-                                TODO: Enable the settings again to allow the users to manage their payment methods, this is temporary for the beta users only
                             <Anchor
                                 variant="transparent"
                                 onClick={handleManageBilling}
@@ -243,7 +238,6 @@ export default function Header() {
                             >
                                 Settings
                             </Anchor>
-                                */}
                             <form action={signOutAction} style={{ margin: 0 }}>
                                 <Button
                                     type="submit"
@@ -344,8 +338,6 @@ export default function Header() {
                                 Feedback
                             </Button>
 
-                            {/*
-                                TODO: Enable the settings again to allow the users to manage their payment methods, this is temporary for the beta users only
                             <Anchor
                                 variant="transparent"
                                 onClick={() => {
@@ -356,7 +348,6 @@ export default function Header() {
                             >
                                 Settings
                             </Anchor>
-                                */}
 
                             {/* Logout button at the bottom of the drawer */}
                             <form
