@@ -157,7 +157,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                 ref={ref}
             >
                 <Title order={2} ta="center" mb="md" c="gray.8">
-                    Manage Your Resume Data
+                    Manage Your Master Profile
                 </Title>
                 <Text ta="center" c="gray.6" mb="xl">
                     Keep your professional information up-to-date. Add or import
