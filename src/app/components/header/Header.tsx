@@ -314,6 +314,17 @@ export default function Header() {
                                 My Applications
                             </Anchor>
 
+                            <Anchor
+                                variant="transparent"
+                                onClick={() => {
+                                    handleManageBilling();
+                                    toggle();
+                                }}
+                                className={styles.mobileNavLink}
+                            >
+                                Settings
+                            </Anchor>
+
                             <Button
                                 variant="default"
                                 fullWidth
@@ -337,17 +348,6 @@ export default function Header() {
                             >
                                 Feedback
                             </Button>
-
-                            <Anchor
-                                variant="transparent"
-                                onClick={() => {
-                                    handleManageBilling();
-                                    toggle();
-                                }}
-                                className={styles.mobileNavLink}
-                            >
-                                Settings
-                            </Anchor>
 
                             {/* Logout button at the bottom of the drawer */}
                             <form

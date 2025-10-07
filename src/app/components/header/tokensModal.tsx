@@ -17,12 +17,9 @@ import {
 } from '@mantine/core';
 import {
     IconCoinFilled,
-    IconCrown,
-    IconBolt,
     IconInfoCircle,
     IconCheck,
     IconCalendar,
-    IconDiamond,
     IconSettings,
 } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -448,7 +445,9 @@ export default function TokensModal({
                                         {tokenCount.toLocaleString()} tokens
                                     </Text>
                                 </Group>
-                                {/*userSubscription.tier !== 'free' && (
+                                {/*
+                                //TODO uncomment this section to enable subscriptions
+                                userSubscription.tier !== 'free' && (
                                     <Badge
                                         color="teal"
                                         variant="light"
@@ -466,16 +465,14 @@ export default function TokensModal({
                     />
                 )}
 
-                {/*
-                // TODO Unncomment this section to enable the subscriptions
-
                 <Tabs
                     defaultValue="top-up"
                     variant="pills"
                     radius="md"
                     classNames={{ list: styles.tabsList, tab: styles.tab }}
                 >
-                    <Tabs.List grow>
+                    {/*
+                        // TODO Unncomment this section to enable the subscriptions
                         <Tabs.Tab
                             value="top-up"
                             leftSection={<IconBolt size={16} />}
@@ -489,21 +486,14 @@ export default function TokensModal({
                             Upgrade Plan
                         </Tabs.Tab>
                     </Tabs.List>
+                        */}
                     <Tabs.Panel value="top-up">{renderQuickTopUp()}</Tabs.Panel>
                     <Tabs.Panel value="upgrade">
                         {renderUpgradePlan()}
                     </Tabs.Panel>
                 </Tabs>
-*/}
-                <Tabs
-                    defaultValue="top-up"
-                    variant="pills"
-                    radius="md"
-                    classNames={{ list: styles.tabsList, tab: styles.tab }}
-                >
-                    <Tabs.Panel value="top-up">{renderQuickTopUp()}</Tabs.Panel>
-                </Tabs>
-                {/* TODO unncoment this section whenever we want to add the subscriptions
+                {/*
+                // TODO unncomment this section to enable the subscriptions
                 userSubscription.tier === 'free' && (
                     <Alert
                         variant="light"
