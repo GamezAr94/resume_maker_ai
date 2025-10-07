@@ -18,23 +18,25 @@ export const TOKEN_COSTS = {
     TOKEN_PACKAGES: {
         // Define token packages with their respective costs
         BASIC: {
-            id: 'basic-20-tokens',
-            tokens: 20,
-            price: 12, // Cost in dollars
+            id: 'basic-150-tokens',
+            tokens: 150,
+            price: 9, // Cost in dollars
             isPopular: false,
         },
         PREMIUM: {
-            id: 'premium-70-tokens',
-            tokens: 70,
-            price: 35, // Cost in dollars
+            id: 'premium-300-tokens',
+            tokens: 300,
+            price: 15, // Cost in dollars
             isPopular: true,
         },
+        /*
         ULTIMATE: {
             id: 'ultimate-125-tokens',
             tokens: 125,
             price: 57, // Cost in dollars
             isPopular: false,
         },
+        */
     } as Record<string, TokenPack>,
 
     TOKEN_PLANS: {

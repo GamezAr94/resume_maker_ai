@@ -9,3 +9,6 @@ body {
     /* 60px header height + 16px margin */
     margin-top: 50px;
 }
+.grecaptcha-badge {
+    visibility: hidden !important;
+}

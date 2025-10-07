@@ -17,12 +17,9 @@ import {
 } from '@mantine/core';
 import {
     IconCoinFilled,
-    IconCrown,
-    IconBolt,
     IconInfoCircle,
     IconCheck,
     IconCalendar,
-    IconDiamond,
     IconSettings,
 } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -48,11 +45,7 @@ interface TokensModalProps {
 // --- Configuration & Mock Data ---
 
 // Replace these with your actual Stripe Price IDs
-const tokenPacks: TokenPack[] = [
-    TOKEN_COSTS.TOKEN_PACKAGES.BASIC,
-    TOKEN_COSTS.TOKEN_PACKAGES.PREMIUM,
-    TOKEN_COSTS.TOKEN_PACKAGES.ULTIMATE,
-];
+const tokenPacks: TokenPack[] = Object.values(TOKEN_COSTS.TOKEN_PACKAGES);
 
 const subscriptionPlans: SubscriptionPlan[] = [
     TOKEN_COSTS.TOKEN_PLANS.MONTHLY,
@@ -419,9 +412,7 @@ export default function TokensModal({
     // --- MAIN MODAL RENDER ---
     return (
         <Modal
-            // TODO set opened={opened} so that we can open the tokens modal again this is only temporary for the beta users
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            opened={(opened = false)}
+            opened={opened}
             onClose={onClose}
             title={
                 <Text fw={700} size="xl">
@@ -455,7 +446,9 @@ export default function TokensModal({
                                         {tokenCount.toLocaleString()} tokens
                                     </Text>
                                 </Group>
-                                {userSubscription.tier !== 'free' && (
+                                {/*
+                                //TODO uncomment this section to enable subscriptions
+                                userSubscription.tier !== 'free' && (
                                     <Badge
                                         color="teal"
                                         variant="light"
@@ -467,7 +460,7 @@ export default function TokensModal({
                                             userSubscription.tier.slice(1)}{' '}
                                         Pro
                                     </Badge>
-                                )}
+                                )*/}
                             </Group>
                         }
                     />
@@ -479,7 +472,8 @@ export default function TokensModal({
                     radius="md"
                     classNames={{ list: styles.tabsList, tab: styles.tab }}
                 >
-                    <Tabs.List grow>
+                    {/*
+                        
                         <Tabs.Tab
                             value="top-up"
                             leftSection={<IconBolt size={16} />}
@@ -493,12 +487,15 @@ export default function TokensModal({
                             Upgrade Plan
                         </Tabs.Tab>
                     </Tabs.List>
+                        */}
                     <Tabs.Panel value="top-up">{renderQuickTopUp()}</Tabs.Panel>
                     <Tabs.Panel value="upgrade">
                         {renderUpgradePlan()}
                     </Tabs.Panel>
                 </Tabs>
-                {userSubscription.tier === 'free' && (
+                {/*
+                // TODO unncomment this section to enable the subscriptions
+                userSubscription.tier === 'free' && (
                     <Alert
                         variant="light"
                         color="blue"
@@ -509,7 +506,7 @@ export default function TokensModal({
                         {TOKEN_COSTS.DISCOUNTED_PACKAGES.yearly * 100}% off all
                         token purchases + a recurring token allowance.
                     </Alert>
-                )}
+                )*/}
                 {userSubscription.tier === 'monthly' && (
                     <Alert
                         variant="light"
