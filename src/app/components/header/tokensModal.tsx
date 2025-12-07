@@ -17,7 +17,6 @@ import {
 } from '@mantine/core';
 import {
     IconCoinFilled,
-    IconInfoCircle,
     IconCheck,
     IconCalendar,
     IconSettings,
@@ -506,7 +505,7 @@ export default function TokensModal({
                         token purchases + a recurring token allowance.
                     </Alert>
                 )*/}
-                {userSubscription.tier === 'monthly' && (
+                {/*userSubscription.tier === 'monthly' && (
                     <Alert
                         variant="light"
                         color="blue"
@@ -517,7 +516,7 @@ export default function TokensModal({
                         {TOKEN_COSTS.DISCOUNTED_PACKAGES.yearly * 100}% off all
                         token purchases + a yearly token allowance.
                     </Alert>
-                )}
+                )*/}
             </Stack>
         </Modal>
     );
