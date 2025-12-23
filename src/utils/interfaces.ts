@@ -55,7 +55,6 @@ export interface ExperienceDetails {
     responsibilities: string[];
     achievements: string[];
     skills_used: string[];
-    private_ai_context?: string;
 }
 // Initial state for the experience form errors
 export const emptyStateExperience: FormExperienceStructure = {
@@ -72,7 +71,6 @@ export const emptyStateExperience: FormExperienceStructure = {
         responsibilities: [],
         achievements: [],
         skills_used: [],
-        private_ai_context: "",
     },
 };
 // Interface for the form experience structure

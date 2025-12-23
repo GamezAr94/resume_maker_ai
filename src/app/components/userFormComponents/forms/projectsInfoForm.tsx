@@ -1,25 +1,43 @@
-'use client';
+"use client";
 
-import { deleteProfileRecord } from '@/app/db/user_queries';
-import { SectionTypes } from '@/utils/enums';
+import { deleteProfileRecord } from "@/app/db/user_queries";
+import { SectionTypes } from "@/utils/enums";
 import {
     emptyStateProject,
     FormEducationStructure,
     FormExperienceStructure,
     FormProjectStructure,
     RefreshSections,
-} from '@/utils/interfaces';
-import { Button, Input, Select, Group, Text } from '@mantine/core';
-import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
-import { z } from 'zod';
-import styles from './formContainerStyles.module.css';
-import { notifications } from '@mantine/notifications';
+    ProjectDetails,
+} from "@/utils/interfaces";
+import {
+    Button,
+    Input,
+    Select,
+    Group,
+    Text,
+    Stack,
+    TextInput,
+    Textarea,
+    ActionIcon,
+    Divider,
+} from "@mantine/core";
+import {
+    IconCheck,
+    IconPencil,
+    IconTrash,
+    IconX,
+    IconPlus,
+} from "@tabler/icons-react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { z } from "zod";
+import styles from "./formContainerStyles.module.css";
+import { notifications } from "@mantine/notifications";
 
-import CharacterCounter from '@/app/components/CharacterCounter/CharacterCounter';
+import CharacterCounter from "@/app/components/CharacterCounter/CharacterCounter";
 
 // Character limits for the form fields
-import { CHARACTER_LIMITS } from '@/utils/configLimits';
+import { CHARACTER_LIMITS } from "@/utils/configLimits";
 
 interface Params {
     infoQuery: FormProjectStructure | null;
@@ -29,23 +47,23 @@ interface Params {
     setEditRecord: Dispatch<SetStateAction<FormProjectStructure | null>>;
     getEditRecord: FormProjectStructure | null;
     setSelectedType: Dispatch<
-        SetStateAction<'personal_type' | 'experience_type' | 'education_type'>
+        SetStateAction<"personal_type" | "experience_type" | "education_type">
     >;
-    selectedType: 'personal_type' | 'experience_type' | 'education_type';
+    selectedType: "personal_type" | "experience_type" | "education_type";
 }
 
 const userSchema = z.object({
     id: z.string().optional(),
     project_name: z
         .string()
-        .min(1, 'Project Name is required')
+        .min(1, "Project Name is required")
         .max(
             CHARACTER_LIMITS.title,
             `Cannot exceed ${CHARACTER_LIMITS.title} characters`,
         ),
     project_description: z
         .string()
-        .min(1, 'A description is required')
+        .min(1, "A description is required")
         .max(
             CHARACTER_LIMITS.description,
             `Cannot exceed ${CHARACTER_LIMITS.description} characters`,
@@ -85,7 +103,7 @@ export default function ProjectsInfoForm({
             const formData = new FormData();
             if (getEditRecord) {
                 Object.entries(getEditRecord).forEach(([key, value]) => {
-                    if (value !== null && value !== undefined && value != '') {
+                    if (value !== null && value !== undefined && value != "") {
                         formData.append(key, String(value));
                     }
                 });
@@ -114,9 +132,9 @@ export default function ProjectsInfoForm({
                 return;
             }
 
-            const res = await fetch('api/saveUserInfo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const res = await fetch("api/saveUserInfo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: SectionTypes.Project,
                     data: Object.fromEntries(formData),
@@ -127,18 +145,18 @@ export default function ProjectsInfoForm({
             // show a message to the user
             if (!res.ok) {
                 notifications.show({
-                    title: 'Error Saving',
-                    message: response.message || 'An unknown error occurred.',
-                    color: 'red',
+                    title: "Error Saving",
+                    message: response.message || "An unknown error occurred.",
+                    color: "red",
                     icon: <IconX />,
                 });
                 return;
             }
 
             notifications.show({
-                title: 'Success!',
-                message: 'Your project has been saved.',
-                color: 'teal',
+                title: "Success!",
+                message: "Your project has been saved.",
+                color: "teal",
                 icon: <IconCheck />,
             });
             // required to refresh the UI
@@ -147,7 +165,7 @@ export default function ProjectsInfoForm({
                 project: !prevTrigger.project,
             }));
             setEditRecord(null);
-            setSelectedType('personal_type');
+            setSelectedType("personal_type");
             formRef.current?.reset();
         } finally {
             setIsSubmitting(false);
@@ -162,9 +180,9 @@ export default function ProjectsInfoForm({
 
             // --- This code only runs if deleteProfileRecord was successful ---
             notifications.show({
-                title: 'Success!',
-                message: 'The project has been deleted.',
-                color: 'teal',
+                title: "Success!",
+                message: "The project has been deleted.",
+                color: "teal",
                 icon: <IconCheck />,
             });
 
@@ -178,11 +196,11 @@ export default function ProjectsInfoForm({
             const errorMessage =
                 error instanceof Error
                     ? error.message
-                    : 'An unknown error occurred.';
+                    : "An unknown error occurred.";
             notifications.show({
-                title: 'Error Deleting',
+                title: "Error Deleting",
                 message: errorMessage,
-                color: 'red',
+                color: "red",
                 icon: <IconX />,
             });
         }
@@ -194,12 +212,12 @@ export default function ProjectsInfoForm({
         // TODO this method it is ONLY working when you click the button cancel, if we want to make it work when pressing the edit button then we need to move the useState to the container component of this component so that we can share it accross that one and this one
         setFormErrors(emptyStateProject);
         // elect by default the personal_type just in case
-        setSelectedType('personal_type');
+        setSelectedType("personal_type");
         if (value?.experience_id != null) {
-            setSelectedType('experience_type');
+            setSelectedType("experience_type");
         }
         if (value?.education_id != null) {
-            setSelectedType('education_type');
+            setSelectedType("education_type");
         }
         // set the value that we want to edit
         setEditRecord(value);
@@ -220,9 +238,9 @@ export default function ProjectsInfoForm({
 
             const updatedRecord = { ...prev };
 
-            if (event === 'Experience') {
+            if (event === "Experience") {
                 updatedRecord.education_id = null; // Clear education
-            } else if (event === 'Education') {
+            } else if (event === "Education") {
                 updatedRecord.experience_id = null; // Clear experience
             } else {
                 // It's a "Personal" project, clear both
@@ -233,14 +251,14 @@ export default function ProjectsInfoForm({
         });
 
         if (event == null) {
-            setSelectedType('personal_type');
+            setSelectedType("personal_type");
         }
-        if (event == 'Experience') {
-            setSelectedType('experience_type');
-        } else if (event == 'Education') {
-            setSelectedType('education_type');
+        if (event == "Experience") {
+            setSelectedType("experience_type");
+        } else if (event == "Education") {
+            setSelectedType("education_type");
         } else {
-            setSelectedType('personal_type');
+            setSelectedType("personal_type");
         }
     }
 
@@ -286,12 +304,56 @@ export default function ProjectsInfoForm({
             [type]: null,
         }));
     }
-    const projectTypeOptions = ['Personal'];
+    const projectTypeOptions = ["Personal"];
     if (experienceInfo && experienceInfo.length > 0) {
-        projectTypeOptions.push('Experience');
+        projectTypeOptions.push("Experience");
     }
     if (educationInfo && educationInfo.length > 0) {
-        projectTypeOptions.push('Education');
+        projectTypeOptions.push("Education");
+    }
+
+    // Handle updates for the nested 'details' object (Problem Solved, URL)
+    function handleDetailsChange(
+        field: keyof ProjectDetails,
+        value: string | string[],
+    ) {
+        setEditRecord((current) => ({
+            ...(current || emptyStateProject),
+            details: {
+                ...(current?.details || emptyStateProject.details),
+                [field]: value,
+            },
+        }));
+    }
+
+    // Update a specific item in a list (Features, Tech Stack)
+    function handleArrayItemChange(
+        field: "key_features" | "tech_stack",
+        index: number,
+        value: string,
+    ) {
+        const currentList = getEditRecord?.details?.[field] || [];
+        const newList = [...currentList];
+        newList[index] = value;
+        handleDetailsChange(field, newList);
+    }
+
+    // Add a new empty line to a list
+    function addArrayItem(field: "key_features" | "tech_stack") {
+        const currentList = getEditRecord?.details?.[field] || [];
+        handleDetailsChange(field, [...currentList, ""]);
+    }
+
+    // Remove a line from a list
+    function removeArrayItem(
+        field: "key_features" | "tech_stack",
+        index: number,
+    ) {
+        const currentList = getEditRecord?.details?.[field] || [];
+        handleDetailsChange(
+            field,
+            currentList.filter((_, i) => i !== index),
+        );
     }
 
     return (
@@ -347,7 +409,7 @@ export default function ProjectsInfoForm({
                         error={
                             formErrors.project_name
                                 ? formErrors.project_name
-                                : ''
+                                : ""
                         }
                         classNames={{
                             root: styles.formField,
@@ -364,13 +426,13 @@ export default function ProjectsInfoForm({
                             onChange={(event) => {
                                 handleInputChange(
                                     event,
-                                    'project_name',
+                                    "project_name",
                                     setEditRecord,
                                     getEditRecord,
                                 );
                             }}
                             value={
-                                getEditRecord ? getEditRecord.project_name : ''
+                                getEditRecord ? getEditRecord.project_name : ""
                             }
                         />
                     </Input.Wrapper>
@@ -380,11 +442,11 @@ export default function ProjectsInfoForm({
                         label="Project Type"
                         placeholder="Select a type"
                         value={
-                            selectedType === 'experience_type'
-                                ? 'Experience'
-                                : selectedType === 'education_type'
-                                ? 'Education'
-                                : 'Personal'
+                            selectedType === "experience_type"
+                                ? "Experience"
+                                : selectedType === "education_type"
+                                  ? "Education"
+                                  : "Personal"
                         }
                         data={projectTypeOptions}
                         onChange={setType}
@@ -395,14 +457,14 @@ export default function ProjectsInfoForm({
                         }}
                     />
 
-                    {selectedType === 'experience_type' && (
+                    {selectedType === "experience_type" && (
                         <Select
                             label="Link to Experience"
                             placeholder="Select an experience"
                             defaultValue={
                                 getEditRecord?.experience_id
                                     ? String(getEditRecord.experience_id)
-                                    : ''
+                                    : ""
                             }
                             data={experienceInfo.map((item) => ({
                                 label: item.company_name,
@@ -411,7 +473,7 @@ export default function ProjectsInfoForm({
                             onChange={(event) => {
                                 handleSelectChange(
                                     event,
-                                    'experience_id',
+                                    "experience_id",
                                     setEditRecord,
                                     getEditRecord,
                                 );
@@ -424,14 +486,14 @@ export default function ProjectsInfoForm({
                         />
                     )}
 
-                    {selectedType === 'education_type' && (
+                    {selectedType === "education_type" && (
                         <Select
                             label="Link to Education"
                             placeholder="Select an institution"
                             defaultValue={
                                 getEditRecord?.education_id
                                     ? String(getEditRecord.education_id)
-                                    : ''
+                                    : ""
                             }
                             data={educationInfo.map((item) => ({
                                 label: item.school_name,
@@ -440,7 +502,7 @@ export default function ProjectsInfoForm({
                             onChange={(event) => {
                                 handleSelectChange(
                                     event,
-                                    'education_id',
+                                    "education_id",
                                     setEditRecord,
                                     getEditRecord,
                                 );
@@ -454,62 +516,137 @@ export default function ProjectsInfoForm({
                     )}
 
                     {/* Project Description Input */}
-
                     <div className={styles.inputWrapper}>
-                        <Input.Wrapper
-                            label="Project Description (Include any quantificable metric)"
-                            error={
-                                formErrors.project_description
-                                    ? formErrors.project_description
-                                    : ''
+                        <Textarea
+                            label="Problem Solved / Summary"
+                            description="What does this project do? (The 'Elevator Pitch')"
+                            placeholder="e.g. A micro-SaaS that helps users generate resumes..."
+                            value={getEditRecord?.details?.problem_solved || ""}
+                            onChange={(e) =>
+                                handleDetailsChange(
+                                    "problem_solved",
+                                    e.currentTarget.value,
+                                )
                             }
-                            classNames={{
-                                root: styles.formField,
-                                label: styles.formLabel,
-                            }}
-                        >
-                            <Input
-                                component="textarea"
-                                maxLength={CHARACTER_LIMITS.description}
-                                rows={4}
-                                classNames={{ input: styles.formInput }}
-                                // Add padding to the inner textarea element
-                                styles={{
-                                    input: {
-                                        paddingBottom: '2rem',
-                                        resize: 'vertical',
-                                    },
-                                }}
-                                error={!!formErrors.project_description}
-                                name="project_description"
-                                placeholder="Describe your project..."
-                                onChange={(event) => {
-                                    handleInputChange(
-                                        event,
-                                        'project_description',
-                                        setEditRecord,
-                                        getEditRecord,
-                                    );
-                                }}
-                                value={
-                                    getEditRecord
-                                        ? getEditRecord.project_description
-                                        : ''
-                                }
-                            />
-                        </Input.Wrapper>
+                            autosize
+                            minRows={3}
+                            maxLength={CHARACTER_LIMITS.description}
+                        />
                         <CharacterCounter
                             currentLength={
-                                getEditRecord?.project_description?.length || 0
+                                getEditRecord?.details?.problem_solved
+                                    ?.length || 0
                             }
                             maxLength={CHARACTER_LIMITS.description}
                         />
                     </div>
 
+                    <Divider my="sm" label="Details" labelPosition="center" />
+
+                    {/* 2. Key Features List */}
+                    <Stack gap="xs">
+                        <Text size="sm" fw={500}>
+                            Key Features
+                        </Text>
+                        {(getEditRecord?.details?.key_features || []).map(
+                            (item, index) => (
+                                <Group key={`feat-${index}`} gap="xs">
+                                    <TextInput
+                                        style={{ flex: 1 }}
+                                        placeholder="e.g. Real-time chat integration"
+                                        value={item}
+                                        onChange={(e) =>
+                                            handleArrayItemChange(
+                                                "key_features",
+                                                index,
+                                                e.currentTarget.value,
+                                            )
+                                        }
+                                    />
+                                    <ActionIcon
+                                        color="red"
+                                        variant="subtle"
+                                        onClick={() =>
+                                            removeArrayItem(
+                                                "key_features",
+                                                index,
+                                            )
+                                        }
+                                    >
+                                        <IconTrash size={16} />
+                                    </ActionIcon>
+                                </Group>
+                            ),
+                        )}
+                        <Button
+                            variant="light"
+                            size="xs"
+                            leftSection={<IconPlus size={14} />}
+                            onClick={() => addArrayItem("key_features")}
+                        >
+                            Add Feature
+                        </Button>
+                    </Stack>
+
+                    {/* 3. Tech Stack List */}
+                    <Stack gap="xs" mt="md">
+                        <Text size="sm" fw={500}>
+                            Tech Stack
+                        </Text>
+                        {(getEditRecord?.details?.tech_stack || []).map(
+                            (item, index) => (
+                                <Group key={`tech-${index}`} gap="xs">
+                                    <TextInput
+                                        style={{ flex: 1 }}
+                                        placeholder="e.g. Next.js"
+                                        value={item}
+                                        onChange={(e) =>
+                                            handleArrayItemChange(
+                                                "tech_stack",
+                                                index,
+                                                e.currentTarget.value,
+                                            )
+                                        }
+                                    />
+                                    <ActionIcon
+                                        color="red"
+                                        variant="subtle"
+                                        onClick={() =>
+                                            removeArrayItem("tech_stack", index)
+                                        }
+                                    >
+                                        <IconTrash size={16} />
+                                    </ActionIcon>
+                                </Group>
+                            ),
+                        )}
+                        <Button
+                            variant="light"
+                            size="xs"
+                            leftSection={<IconPlus size={14} />}
+                            onClick={() => addArrayItem("tech_stack")}
+                        >
+                            Add Tech
+                        </Button>
+                    </Stack>
+
+                    {/* 4. Project URL (Optional) */}
+                    <TextInput
+                        mt="md"
+                        label="Project URL"
+                        placeholder="https://github.com/..."
+                        value={getEditRecord?.details?.url || ""}
+                        onChange={(e) =>
+                            handleDetailsChange("url", e.currentTarget.value)
+                        }
+                    />
+
+                    <Divider my="sm" />
+
                     {/* Action Buttons */}
                     <Group justify="flex-start" mt="xl">
                         <Button type="submit" loading={isSubmitting}>
-                            {getEditRecord?.id ? 'Save Changes' : 'Add Entry'}
+                            {getEditRecord?.id ? "Save Changes" : "Add Entry"}
                         </Button>
                         {getEditRecord && (
                             <Button

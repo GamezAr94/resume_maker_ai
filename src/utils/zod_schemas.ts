@@ -68,15 +68,34 @@ export const experienceSchema = z
             .object({
                 summary: z
                     .string()
-                    .max(500, {
-                        message: "Summary cannot exceed 500 characters.",
+                    .max(CHARACTER_LIMITS.description, {
+                        message: `Summary cannot exceed ${CHARACTER_LIMITS.description} characters.`,
                     })
                     .optional()
                     .or(z.literal("")), // Allow empty initially
-                responsibilities: z.array(z.string()).default([]),
-                achievements: z.array(z.string()).default([]),
-                skills_used: z.array(z.string()).default([]),
-                private_ai_context: z.string().optional(),
+                responsibilities: z
+                    .array(
+                        z.string().max(CHARACTER_LIMITS.bulletPoint, {
+                            message: `Responsibility cannot exceed ${CHARACTER_LIMITS.bulletPoint} chars.`,
+                        }),
+                    )
+                    .default([]),
+
+                achievements: z
+                    .array(
+                        z.string().max(CHARACTER_LIMITS.bulletPoint, {
+                            message: `Achievement cannot exceed ${CHARACTER_LIMITS.bulletPoint} chars.`,
+                        }),
+                    )
+                    .default([]),
+
+                skills_used: z
+                    .array(
+                        z.string().max(CHARACTER_LIMITS.techItem, {
+                            message: `Skill cannot exceed ${CHARACTER_LIMITS.techItem} chars.`,
+                        }),
+                    )
+                    .default([]),
             })
             .default({}),
     })
@@ -154,15 +173,36 @@ export const projectSchema = z.object({
         .object({
             problem_solved: z
                 .string()
-                .max(500, {
-                    message:
-                        "Problem description cannot exceed 500 characters.",
+                .max(CHARACTER_LIMITS.description, {
+                    message: `Problem description cannot exceed ${CHARACTER_LIMITS.description} characters.`,
                 })
                 .optional()
                 .or(z.literal("")),
-            key_features: z.array(z.string()).default([]),
-            tech_stack: z.array(z.string()).default([]),
-            url: z.string().url().optional().or(z.literal("")),
+
+            key_features: z
+                .array(
+                    z.string().max(CHARACTER_LIMITS.bulletPoint, {
+                        message: `Feature cannot exceed ${CHARACTER_LIMITS.bulletPoint} chars.`,
+                    }),
+                )
+                .default([]),
+
+            tech_stack: z
+                .array(
+                    z.string().max(CHARACTER_LIMITS.techItem, {
+                        message: `Tech item cannot exceed ${CHARACTER_LIMITS.techItem} chars.`,
+                    }),
+                )
+                .default([]),
+
+            url: z
+                .string()
+                .url({ message: "Invalid URL" })
+                .max(CHARACTER_LIMITS.url, {
+                    message: `URL cannot exceed ${CHARACTER_LIMITS.url} chars.`,
+                })
+                .optional()
+                .or(z.literal("")),
         })
         .default({}),
 });
