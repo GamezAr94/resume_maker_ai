@@ -57,10 +57,6 @@ export const experienceSchema = z
             .string()
             .min(1, { message: "Company name is required." })
             .max(CHARACTER_LIMITS.company),
-        description: z
-            .string()
-            .min(1, { message: "Description is required." })
-            .max(CHARACTER_LIMITS.description),
         start_date: z.string().min(1, { message: "Start date is required." }),
         end_date: z.string().optional().nullable(),
         is_current: z.boolean().optional(),
@@ -158,17 +154,13 @@ export const skillSchema = z.object({
 
 // --- Schema for Projects Form ---
 export const projectSchema = z.object({
-    id: z.string().optional().nullable(),
+    id: z.union([z.string(), z.number()]).optional().nullable(),
     project_name: z
         .string()
         .min(1, { message: "Project name is required." })
         .max(CHARACTER_LIMITS.title),
-    project_description: z
-        .string()
-        .min(1, { message: "Description is required." })
-        .max(CHARACTER_LIMITS.description),
-    experience_id: z.string().optional().nullable(),
-    education_id: z.string().optional().nullable(),
+    experience_id: z.union([z.string(), z.number()]).optional().nullable(),
+    education_id: z.union([z.string(), z.number()]).optional().nullable(),
     details: z
         .object({
             problem_solved: z

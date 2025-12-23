@@ -38,6 +38,7 @@ import CharacterCounter from "@/app/components/CharacterCounter/CharacterCounter
 
 // Character limits for the form fields
 import { CHARACTER_LIMITS } from "@/utils/configLimits";
+import { projectSchema } from "@/utils/zod_schemas";
 
 interface Params {
     infoQuery: FormProjectStructure | null;
@@ -51,24 +52,6 @@ interface Params {
     >;
     selectedType: "personal_type" | "experience_type" | "education_type";
 }
-
-const userSchema = z.object({
-    id: z.string().optional(),
-    project_name: z
-        .string()
-        .min(1, "Project Name is required")
-        .max(
-            CHARACTER_LIMITS.title,
-            `Cannot exceed ${CHARACTER_LIMITS.title} characters`,
-        ),
-    project_description: z
-        .string()
-        .min(1, "A description is required")
-        .max(
-            CHARACTER_LIMITS.description,
-            `Cannot exceed ${CHARACTER_LIMITS.description} characters`,
-        ),
-});
 
 export default function ProjectsInfoForm({
     infoQuery,
@@ -86,8 +69,9 @@ export default function ProjectsInfoForm({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // State to store the errors in the form
-    const [formErrors, setFormErrors] =
-        useState<FormProjectStructure>(emptyStateProject);
+    const [formErrors, setFormErrors] = useState<Record<string, string | null>>(
+        {},
+    );
 
     // Function to validate the user data and save it
     async function validatingAndSaving(
@@ -99,35 +83,54 @@ export default function ProjectsInfoForm({
         setIsSubmitting(true);
 
         try {
-            // get the form data
-            const formData = new FormData();
-            if (getEditRecord) {
-                Object.entries(getEditRecord).forEach(([key, value]) => {
-                    if (value !== null && value !== undefined && value != "") {
-                        formData.append(key, String(value));
-                    }
-                });
-            }
+            // Get current details
+            const currentDetails =
+                getEditRecord?.details || emptyStateProject.details;
+
+            // Filter out empty strings from the arrays
+            // We trim() to ensure "   " is treated as empty
+            const cleanFeatures = (currentDetails.key_features || [])
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0);
+
+            const cleanTechStack = (currentDetails.tech_stack || [])
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0);
+
+            // Construct a plain JS object
+            // This ensures nested 'details' are preserved correctly
+            const dataToValidate = {
+                // If ID exists, include it
+                ...(getEditRecord?.id && { id: getEditRecord.id }),
+
+                project_name: getEditRecord?.project_name || "",
+
+                // Handle the foreign keys (nullable)
+                experience_id: getEditRecord?.experience_id || null,
+                education_id: getEditRecord?.education_id || null,
+
+                // Pass the nested details object
+                details: {
+                    ...currentDetails,
+                    key_features: cleanFeatures, // Use cleaned list
+                    tech_stack: cleanTechStack, // Use cleaned list
+                },
+            };
 
             // parse the user data with the zod schema
-            const parseUser = userSchema.safeParse(
-                Object.fromEntries(formData),
-            );
+            const parseUser = projectSchema.safeParse(dataToValidate);
 
-            // reset the errors in the state
-            setFormErrors(emptyStateProject);
+            console.log(parseUser);
+            setFormErrors({});
 
-            // if the user data is not valid, store the errors in the state and return
             if (!parseUser.success) {
                 const error = parseUser.error;
-                let newErrors = emptyStateProject;
+                const newErrors: Record<string, string> = {};
                 for (const issue of error.errors) {
-                    newErrors = {
-                        ...newErrors,
-                        [issue.path[0]]: issue.message,
-                    };
+                    const path = issue.path.join("."); // e.g. "details.url"
+                    newErrors[path] = issue.message;
                 }
-                // set the errors in the state to show them to the user
+                console.log(newErrors);
                 setFormErrors(newErrors);
                 return;
             }
@@ -137,12 +140,11 @@ export default function ProjectsInfoForm({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: SectionTypes.Project,
-                    data: Object.fromEntries(formData),
+                    data: parseUser.data, // Send the clean object
                 }),
             });
             const response = await res.json();
 
-            // show a message to the user
             if (!res.ok) {
                 notifications.show({
                     title: "Error Saving",
@@ -159,7 +161,7 @@ export default function ProjectsInfoForm({
                 color: "teal",
                 icon: <IconCheck />,
             });
-            // required to refresh the UI
+
             setRefreshTrigger((prevTrigger) => ({
                 ...prevTrigger,
                 project: !prevTrigger.project,
@@ -210,7 +212,7 @@ export default function ProjectsInfoForm({
     function editRecord(value: FormProjectStructure | null) {
         // we need to remove the existing errors if any
         // TODO this method it is ONLY working when you click the button cancel, if we want to make it work when pressing the edit button then we need to move the useState to the container component of this component so that we can share it accross that one and this one
-        setFormErrors(emptyStateProject);
+        setFormErrors({});
         // elect by default the personal_type just in case
         setSelectedType("personal_type");
         if (value?.experience_id != null) {
@@ -324,6 +326,11 @@ export default function ProjectsInfoForm({
                 [field]: value,
             },
         }));
+
+        setFormErrors((prev) => ({
+            ...prev,
+            [`details.${field}`]: null,
+        }));
     }
 
     // Update a specific item in a list (Features, Tech Stack)
@@ -406,11 +413,7 @@ export default function ProjectsInfoForm({
                 <>
                     <Input.Wrapper
                         label="Project Name"
-                        error={
-                            formErrors.project_name
-                                ? formErrors.project_name
-                                : ""
-                        }
+                        error={formErrors["project_name"]}
                         classNames={{
                             root: styles.formField,
                             label: styles.formLabel,
@@ -461,6 +464,7 @@ export default function ProjectsInfoForm({
                         <Select
                             label="Link to Experience"
                             placeholder="Select an experience"
+                            error={formErrors.experience_id}
                             defaultValue={
                                 getEditRecord?.experience_id
                                     ? String(getEditRecord.experience_id)
@@ -490,6 +494,7 @@ export default function ProjectsInfoForm({
                         <Select
                             label="Link to Education"
                             placeholder="Select an institution"
+                            error={formErrors.education_id}
                             defaultValue={
                                 getEditRecord?.education_id
                                     ? String(getEditRecord.education_id)
@@ -555,6 +560,7 @@ export default function ProjectsInfoForm({
                                         style={{ flex: 1 }}
                                         placeholder="e.g. Real-time chat integration"
                                         value={item}
+                                        maxLength={CHARACTER_LIMITS.bulletPoint}
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "key_features",
@@ -600,6 +606,7 @@ export default function ProjectsInfoForm({
                                         style={{ flex: 1 }}
                                         placeholder="e.g. Next.js"
                                         value={item}
+                                        maxLength={CHARACTER_LIMITS.techItem}
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "tech_stack",
@@ -636,6 +643,8 @@ export default function ProjectsInfoForm({
                         label="Project URL"
                         placeholder="https://github.com/..."
                         value={getEditRecord?.details?.url || ""}
+                        maxLength={CHARACTER_LIMITS.url}
+                        error={formErrors["details.url"]}
                         onChange={(e) =>
                             handleDetailsChange("url", e.currentTarget.value)
                         }

@@ -34,39 +34,8 @@ import { ExperienceDetails } from "@/utils/interfaces";
 // Character limits for the form fields
 import { CHARACTER_LIMITS } from "@/utils/configLimits";
 import CharacterCounter from "../../CharacterCounter/CharacterCounter";
+import { experienceSchema } from "@/utils/zod_schemas";
 
-const userSchema = z
-    .object({
-        id: z.number().optional(),
-        job_title: z
-            .string()
-            .min(1, "Job Title is required")
-            .max(
-                CHARACTER_LIMITS.title,
-                `Cannot exceed ${CHARACTER_LIMITS.title} characters`,
-            ),
-        company_name: z
-            .string()
-            .min(1, "Company Name is required")
-            .max(
-                CHARACTER_LIMITS.company,
-                `Cannot exceed ${CHARACTER_LIMITS.company} characters`,
-            ),
-        description: z
-            .string()
-            .min(1, "A description is required")
-            .max(
-                CHARACTER_LIMITS.description,
-                `Cannot exceed ${CHARACTER_LIMITS.description} characters`,
-            ),
-        start_date: z.string().min(1, "Start Date is required"),
-        end_date: z.string().optional(),
-        is_current: z.boolean().optional(),
-    })
-    .refine((data) => data.is_current || !!data.end_date, {
-        message: "End Date is required if this is not a current position",
-        path: ["end_date"],
-    });
 interface Params {
     infoQuery: FormExperienceStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
@@ -84,8 +53,9 @@ export default function ExperienceForm({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // State to store the errors in the form
-    const [formErrors, setFormErrors] =
-        useState<FormExperienceStructure>(emptyStateExperience);
+    const [formErrors, setFormErrors] = useState<Record<string, string | null>>(
+        {},
+    );
 
     // Function to validate the user data and save it
     async function validatingAndSaving(
@@ -97,6 +67,23 @@ export default function ExperienceForm({
         setIsSubmitting(true);
 
         try {
+            const currentDetails =
+                getEditRecord?.details || emptyStateExperience.details;
+
+            const cleanResponsibilities = (
+                currentDetails.responsibilities || []
+            )
+                .map((i) => i.trim())
+                .filter((i) => i.length > 0);
+
+            const cleanAchievements = (currentDetails.achievements || [])
+                .map((i) => i.trim())
+                .filter((i) => i.length > 0);
+
+            const cleanSkills = (currentDetails.skills_used || [])
+                .map((i) => i.trim())
+                .filter((i) => i.length > 0);
+
             // Directly build the object to validate from the state
             const dataToValidate = {
                 ...(getEditRecord?.id && { id: getEditRecord.id }),
@@ -105,25 +92,36 @@ export default function ExperienceForm({
                 start_date: getEditRecord?.start_date || "",
                 end_date: getEditRecord?.end_date || undefined,
                 is_current: getEditRecord?.is_current || false,
-                description: getEditRecord?.description || "",
+                details: {
+                    ...currentDetails,
+                    responsibilities: cleanResponsibilities,
+                    achievements: cleanAchievements,
+                    skills_used: cleanSkills,
+                },
             };
 
-            const parseUser = userSchema.safeParse(dataToValidate);
+            const parseUser = experienceSchema.safeParse(dataToValidate);
 
             // reset the errors in the state
-            setFormErrors(emptyStateExperience);
+            setFormErrors({});
 
             // if the user data is not valid, store the errors in the state and return
             if (!parseUser.success) {
                 const error = parseUser.error;
-                let newErrors = emptyStateExperience;
+
+                // 1. Create a plain object, NOT emptyStateExperience
+                const newErrors: Record<string, string> = {};
+
                 for (const issue of error.errors) {
-                    newErrors = {
-                        ...newErrors,
-                        [issue.path[0]]: issue.message,
-                    };
+                    // 2. Join the FULL path (e.g., "details" + "skills_used" + "0")
+                    // This creates the string: "details.skills_used.0"
+                    const path = issue.path.join(".");
+
+                    // 3. Assign message to that specific path
+                    newErrors[path] = issue.message;
                 }
-                // set the errors in the state to show them to the user
+
+                console.log("Validation Errors Map:", newErrors); // Debug: Check console to see the keys match!
                 setFormErrors(newErrors);
                 return;
             }
@@ -204,7 +202,7 @@ export default function ExperienceForm({
 
     function editRecord(value: FormExperienceStructure | null) {
         // TODO this method it is ONLY working when you click the button cancel, if we want to make it work when pressing the edit button then we need to move the useState to the container component of this component so that we can share it accross that one and this one
-        setFormErrors(emptyStateExperience);
+        setFormErrors({});
         setEditRecord(value);
     }
 
@@ -235,6 +233,11 @@ export default function ExperienceForm({
                 [field]: value,
             },
         }));
+
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            [`details.${field}`]: null,
+        }));
     }
 
     // Update a specific item in a list (e.g., Responsibility #2)
@@ -247,6 +250,11 @@ export default function ExperienceForm({
         const newList = [...currentList];
         newList[index] = value;
         handleDetailsChange(field, newList);
+
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
+            [`details.${field}.${index}`]: null,
+        }));
     }
 
     // Add a new empty line to a list
@@ -319,6 +327,7 @@ export default function ExperienceForm({
                         placeholder="e.g., Software Engineer"
                         maxLength={CHARACTER_LIMITS.title}
                         name="job_title"
+                        error={formErrors["job_title"]}
                         value={getEditRecord?.job_title || ""}
                         onChange={(e) =>
                             handleInputChange(
@@ -326,7 +335,6 @@ export default function ExperienceForm({
                                 e.currentTarget.value,
                             )
                         }
-                        error={formErrors.job_title}
                         required
                     />
                     <TextInput
@@ -341,7 +349,7 @@ export default function ExperienceForm({
                                 e.currentTarget.value,
                             )
                         }
-                        error={formErrors.company_name}
+                        error={formErrors["company_name"]}
                         required
                     />
 
@@ -368,11 +376,7 @@ export default function ExperienceForm({
                                     }
                                 }
                             }}
-                            error={
-                                typeof formErrors.start_date === "string"
-                                    ? formErrors.start_date
-                                    : undefined
-                            }
+                            error={formErrors["start_date"]}
                             required
                         />
                         <MonthPickerInput
@@ -413,11 +417,7 @@ export default function ExperienceForm({
                                 );
                                 return startDateObj;
                             })()}
-                            error={
-                                typeof formErrors.end_date === "string"
-                                    ? formErrors.end_date
-                                    : undefined
-                            }
+                            error={formErrors["end_date"]}
                         />
                     </Group>
 
@@ -448,12 +448,13 @@ export default function ExperienceForm({
                                 )
                             }
                             autosize
+                            error={formErrors["details.summary"]}
                             minRows={2}
                             maxLength={CHARACTER_LIMITS.description}
                         />
                         <CharacterCounter
                             currentLength={
-                                getEditRecord?.details?.summary.length || 0
+                                getEditRecord?.details?.summary?.length || 0
                             }
                             maxLength={CHARACTER_LIMITS.description}
                         />
@@ -473,6 +474,7 @@ export default function ExperienceForm({
                                         style={{ flex: 1 }}
                                         placeholder="e.g. Managed daily stand-ups"
                                         value={item}
+                                        maxLength={CHARACTER_LIMITS.bulletPoint}
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "responsibilities",
@@ -518,6 +520,7 @@ export default function ExperienceForm({
                                         style={{ flex: 1 }}
                                         placeholder="e.g. Reduced server costs by 20%"
                                         value={item}
+                                        maxLength={CHARACTER_LIMITS.bulletPoint}
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "achievements",
@@ -563,6 +566,7 @@ export default function ExperienceForm({
                                         style={{ flex: 1 }}
                                         placeholder="e.g. React"
                                         value={item}
+                                        maxLength={CHARACTER_LIMITS.techItem}
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "skills_used",
