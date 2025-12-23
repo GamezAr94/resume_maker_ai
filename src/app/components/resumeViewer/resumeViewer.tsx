@@ -1,21 +1,21 @@
-'use client';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import styles_css from './resumeViewer.module.css';
-import { PDFViewer } from '@react-pdf/renderer';
-import { FormJobOfferDataStructure } from '@/utils/interfaces';
-import { Button } from '@mantine/core';
-import { SectionTypes } from '@/utils/enums';
-import { notifications } from '@mantine/notifications';
-import { IconCheck, IconX } from '@tabler/icons-react';
+"use client";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import styles_css from "./resumeViewer.module.css";
+import { PDFViewer } from "@react-pdf/renderer";
+import { FormJobOfferDataStructure } from "@/utils/interfaces";
+import { Button } from "@mantine/core";
+import { SectionTypes } from "@/utils/enums";
+import { notifications } from "@mantine/notifications";
+import { IconCheck, IconX } from "@tabler/icons-react";
 
 // Import the templates
 import {
     ClassicResumeTemplate,
     styles as pdfStyles,
-} from '@/lib/pdf-templates/ClassicResume';
-import { ModernResumeTemplate } from '@/lib/pdf-templates/ModernResume';
-import { MinimalistResumeTemplate } from '@/lib/pdf-templates/MinimalistResume';
-import FeedbackModal from './Feedback/FeedbackModal';
+} from "@/lib/pdf-templates/ClassicResume";
+import { ModernResumeTemplate } from "@/lib/pdf-templates/ModernResume";
+import { MinimalistResumeTemplate } from "@/lib/pdf-templates/MinimalistResume";
+import FeedbackModal from "./Feedback/FeedbackModal";
 
 interface Props {
     dataResume: FormJobOfferDataStructure;
@@ -37,7 +37,7 @@ export default function ResumeViewer({
     useEffect(() => {
         // This code runs only on the client side after the component mounts
         const userAgent = navigator.userAgent;
-        if (userAgent.includes('Firefox')) {
+        if (userAgent.includes("Firefox")) {
             setIsFirefox(true);
         }
     }, []);
@@ -54,10 +54,10 @@ export default function ResumeViewer({
         setIsSaving(true);
 
         try {
-            const response = await fetch('/api/saveUserInfo', {
+            const response = await fetch("/api/saveUserInfo", {
                 // Use root-relative path
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: SectionTypes.JobOffer, // Tell the API what type of data this is
                     data: dataResume, // Send the whole dataResume object
@@ -67,23 +67,23 @@ export default function ResumeViewer({
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || 'Failed to save resume.');
+                throw new Error(result.message || "Failed to save resume.");
             }
 
             notifications.show({
-                title: 'Success!',
-                message: 'Resume saved successfully!',
-                color: 'teal',
+                title: "Success!",
+                message: "Resume saved successfully!",
+                color: "teal",
                 icon: <IconCheck />,
             });
         } catch (error) {
             notifications.show({
-                title: 'Error Saving Resume',
+                title: "Error Saving Resume",
                 message:
                     error instanceof Error
                         ? error.message
-                        : 'An unknown error occurred.',
-                color: 'red',
+                        : "An unknown error occurred.",
+                color: "red",
                 icon: <IconX />,
             });
         } finally {
@@ -99,10 +99,10 @@ export default function ResumeViewer({
         }
         setIsDownloading(true);
         notifications.show({
-            id: 'download-pdf',
+            id: "download-pdf",
             loading: true,
-            title: 'Download Started...',
-            message: 'Your resume is being prepared for download.',
+            title: "Download Started...",
+            message: "Your resume is being prepared for download.",
             autoClose: false,
             withCloseButton: false,
         });
@@ -110,13 +110,13 @@ export default function ResumeViewer({
         try {
             // Only update the resume state if was downloaded and it was FALSE
             if (dataResume.id && !dataResume.was_downloaded) {
-                console.log('First time download, marking in DB...');
+                console.log("First time download, marking in DB...");
 
                 // Call the new, structured API route
                 const res = await fetch(
                     `/api/resume/${dataResume.id}/download-status`,
                     {
-                        method: 'POST',
+                        method: "POST",
                     },
                 );
 
@@ -131,9 +131,9 @@ export default function ResumeViewer({
                 }
             }
 
-            const pdfRes = await fetch('../api/pdfResume', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const pdfRes = await fetch("../api/pdfResume", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     data: dataResume,
                 }),
@@ -141,39 +141,39 @@ export default function ResumeViewer({
             // verify we get a good response
             if (!pdfRes.ok) {
                 const errorData = await pdfRes.json();
-                throw new Error(errorData.message || 'Failed to download PDF');
+                throw new Error(errorData.message || "Failed to download PDF");
             }
 
             const blob = await pdfRes.blob(); // Get the PDF as a Blob
             const url = window.URL.createObjectURL(blob); // Create a temporary URL
 
             // Create a temporary link and click it to trigger the download
-            const a = document.createElement('a');
+            const a = document.createElement("a");
             a.href = url;
-            a.download = 'resume.pdf'; // Suggested filename
+            a.download = "resume.pdf"; // Suggested filename
             document.body.appendChild(a); // Append to the DOM (required for Firefox)
             a.click();
             a.remove(); // Clean up
 
             window.URL.revokeObjectURL(url); // Release the object URL
             notifications.update({
-                id: 'download-pdf',
-                color: 'teal',
-                title: 'Success!',
-                message: 'Your resume is downloading.',
+                id: "download-pdf",
+                color: "teal",
+                title: "Success!",
+                message: "Your resume is downloading.",
                 icon: <IconCheck />,
                 loading: false,
                 autoClose: 5000,
             });
         } catch (error) {
             notifications.update({
-                id: 'download-pdf',
-                color: 'red',
-                title: 'Download Failed',
+                id: "download-pdf",
+                color: "red",
+                title: "Download Failed",
                 message:
                     error instanceof Error
                         ? error.message
-                        : 'An unknown error occurred.',
+                        : "An unknown error occurred.",
                 icon: <IconX />,
                 loading: false,
                 autoClose: 5000,
@@ -196,9 +196,9 @@ export default function ResumeViewer({
     }) => {
         setIsSubmittingFeedback(true);
         try {
-            const response = await fetch('/api/sendFeedback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch("/api/sendFeedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userEmail: dataResume.resume_generated.contact_info.email,
                     resumeID: dataResume.id,
@@ -208,11 +208,11 @@ export default function ResumeViewer({
             });
 
             if (!response.ok) {
-                throw new Error('Failed to send feedback.');
+                throw new Error("Failed to send feedback.");
             }
 
             // You can add a success notification here if you want
-            console.log('Feedback sent successfully!');
+            console.log("Feedback sent successfully!");
 
             setFeedbackModalOpen(false);
             await gettingPDF(); // Proceed to download after feedback
@@ -228,6 +228,11 @@ export default function ResumeViewer({
         setFeedbackModalOpen(false);
         await gettingPDF(); // Proceed to download if skipped
     };
+
+    // TODO ART MUST!!!: this is hardcoded we need to fix this issue in the production
+    dataResume.resume_generated.layout[1].items[0].start_end_dates =
+        "May 2022 - Current";
+    console.log(dataResume.resume_generated.layout[1].items[0].start_end_dates);
 
     return (
         <>
@@ -254,19 +259,19 @@ export default function ResumeViewer({
                         }
 
                         switch (dataResume.resume_generated.styles.theme) {
-                            case 'classic':
+                            case "classic":
                                 return (
                                     <ClassicResumeTemplate
                                         dataResume={dataResume}
                                     />
                                 );
-                            case 'minimalist':
+                            case "minimalist":
                                 return (
                                     <MinimalistResumeTemplate
                                         dataResume={dataResume}
                                     />
                                 );
-                            case 'modern':
+                            case "modern":
                             default:
                                 return (
                                     <ModernResumeTemplate

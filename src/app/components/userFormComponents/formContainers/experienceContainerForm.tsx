@@ -1,12 +1,12 @@
-'user client';
-import { Dispatch, SetStateAction, useState } from 'react';
-import { FormExperienceStructure, RefreshSections } from '@/utils/interfaces';
-import ExperienceForm from '../forms/experienceForm';
-import ShowUserDataSection from '../showUserDataSection';
-import styles from './formContainerStyles.module.css';
+"user client";
+import { Dispatch, SetStateAction, useState } from "react";
+import { FormExperienceStructure, RefreshSections } from "@/utils/interfaces";
+import ExperienceForm from "../forms/experienceForm";
+import ShowUserDataSection from "../showUserDataSection";
+import styles from "./formContainerStyles.module.css";
 
 interface Params {
-    experienceInfo: [FormExperienceStructure] | [];
+    experienceInfo: FormExperienceStructure[] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 
@@ -22,7 +22,7 @@ export default function ExperienceContainerForm({
             <div className={styles.formCard}>
                 <h2 className={styles.formCardTitle}>Experience Management</h2>
                 <h3 className={styles.formCardSubtitle}>
-                    {getEditRecord ? 'Edit Experience' : 'Add New Experience'}
+                    {getEditRecord ? "Edit Experience" : "Add New Experience"}
                 </h3>
                 <ExperienceForm
                     infoQuery={null}

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
     emptyStatePersonal,
@@ -8,12 +8,12 @@ import {
     FormProjectStructure,
     FormSkillStructure,
     RefreshSections,
-} from '@/utils/interfaces';
-import { useState, forwardRef } from 'react';
-import ExperienceContainerForm from './formContainers/experienceContainerForm';
-import EducationContainerForm from './formContainers/educationContainerForm';
-import SkillContainerForm from './formContainers/skillContainerForm';
-import ProjectContainerForm from './formContainers/projectContainerForm';
+} from "@/utils/interfaces";
+import { useState, forwardRef } from "react";
+import ExperienceContainerForm from "./formContainers/experienceContainerForm";
+import EducationContainerForm from "./formContainers/educationContainerForm";
+import SkillContainerForm from "./formContainers/skillContainerForm";
+import ProjectContainerForm from "./formContainers/projectContainerForm";
 import {
     Paper,
     Title,
@@ -22,20 +22,20 @@ import {
     Button,
     Box, // Useful for layout and system props
     useMantineTheme, // To access theme values like colors and spacing
-} from '@mantine/core';
-import { IconCheck, IconClock } from '@tabler/icons-react';
-import PersonalContainerForm from './formContainers/personalContainerForm';
+} from "@mantine/core";
+import { IconCheck, IconClock } from "@tabler/icons-react";
+import PersonalContainerForm from "./formContainers/personalContainerForm";
 
-import styles from './mainUserForm.module.css';
-import '@mantine/dates/styles.css';
+import styles from "./mainUserForm.module.css";
+import "@mantine/dates/styles.css";
 //import { LinkedInImporter } from './linkedinForms/LinkedinImporterForm';
 
 interface Props {
     className: string;
-    projectInfo: [FormProjectStructure] | false;
-    experienceInfo: [FormExperienceStructure] | false;
-    educationInfo: [FormEducationStructure] | false;
-    skillInfo: [FormSkillStructure] | false;
+    projectInfo: FormProjectStructure[] | false;
+    experienceInfo: FormExperienceStructure[] | false;
+    educationInfo: FormEducationStructure[] | false;
+    skillInfo: FormSkillStructure[] | false;
     userInfo: FormPersonalStructure | false;
     setUserInfo: React.Dispatch<
         React.SetStateAction<FormPersonalStructure | false>
@@ -50,7 +50,7 @@ interface Props {
         };
     };
 }
-type InputMode = 'manual' | 'ai' | 'linkedin';
+type InputMode = "manual" | "ai" | "linkedin";
 
 /*
 const LinkedInIcon = (props: React.ComponentPropsWithoutRef<'svg'>) => (
@@ -83,25 +83,25 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
         ref,
     ) => {
         const [sectionDisplayed, setSectionDisplayed] = useState<
-            'personal' | 'education' | 'job_experience' | 'skills' | 'projects'
-        >('personal');
+            "personal" | "education" | "job_experience" | "skills" | "projects"
+        >("personal");
 
-        const [inputMode, setInputMode] = useState<InputMode>('manual');
+        const [inputMode, setInputMode] = useState<InputMode>("manual");
         const theme = useMantineTheme();
 
         const manualButtonStyles = (mode: InputMode) => ({
             root: {
                 padding: `${theme.spacing.sm} ${theme.spacing.xl}`, // Approx py-3 px-6 (12px 24px)
-                height: 'auto',
+                height: "auto",
                 fontSize: theme.fontSizes.sm,
                 fontWeight: 600,
-                boxShadow: mode === 'manual' ? theme.shadows.lg : 'none',
+                boxShadow: mode === "manual" ? theme.shadows.lg : "none",
                 backgroundColor:
-                    mode === 'manual' ? theme.colors.indigo[6] : theme.white,
-                color: mode === 'manual' ? theme.white : theme.colors.indigo[7],
-                '&:hover': {
+                    mode === "manual" ? theme.colors.indigo[6] : theme.white,
+                color: mode === "manual" ? theme.white : theme.colors.indigo[7],
+                "&:hover": {
                     backgroundColor:
-                        mode === 'manual'
+                        mode === "manual"
                             ? theme.colors.indigo[7]
                             : theme.colors.indigo[0],
                 },
@@ -170,15 +170,15 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                             padding: 4, // p-1
                             backgroundColor: theme.colors.gray[2], // bg-slate-200
                             borderRadius: theme.radius.md, // rounded-lg
-                            display: 'flex', // To make it wrap the buttons
-                            justifyContent: 'center', // Center the buttons
-                            width: '100%',
-                            height: '50px',
+                            display: "flex", // To make it wrap the buttons
+                            justifyContent: "center", // Center the buttons
+                            width: "100%",
+                            height: "50px",
                             gap: theme.spacing.xs, // space-x-2
                         }}
                     >
                         <Button
-                            onClick={() => setInputMode('manual')}
+                            onClick={() => setInputMode("manual")}
                             variant="filled" // Will be overridden by styles but good base
                             styles={() => manualButtonStyles(inputMode)}
                             leftSection={
@@ -194,7 +194,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                             Enter Data Manually
                         </Button>
                         {/*
-                       // TODO for future update when we want to implement other imprt methods 
+                       // TODO for future update when we want to implement other imprt methods
                         <Button
                             onClick={() => setInputMode('ai')}
                             variant="filled"
@@ -223,7 +223,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                     </Box>
                 </Group>
 
-                {inputMode === 'manual' && (
+                {inputMode === "manual" && (
                     <div className={styles.manualModeContainer}>
                         {/* Left Column: Resume Sections Sidebar */}
                         <Paper
@@ -249,16 +249,16 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                             } ${
                                                 sectionDisplayed === tab.value
                                                     ? styles.sidebarNavItemActive
-                                                    : ''
+                                                    : ""
                                             }`}
                                             onClick={() =>
                                                 setSectionDisplayed(
                                                     tab.value as
-                                                        | 'personal'
-                                                        | 'education'
-                                                        | 'job_experience'
-                                                        | 'skills'
-                                                        | 'projects',
+                                                        | "personal"
+                                                        | "education"
+                                                        | "job_experience"
+                                                        | "skills"
+                                                        | "projects",
                                                 )
                                             }
                                         >
@@ -285,7 +285,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
 
                         {/* Right Column: Form Display Area */}
                         <Box className={styles.contentArea}>
-                            {sectionDisplayed == 'personal' && (
+                            {sectionDisplayed == "personal" && (
                                 <PersonalContainerForm
                                     personalInfo={
                                         userInfo === false
@@ -297,7 +297,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                 />
                             )}
 
-                            {sectionDisplayed == 'job_experience' && (
+                            {sectionDisplayed == "job_experience" && (
                                 <ExperienceContainerForm
                                     experienceInfo={
                                         experienceInfo === false
@@ -308,7 +308,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                 />
                             )}
 
-                            {sectionDisplayed == 'education' && (
+                            {sectionDisplayed == "education" && (
                                 <EducationContainerForm
                                     educationInfo={
                                         educationInfo === false
@@ -319,7 +319,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                 />
                             )}
 
-                            {sectionDisplayed == 'skills' && (
+                            {sectionDisplayed == "skills" && (
                                 <SkillContainerForm
                                     setRefreshTrigger={setRefreshTrigger}
                                     skillInfo={
@@ -328,7 +328,7 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
                                 />
                             )}
 
-                            {sectionDisplayed == 'projects' && (
+                            {sectionDisplayed == "projects" && (
                                 <ProjectContainerForm
                                     projectInfo={
                                         projectInfo === false ? [] : projectInfo
@@ -376,6 +376,6 @@ const MainUserForm = forwardRef<HTMLDivElement, Props>(
     },
 );
 
-MainUserForm.displayName = 'MainUserForm';
+MainUserForm.displayName = "MainUserForm";
 
 export default MainUserForm;

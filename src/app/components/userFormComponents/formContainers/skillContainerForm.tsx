@@ -1,12 +1,12 @@
-'use client';
-import { FormSkillStructure, RefreshSections } from '@/utils/interfaces';
-import { Dispatch, SetStateAction, useState } from 'react';
-import SkillsInfoForm from '../forms/skillsInfoForm';
-import ShowUserDataSection from '../showUserDataSection';
-import styles from './formContainerStyles.module.css';
+"use client";
+import { FormSkillStructure, RefreshSections } from "@/utils/interfaces";
+import { Dispatch, SetStateAction, useState } from "react";
+import SkillsInfoForm from "../forms/skillsInfoForm";
+import ShowUserDataSection from "../showUserDataSection";
+import styles from "./formContainerStyles.module.css";
 
 interface Params {
-    skillInfo: [FormSkillStructure] | [];
+    skillInfo: FormSkillStructure[] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 export default function SkillContainerForm({
@@ -22,7 +22,7 @@ export default function SkillContainerForm({
             <div className={styles.formCard}>
                 <h2 className={styles.formCardTitle}>Skills Management</h2>
                 <h3 className={styles.formCardSubtitle}>
-                    {getEditRecord ? 'Edit Skill' : 'Add New Skill'}
+                    {getEditRecord ? "Edit Skill" : "Add New Skill"}
                 </h3>
                 <SkillsInfoForm
                     infoQuery={null}

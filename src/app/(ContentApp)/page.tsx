@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import styles from './page.module.css';
+import styles from "./page.module.css";
 
-import MainUserForm from '../components/userFormComponents/mainUserForm';
-import MainJobForm from '../components/jobOfferFormComponents/mainJobForm';
-import { Alert, Divider } from '@mantine/core';
-import { ProfileCompletionCard } from '../components/ProfileCompletion/ProfileCompletionCard';
-import { useRef, useState, useEffect } from 'react';
+import MainUserForm from "../components/userFormComponents/mainUserForm";
+import MainJobForm from "../components/jobOfferFormComponents/mainJobForm";
+import { Alert, Divider } from "@mantine/core";
+import { ProfileCompletionCard } from "../components/ProfileCompletion/ProfileCompletionCard";
+import { useRef, useState, useEffect } from "react";
 import {
     FormEducationStructure,
     FormExperienceStructure,
@@ -14,11 +14,12 @@ import {
     FormProjectStructure,
     FormSkillStructure,
     RefreshSections,
-} from '@/utils/interfaces';
+} from "@/utils/interfaces";
 
-import { calculateProfileCompleteness } from '@/utils/profile-completeness';
-import { PROFILE_COMPLETION_WEIGHTS } from '../config/profile.config';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { calculateProfileCompleteness } from "@/utils/profile-completeness";
+import { PROFILE_COMPLETION_WEIGHTS } from "../config/profile.config";
+import { IconAlertCircle } from "@tabler/icons-react";
+import ResumeUploader from "../components/onboarding/ResumeUploader";
 
 export default function Home() {
     const mainFormRef = useRef<HTMLDivElement>(null);
@@ -34,15 +35,15 @@ export default function Home() {
     });
 
     const [projectInfo, setProjectInfo] = useState<
-        [FormProjectStructure] | false
+        FormProjectStructure[] | false
     >(false);
     const [experienceInfo, setExperienceInfo] = useState<
-        [FormExperienceStructure] | false
+        FormExperienceStructure[] | false
     >(false);
     const [educationInfo, setEducationInfo] = useState<
-        [FormEducationStructure] | false
+        FormEducationStructure[] | false
     >(false);
-    const [skillInfo, setSkillInfo] = useState<[FormSkillStructure] | false>(
+    const [skillInfo, setSkillInfo] = useState<FormSkillStructure[] | false>(
         false,
     );
     const [userInfo, setUserInfo] = useState<FormPersonalStructure | false>(
@@ -50,7 +51,7 @@ export default function Home() {
     );
 
     // Calculate the profile completeness percentage and status
-    const { percentage, status = 'ready' } = calculateProfileCompleteness({
+    const { percentage, status = "ready" } = calculateProfileCompleteness({
         userInfo: userInfo || null,
         experienceInfo: experienceInfo || [],
         educationInfo: educationInfo || [],
@@ -73,33 +74,33 @@ export default function Home() {
                     ? 1
                     : 0,
             required: 1,
-            label: 'Personal Info',
-            value: 'personal',
+            label: "Personal Info",
+            value: "personal",
         },
         education: {
             current: educationInfo ? educationInfo.length : 0,
             required: PROFILE_COMPLETION_WEIGHTS.MAX_EDUCATION_FOR_SCORE,
-            label: 'Education',
-            value: 'education',
+            label: "Education",
+            value: "education",
         },
         job_experience: {
             current: experienceInfo ? experienceInfo.length : 0,
             required:
                 PROFILE_COMPLETION_WEIGHTS.MAX_EXPERIENCE_ENTRIES_FOR_SCORE,
-            label: 'Experience',
-            value: 'job_experience',
+            label: "Experience",
+            value: "job_experience",
         },
         skills: {
             current: skillInfo ? skillInfo.length : 0,
             required: PROFILE_COMPLETION_WEIGHTS.MAX_SKILLS_FOR_SCORE,
-            label: 'Skills',
-            value: 'skills',
+            label: "Skills",
+            value: "skills",
         },
         projects: {
             current: projectInfo ? projectInfo.length : 0,
             required: PROFILE_COMPLETION_WEIGHTS.MAX_PROJECTS_FOR_SCORE,
-            label: 'Projects',
-            value: 'projects',
+            label: "Projects",
+            value: "projects",
         },
     };
 
@@ -109,9 +110,9 @@ export default function Home() {
             setError(null);
 
             try {
-                const response = await fetch('/api/profile/all-sections');
+                const response = await fetch("/api/profile/all-sections");
                 if (!response.ok) {
-                    throw new Error('Failed to fetch profile data');
+                    throw new Error("Failed to fetch profile data");
                 }
                 const allData = await response.json();
 
@@ -126,7 +127,7 @@ export default function Home() {
                 const errorMessage =
                     error instanceof Error
                         ? error.message
-                        : 'An unknown error occurred.';
+                        : "An unknown error occurred.";
                 setError(errorMessage);
             }
         };
@@ -137,10 +138,22 @@ export default function Home() {
 
     const handleScrollToForm = () => {
         mainFormRef.current?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
+            behavior: "smooth",
+            block: "start",
         });
     };
+
+    /*
+    const isNewUser =
+        experienceInfo !== false &&
+        experienceInfo.length === 0 &&
+        educationInfo !== false &&
+        educationInfo.length === 0 &&
+        projectInfo !== false &&
+        projectInfo.length === 0;
+    */
+    const isNewUser = false;
+
     return (
         <div>
             <main className={styles.main}>
@@ -158,36 +171,56 @@ export default function Home() {
                     </Alert>
                 ) : (
                     <>
-                        <div className={styles.topSectionContainer}>
-                            <div className={styles.leftColumn}>
-                                <MainJobForm
-                                    onCompleteProfileClick={handleScrollToForm}
-                                    status={status}
-                                    percentage={percentage}
+                        {isNewUser ? (
+                            <ResumeUploader
+                                onUploadComplete={() => {
+                                    // This function will simply trigger a refresh
+                                    // causing the dashboard to reload and see the new data
+                                    // thus automatically switching to the standard view!
+                                    setRefreshTrigger((prev) => ({
+                                        ...prev,
+                                        personal: !prev.personal,
+                                    }));
+                                }}
+                            />
+                        ) : (
+                            <>
+                                <div className={styles.topSectionContainer}>
+                                    <div className={styles.leftColumn}>
+                                        <MainJobForm
+                                            onCompleteProfileClick={
+                                                handleScrollToForm
+                                            }
+                                            status={status}
+                                            percentage={percentage}
+                                            sectionCounts={sectionCounts}
+                                        />
+                                    </div>
+                                    <div className={styles.rightColumn}>
+                                        <ProfileCompletionCard
+                                            onCompleteProfileClick={
+                                                handleScrollToForm
+                                            }
+                                            percentage={percentage}
+                                            sectionCounts={sectionCounts}
+                                        />
+                                    </div>
+                                </div>
+                                <Divider my="xs" color="gray.1" />
+                                <MainUserForm
+                                    ref={mainFormRef}
+                                    className={styles.container_form}
+                                    projectInfo={projectInfo}
+                                    experienceInfo={experienceInfo}
+                                    educationInfo={educationInfo}
+                                    skillInfo={skillInfo}
+                                    userInfo={userInfo}
+                                    setUserInfo={setUserInfo}
+                                    setRefreshTrigger={setRefreshTrigger}
                                     sectionCounts={sectionCounts}
                                 />
-                            </div>
-                            <div className={styles.rightColumn}>
-                                <ProfileCompletionCard
-                                    onCompleteProfileClick={handleScrollToForm}
-                                    percentage={percentage}
-                                    sectionCounts={sectionCounts}
-                                />
-                            </div>
-                        </div>
-                        <Divider my="xs" color="gray.1" />
-                        <MainUserForm
-                            ref={mainFormRef}
-                            className={styles.container_form}
-                            projectInfo={projectInfo}
-                            experienceInfo={experienceInfo}
-                            educationInfo={educationInfo}
-                            skillInfo={skillInfo}
-                            userInfo={userInfo}
-                            setUserInfo={setUserInfo}
-                            setRefreshTrigger={setRefreshTrigger}
-                            sectionCounts={sectionCounts}
-                        />
+                            </>
+                        )}
                     </>
                 )}
             </main>

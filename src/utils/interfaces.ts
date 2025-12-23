@@ -1,5 +1,5 @@
 // PERSONAL FORM
-export type SubscriptionTier = 'free' | 'monthly' | 'yearly';
+export type SubscriptionTier = "free" | "monthly" | "yearly";
 
 // Define the structure for a one-time token pack
 export interface TokenPack {
@@ -28,14 +28,14 @@ export interface SubscriptionPlan {
 
 // Initial state for the personal form errors
 export const emptyStatePersonal: FormPersonalStructure = {
-    first_name: '',
-    last_name: '',
-    phone: '',
-    email: '',
-    linkedin_url: '',
-    github_url: '',
-    portfolio_url: '',
-    other_url: '',
+    first_name: "",
+    last_name: "",
+    phone: "",
+    email: "",
+    linkedin_url: "",
+    github_url: "",
+    portfolio_url: "",
+    other_url: "",
 };
 // Interface for the form personal structure
 export interface FormPersonalStructure {
@@ -50,16 +50,30 @@ export interface FormPersonalStructure {
 }
 
 //EXPERIENCE FORM
+export interface ExperienceDetails {
+    summary: string;
+    responsibilities: string[];
+    achievements: string[];
+    skills_used: string[];
+    private_ai_context?: string;
+}
 // Initial state for the experience form errors
 export const emptyStateExperience: FormExperienceStructure = {
-    id: '',
-    company_name: '',
-    job_title: '',
-    start_date: '',
-    end_date: '',
-    description: '',
+    id: "",
+    company_name: "",
+    job_title: "",
+    start_date: "",
+    end_date: "",
+    description: "",
     is_current: false,
     display: true, // Optional field to control visibility in the UI
+    details: {
+        summary: "",
+        responsibilities: [],
+        achievements: [],
+        skills_used: [],
+        private_ai_context: "",
+    },
 };
 // Interface for the form experience structure
 export interface FormExperienceStructure {
@@ -71,19 +85,20 @@ export interface FormExperienceStructure {
     description: string;
     is_current?: boolean | null; // Optional field to indicate if the job is current
     display?: boolean; // Optional field to control visibility in the UI
+    details: ExperienceDetails;
 }
 
 // EDUCATION FORM
 // Initial state for the education form errors
 export const emptyStateEducation: FormEducationStructure = {
-    id: '',
-    school_name: '',
-    field_of_study: '',
-    degree: '',
+    id: "",
+    school_name: "",
+    field_of_study: "",
+    degree: "",
     is_current: null,
-    end_date: '',
-    start_date: '',
-    grades: '',
+    end_date: "",
+    start_date: "",
+    grades: "",
 };
 // Interface for the form education structure
 export interface FormEducationStructure {
@@ -100,8 +115,8 @@ export interface FormEducationStructure {
 // SKILLS FORM
 // Initial state for the skills form errors
 export const emptyStateSkill: FormSkillStructure = {
-    id: '',
-    skill_name: '',
+    id: "",
+    skill_name: "",
     skill_level: null,
 };
 // Interface for the form skills structure
@@ -112,13 +127,25 @@ export interface FormSkillStructure {
 }
 
 // PROJECT FORM
+export interface ProjectDetails {
+    problem_solved: string; // The "Elevator Pitch"
+    key_features: string[]; // Specific functionality
+    tech_stack: string[]; // Technologies used
+    url?: string; // Live link or repo
+}
 // Initial state for the project form errors
 export const emptyStateProject: FormProjectStructure = {
-    id: '',
-    project_name: '',
-    project_description: '',
+    id: "",
+    project_name: "",
+    project_description: "",
     experience_id: null,
     education_id: null,
+    details: {
+        problem_solved: "",
+        key_features: [],
+        tech_stack: [],
+        url: "",
+    },
 };
 // Interface for the form project structure
 export interface FormProjectStructure {
@@ -127,6 +154,7 @@ export interface FormProjectStructure {
     project_description: string;
     experience_id: string | null;
     education_id: string | null;
+    details: ProjectDetails;
 }
 
 // ==============================
@@ -177,41 +205,41 @@ export interface Project {
 // which is excellent for rendering and type safety.
 
 export interface NarrativeSection {
-    id: 'narrative';
-    type: 'narrative';
+    id: "narrative";
+    type: "narrative";
     title: string;
     display: boolean;
     items: string;
 }
 
 export interface ExperienceSection {
-    id: 'experience';
-    type: 'experience';
-    title: 'Work Experience';
+    id: "experience";
+    type: "experience";
+    title: "Work Experience";
     display: boolean;
     items: Experience[];
 }
 
 export interface EducationSection {
-    id: 'education';
-    type: 'education';
-    title: 'Education';
+    id: "education";
+    type: "education";
+    title: "Education";
     display: boolean;
     items: Education[];
 }
 
 export interface SkillsSection {
-    id: 'skills';
-    type: 'skills';
-    title: 'Skills';
+    id: "skills";
+    type: "skills";
+    title: "Skills";
     display: boolean;
     items: string[];
 }
 
 export interface ProjectsSection {
-    id: 'projects';
-    type: 'projects';
-    title: 'Projects';
+    id: "projects";
+    type: "projects";
+    title: "Projects";
     display: boolean;
     items: Project[];
 }
@@ -255,7 +283,7 @@ export interface GeminiResponse {
     keywords: string[];
     feedback: AiFeedback;
     styles: {
-        theme: 'modern' | 'classic' | 'minimalist'; // Assuming these are the only two themes for now.
+        theme: "modern" | "classic" | "minimalist"; // Assuming these are the only two themes for now.
     };
     networkingLinks?: NetworkingLink[];
     // selected_narrative can be inferred from the presence of summary vs career_objective in the layout
@@ -264,29 +292,29 @@ export interface GeminiResponse {
 // NEW: The updated empty state for the Gemini response.
 export const emptyStateGeminiReponse: GeminiResponse = {
     contact_info: {
-        name: '',
-        email: '',
-        phone: '',
-        linkedin: '',
-        github: '',
-        portfolio: '',
+        name: "",
+        email: "",
+        phone: "",
+        linkedin: "",
+        github: "",
+        portfolio: "",
     },
     layout: [], // Initialize with an empty layout array.
     keywords: [],
     feedback: {
         candidateFit: {
             score: 0,
-            summary: '',
+            summary: "",
         },
         masterProfileSuggestions: [],
         interviewPrep: {
-            companyFocus: '',
+            companyFocus: "",
             technicalTopics: [],
         },
     },
     networkingLinks: [],
     styles: {
-        theme: 'minimalist', // Default theme, can be changed later.
+        theme: "minimalist", // Default theme, can be changed later.
     },
 };
 
@@ -307,11 +335,11 @@ export interface RefreshSections {
 // This section automatically adapts because it references
 // FormJobOfferDataStructure and emptyStateGeminiReponse.
 export const emptyStateJobDataOffer: FormJobOfferDataStructure = {
-    company_name: '',
-    created_at: '',
-    id: '',
-    job_position: '',
-    job_description: '',
+    company_name: "",
+    created_at: "",
+    id: "",
+    job_position: "",
+    job_description: "",
     resume_generated: emptyStateGeminiReponse,
     was_downloaded: false,
 };
