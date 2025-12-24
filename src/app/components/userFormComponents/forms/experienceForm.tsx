@@ -121,7 +121,6 @@ export default function ExperienceForm({
                     newErrors[path] = issue.message;
                 }
 
-                console.log("Validation Errors Map:", newErrors); // Debug: Check console to see the keys match!
                 setFormErrors(newErrors);
                 return;
             }
@@ -474,6 +473,11 @@ export default function ExperienceForm({
                                         style={{ flex: 1 }}
                                         placeholder="e.g. Managed daily stand-ups"
                                         value={item}
+                                        error={
+                                            formErrors[
+                                                `details.responsibilities.${index}`
+                                            ]
+                                        }
                                         maxLength={CHARACTER_LIMITS.bulletPoint}
                                         onChange={(e) =>
                                             handleArrayItemChange(
@@ -520,6 +524,11 @@ export default function ExperienceForm({
                                         style={{ flex: 1 }}
                                         placeholder="e.g. Reduced server costs by 20%"
                                         value={item}
+                                        error={
+                                            formErrors[
+                                                `details.achievements.${index}`
+                                            ]
+                                        }
                                         maxLength={CHARACTER_LIMITS.bulletPoint}
                                         onChange={(e) =>
                                             handleArrayItemChange(
@@ -567,6 +576,11 @@ export default function ExperienceForm({
                                         placeholder="e.g. React"
                                         value={item}
                                         maxLength={CHARACTER_LIMITS.techItem}
+                                        error={
+                                            formErrors[
+                                                `details.skills_used.${index}`
+                                            ]
+                                        }
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "skills_used",

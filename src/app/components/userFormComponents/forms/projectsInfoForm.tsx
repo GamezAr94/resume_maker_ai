@@ -120,7 +120,6 @@ export default function ProjectsInfoForm({
             // parse the user data with the zod schema
             const parseUser = projectSchema.safeParse(dataToValidate);
 
-            console.log(parseUser);
             setFormErrors({});
 
             if (!parseUser.success) {
@@ -130,7 +129,6 @@ export default function ProjectsInfoForm({
                     const path = issue.path.join("."); // e.g. "details.url"
                     newErrors[path] = issue.message;
                 }
-                console.log(newErrors);
                 setFormErrors(newErrors);
                 return;
             }
@@ -343,6 +341,11 @@ export default function ProjectsInfoForm({
         const newList = [...currentList];
         newList[index] = value;
         handleDetailsChange(field, newList);
+
+        setFormErrors((prev) => ({
+            ...prev,
+            [`details.${field}.${index}`]: null,
+        }));
     }
 
     // Add a new empty line to a list
@@ -561,6 +564,11 @@ export default function ProjectsInfoForm({
                                         placeholder="e.g. Real-time chat integration"
                                         value={item}
                                         maxLength={CHARACTER_LIMITS.bulletPoint}
+                                        error={
+                                            formErrors[
+                                                `details.key_features.${index}`
+                                            ]
+                                        }
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "key_features",
@@ -607,6 +615,11 @@ export default function ProjectsInfoForm({
                                         placeholder="e.g. Next.js"
                                         value={item}
                                         maxLength={CHARACTER_LIMITS.techItem}
+                                        error={
+                                            formErrors[
+                                                `details.tech_stack.${index}`
+                                            ]
+                                        }
                                         onChange={(e) =>
                                             handleArrayItemChange(
                                                 "tech_stack",
