@@ -189,7 +189,10 @@ export const projectSchema = z.object({
 
             url: z
                 .string()
-                .url({ message: "Invalid URL" })
+                .url({
+                    message:
+                        "Invalid format. Please start with 'https://' (e.g., https://www.mysite.com)",
+                })
                 .max(CHARACTER_LIMITS.url, {
                     message: `URL cannot exceed ${CHARACTER_LIMITS.url} chars.`,
                 })

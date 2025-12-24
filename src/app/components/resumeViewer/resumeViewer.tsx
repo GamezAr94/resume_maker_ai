@@ -230,9 +230,11 @@ export default function ResumeViewer({
     };
 
     // TODO ART MUST!!!: this is hardcoded we need to fix this issue in the production
+    /*
     dataResume.resume_generated.layout[1].items[0].start_end_dates =
         "May 2022 - Current";
     console.log(dataResume.resume_generated.layout[1].items[0].start_end_dates);
+    */
 
     return (
         <>
