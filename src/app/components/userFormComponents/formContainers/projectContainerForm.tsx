@@ -13,8 +13,8 @@ import styles from "./formContainerStyles.module.css";
 interface Params {
     projectInfo: FormProjectStructure[] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
-    educationInfo: [FormEducationStructure] | [];
-    experienceInfo: [FormExperienceStructure] | [];
+    educationInfo: FormEducationStructure[] | [];
+    experienceInfo: FormExperienceStructure[] | [];
 }
 export default function ProjectContainerForm({
     projectInfo,

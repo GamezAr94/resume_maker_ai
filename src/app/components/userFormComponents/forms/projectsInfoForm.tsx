@@ -43,8 +43,8 @@ import { projectSchema } from "@/utils/zod_schemas";
 interface Params {
     infoQuery: FormProjectStructure | null;
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
-    educationInfo: [FormEducationStructure] | [];
-    experienceInfo: [FormExperienceStructure] | [];
+    educationInfo: FormEducationStructure[] | [];
+    experienceInfo: FormExperienceStructure[] | [];
     setEditRecord: Dispatch<SetStateAction<FormProjectStructure | null>>;
     getEditRecord: FormProjectStructure | null;
     setSelectedType: Dispatch<
