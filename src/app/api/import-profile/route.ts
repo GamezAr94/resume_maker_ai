@@ -1,6 +1,17 @@
 import { createClient } from "@/utils/supabase/server";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
+// Helper to ensure URLs pass Zod validation
+function fixUrl(url?: string): string {
+    if (!url) return "";
+    const clean = url.trim();
+    if (clean.length === 0) return "";
+    if (!/^https?:\/\//i.test(clean)) {
+        return `https://${clean}`;
+    }
+    return clean;
+}
+
 export async function POST(req: Request) {
     const supabase = await createClient();
     const {
@@ -22,7 +33,6 @@ export async function POST(req: Request) {
         });
     }
 
-    // 1. Get User ID (Internal DB ID)
     const { data: userData, error: userError } = await supabase
         .from("user")
         .select("id")
@@ -37,10 +47,32 @@ export async function POST(req: Request) {
     }
 
     try {
-        // 2. Configure Gemini
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-3-flash-preview",
+            model: "gemini-flash-latest",
+            // 🆕 1. SYSTEM INSTRUCTIONS: The "Contract"
+            systemInstruction: `
+            Analyze the following input text. It may be a full resume OR a partial update (e.g., just a single project description, or a new job).
+            Your job is to extract data from raw text into a structured JSON format.
+
+            ⭐⭐ CRITICAL RULES ⭐⭐
+            1. ONLY extract information that is explicitly present in the text.
+            2. DATES: ALWAYS convert to YYYY-MM-DD (e.g. "May 2020" -> "2020-05-01").
+               - IF no start date is defined then use today's date
+               - IF no end date is defined then use the 'is_current' set to 'true'
+            3. CURRENT ROLES: If a job is "Present" or "Current", set is_current=true and end_date=null.
+            4. EXPERIENCE:
+               - Separate 'responsibilities' (routine tasks) from 'achievements' (wins, metrics, impact).
+               - 'summary': A 1-sentence overview of the role.
+               - 'skills_used': Extract specific tools/languages mentioned in this role block.
+            5. PROJECTS:
+               - 'problem_solved': What did the project do?
+               - 'key_features': List specific functionality.
+               - 'tech_stack': List tools used.
+            6. EXPERIENCE vs PROJECTS: Use your best judgment. If it describes a software product the user built, put it in 'projects'. If it describes a role at a company, put it in 'experience'.
+            7. IMPORTANT! DO NOT invent or hallucinate missing sections. If the text only contains a specific section ONLY for example "project", return empty arrays for the rest of sections.
+            `,
+
             generationConfig: {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -74,13 +106,43 @@ export async function POST(req: Request) {
                                             "Format YYYY-MM-DD or null if current",
                                     },
                                     is_current: { type: SchemaType.BOOLEAN },
-                                    description: { type: SchemaType.STRING },
+                                    details: {
+                                        type: SchemaType.OBJECT,
+                                        properties: {
+                                            summary: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            responsibilities: {
+                                                type: SchemaType.ARRAY,
+                                                items: {
+                                                    type: SchemaType.STRING,
+                                                },
+                                            },
+                                            achievements: {
+                                                type: SchemaType.ARRAY,
+                                                items: {
+                                                    type: SchemaType.STRING,
+                                                },
+                                            },
+                                            skills_used: {
+                                                type: SchemaType.ARRAY,
+                                                items: {
+                                                    type: SchemaType.STRING,
+                                                },
+                                            },
+                                        },
+                                        required: [
+                                            "summary",
+                                            "responsibilities",
+                                            "achievements",
+                                        ],
+                                    },
                                 },
                                 required: [
                                     "company_name",
                                     "job_title",
-                                    "description",
                                     "start_date",
+                                    "details",
                                 ],
                             },
                         },
@@ -115,14 +177,33 @@ export async function POST(req: Request) {
                                 type: SchemaType.OBJECT,
                                 properties: {
                                     project_name: { type: SchemaType.STRING },
-                                    project_description: {
-                                        type: SchemaType.STRING,
+                                    details: {
+                                        type: SchemaType.OBJECT,
+                                        properties: {
+                                            problem_solved: {
+                                                type: SchemaType.STRING,
+                                            },
+                                            key_features: {
+                                                type: SchemaType.ARRAY,
+                                                items: {
+                                                    type: SchemaType.STRING,
+                                                },
+                                            },
+                                            tech_stack: {
+                                                type: SchemaType.ARRAY,
+                                                items: {
+                                                    type: SchemaType.STRING,
+                                                },
+                                            },
+                                            url: { type: SchemaType.STRING },
+                                        },
+                                        required: [
+                                            "problem_solved",
+                                            "tech_stack",
+                                        ],
                                     },
                                 },
-                                required: [
-                                    "project_name",
-                                    "project_description",
-                                ],
+                                required: ["project_name", "details"],
                             },
                         },
                     },
@@ -130,19 +211,34 @@ export async function POST(req: Request) {
             },
         });
 
-        // 3. Prompting
+        // 🆕 2. USER PROMPT: Just the data (The "Task")
         const prompt = `
-        Extract the following resume text into a structured JSON object.
-        - For dates, ALWAYS try to convert to YYYY-MM-DD (e.g. "May 2020" -> "2020-05-01").
-        - If a job is "Present" or "Current", set is_current to true and end_date to null.
-        - Clean up the text descriptions to be bullet points or paragraphs, removing artifacts.
-
-        RESUME TEXT:
+        Here is the resume text to process:
         ${text}
         `;
 
         const result = await model.generateContent(prompt);
+        // Log Token Usage DEBUG
+        const usageMetadata = result.response.usageMetadata;
+        if (usageMetadata) {
+            console.log("------------------------------------------------");
+            console.log("💰 GEMINI IMPORT PDF TOKEN USAGE:");
+            console.log(`- Prompt Tokens: ${usageMetadata.promptTokenCount}`);
+            console.log(
+                `- Response Tokens: ${usageMetadata.candidatesTokenCount}`,
+            );
+            console.log(`- Total Tokens: ${usageMetadata.totalTokenCount}`);
+            console.log("------------------------------------------------");
+        }
+        // END - Log Token Usage DEBUG
+
         const extraction = JSON.parse(result.response.text());
+
+        // response DEBUG
+        console.log("🤖 EXTRACTED JSON:");
+        console.log(JSON.stringify(extraction, null, 2)); // Pretty print
+        console.log("------------------------------------------------");
+        // END - response DEBUG
 
         // 4. Database Transaction
 
@@ -155,11 +251,17 @@ export async function POST(req: Request) {
         if (extraction.personal_info?.phone)
             userUpdates.phone = extraction.personal_info.phone;
         if (extraction.personal_info?.linkedin_url)
-            userUpdates.linkedin_url = extraction.personal_info.linkedin_url;
+            userUpdates.linkedin_url = fixUrl(
+                extraction.personal_info.linkedin_url,
+            );
         if (extraction.personal_info?.github_url)
-            userUpdates.github_url = extraction.personal_info.github_url;
+            userUpdates.github_url = fixUrl(
+                extraction.personal_info.github_url,
+            );
         if (extraction.personal_info?.portfolio_url)
-            userUpdates.portfolio_url = extraction.personal_info.portfolio_url;
+            userUpdates.portfolio_url = fixUrl(
+                extraction.personal_info.portfolio_url,
+            );
 
         if (Object.keys(userUpdates).length > 0) {
             await supabase
@@ -175,12 +277,30 @@ export async function POST(req: Request) {
                 company_name:
                     item.company_name?.substring(0, 100) || "Unknown Company",
                 job_title: item.job_title?.substring(0, 100) || "Unknown Title",
-                start_date: item.start_date || new Date().toISOString(),
-                end_date: item.end_date,
+
+                // 🆕 UPDATE THESE TWO LINES:
+                start_date:
+                    sanitizeDate(item.start_date) || new Date().toISOString(),
+                end_date: sanitizeDate(item.end_date),
+
                 is_current: item.is_current || false,
-                description: item.description || "",
+                details: item.details || {},
             }));
-            await supabase.from("experience").insert(expData);
+
+            // 🆕 ADD THIS LOGGING BLOCK:
+            const { error: expError } = await supabase
+                .from("experience")
+                .insert(expData);
+
+            // DEBUG any error adding the experience
+            /*
+            if (expError) {
+                console.error("❌ EXPERIENCE INSERT ERROR:", expError);
+            } else {
+                console.log("✅ Experience inserted successfully");
+            }
+            */
+            // END - DEBUG any error adding the experience
         }
 
         // C. Insert Education
@@ -211,11 +331,18 @@ export async function POST(req: Request) {
 
         // E. Insert Projects
         if (extraction.projects && extraction.projects.length > 0) {
-            const projData = extraction.projects.map((item: any) => ({
-                user_id: userData.id,
-                project_name: item.project_name?.substring(0, 100) || "Project",
-                project_description: item.project_description || "",
-            }));
+            const projData = extraction.projects.map((item: any) => {
+                if (item.details && item.details.url) {
+                    item.details.url = fixUrl(item.details.url);
+                }
+
+                return {
+                    user_id: userData.id,
+                    project_name:
+                        item.project_name?.substring(0, 100) || "Project",
+                    details: item.details || {},
+                };
+            });
             await supabase.from("project").insert(projData);
         }
 
@@ -233,4 +360,19 @@ export async function POST(req: Request) {
             { status: 500 },
         );
     }
+}
+
+function sanitizeDate(dateStr?: string | null): string | null {
+    if (!dateStr) return null;
+    const clean = dateStr.trim().toLowerCase();
+    // Convert AI's "null" string to actual null
+    if (
+        clean === "null" ||
+        clean === "present" ||
+        clean === "current" ||
+        clean === ""
+    ) {
+        return null;
+    }
+    return dateStr;
 }
