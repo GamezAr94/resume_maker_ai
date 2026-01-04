@@ -143,16 +143,14 @@ export default function Home() {
         });
     };
 
-    /*
-    const isNewUser =
+    // validating if the user is new or not (has a profile ready or not)
+    let isNewUser =
         experienceInfo !== false &&
         experienceInfo.length === 0 &&
         educationInfo !== false &&
         educationInfo.length === 0 &&
         projectInfo !== false &&
         projectInfo.length === 0;
-    */
-    const isNewUser = false;
 
     return (
         <div>
