@@ -1,6 +1,6 @@
-import { createClient } from '@/utils/supabase/server';
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
-import { TOKEN_COSTS } from '@/app/config/costs.config';
+import { createClient } from "@/utils/supabase/server";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { TOKEN_COSTS } from "@/app/config/costs.config";
 
 export const maxDuration = 60;
 
@@ -14,9 +14,9 @@ export async function POST(req: Request) {
 
     // Check if the user is authenticated
     if (!user) {
-        return new Response(JSON.stringify({ message: 'Not authenticated' }), {
+        return new Response(JSON.stringify({ message: "Not authenticated" }), {
             status: 401,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-Type": "application/json" },
         });
     }
 
@@ -25,34 +25,33 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-        console.error('GEMINI_API_KEY is not set.');
+        console.error("GEMINI_API_KEY is not set.");
         return new Response(
             JSON.stringify({
                 message:
-                    'API configuration error. Please contact the administrator.',
+                    "API configuration error. Please contact the administrator.",
             }),
             {
                 status: 500,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { "Content-Type": "application/json" },
             },
         );
     }
 
-    const { data: userData, error: userError } = await supabase.rpc(
-        'get_user_data',
-    );
+    const { data: userData, error: userError } =
+        await supabase.rpc("get_user_data");
 
     // Check if userData is null or undefined or if there is an error
     if (userError || !userData) {
         return new Response(
             JSON.stringify({
                 message:
-                    'Error accessing your account. Please close your session and login again ' +
+                    "Error accessing your account. Please close your session and login again " +
                     userError?.message,
             }),
             {
                 status: 400,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { "Content-Type": "application/json" },
             },
         );
     }
@@ -64,14 +63,14 @@ export async function POST(req: Request) {
         // TODO maybe we need to show the user a modal to buy more tokens
         return new Response(
             JSON.stringify({
-                message: 'Not enough tokens to generate a resume.',
+                message: "Not enough tokens to generate a resume.",
             }),
             { status: 402 },
         ); // 402 Payment Required
     }
 
     // Deduct tokens if the user has enough
-    const { error: rpcError } = await supabase.rpc('deduct_tokens', {
+    const { error: rpcError } = await supabase.rpc("deduct_tokens", {
         user_id_param: user.id,
         amount: resumeCost,
     });
@@ -80,7 +79,7 @@ export async function POST(req: Request) {
     if (rpcError) {
         return new Response(
             JSON.stringify({
-                message: 'An error occurred with your account transaction.',
+                message: "An error occurred with your account transaction.",
             }),
             { status: 500 },
         );
@@ -90,9 +89,7 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     //const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
-        //model: "gemini-1.5-pro", // NOTE verify this is the correct model name, I am just guessing
-        //model: 'gemini-1.5-flash',
+        model: "gemini-flash-latest",
         // NOTE I checked on the gemini studio the number of tokens used on this set of instruction, it was around 450 tokens
         systemInstruction: `
 You are a world-class AI-powered career counselor and a master resume writer, specializing in creating highly specific and ATS-optimized resumes that secure interviews. Your expertise lies in meticulously analyzing a candidate's professional history and a target job description to forge a compelling narrative that perfectly aligns the candidate with the opportunity.
@@ -101,6 +98,11 @@ You are a world-class AI-powered career counselor and a master resume writer, sp
 1.  **NEVER INVENT DATA:** You are strictly prohibited from generating any information that is not present in the user's profile. This includes job experiences, projects, skills, or educational details. If the user's profile is sparse, you must work with the information provided and note the gaps in the recommendations.
 2.  **BASE ALL FEEDBACK ON SOURCE DATA:** All feedback in the 'recommendations' section must be a direct analysis of the user's ORIGINAL provided information, not the enhanced resume you are creating.
 3.  **DATES:** You must always show the format MMM YYYY for example 'Jul 2021' skip the day, ALWAYS for the experience or education skip the day just keep the month and year.
+4.  **NEW DATA STRUCTURE:** The user's profile now contains a 'details' object.
+    * **'details.summary':** Use this for context.
+    * **'details.responsibilities':** These are routine tasks. Use them for "Scope".
+    * **'details.achievements':** THESE ARE GOLD. Prioritize these for the "Hierarchy of Impact".
+    * **'details.skills_used':** Use these to populate the skills section or tag specific technologies in bullet points.
 
 Given a user's comprehensive professional profile from our database and the details of a target job opportunity, your task is to generate a JSON object that will be used to construct a tailored resume.
 
@@ -187,9 +189,9 @@ JSON Field-by-Field Instructions:
         // NOTE I checked on the gemini studio the number of tokens for a resume that I found on the
         // internet and it was around 500 tokens. I am going to use 2000 tokens to be safe
         maxOutputTokens: 4000,
-        responseMimeType: 'application/json',
+        responseMimeType: "application/json",
         responseSchema: {
-            type: 'object' as SchemaType,
+            type: "object" as SchemaType,
             properties: {
                 keywords: {
                     type: SchemaType.ARRAY,
@@ -207,7 +209,7 @@ JSON Field-by-Field Instructions:
                                 score: { type: SchemaType.INTEGER },
                                 summary: { type: SchemaType.STRING },
                             },
-                            required: ['score', 'summary'],
+                            required: ["score", "summary"],
                         },
                         masterProfileSuggestions: {
                             type: SchemaType.ARRAY,
@@ -217,7 +219,7 @@ JSON Field-by-Field Instructions:
                                     suggestion: { type: SchemaType.STRING },
                                     example: { type: SchemaType.STRING },
                                 },
-                                required: ['suggestion'],
+                                required: ["suggestion"],
                             },
                         },
                         interviewPrep: {
@@ -229,13 +231,13 @@ JSON Field-by-Field Instructions:
                                     items: { type: SchemaType.STRING },
                                 },
                             },
-                            required: ['companyFocus', 'technicalTopics'],
+                            required: ["companyFocus", "technicalTopics"],
                         },
                     },
                     required: [
-                        'candidateFit',
-                        'masterProfileSuggestions',
-                        'interviewPrep',
+                        "candidateFit",
+                        "masterProfileSuggestions",
+                        "interviewPrep",
                     ],
                 },
 
@@ -255,7 +257,7 @@ JSON Field-by-Field Instructions:
                                     type: SchemaType.STRING,
                                 },
                             },
-                            required: ['display', 'items'],
+                            required: ["display", "items"],
                         },
                         experience: {
                             type: SchemaType.OBJECT,
@@ -288,16 +290,16 @@ JSON Field-by-Field Instructions:
                                             },
                                         },
                                         required: [
-                                            'company',
-                                            'display',
-                                            'start_end_dates',
-                                            'title',
-                                            'responsabilities',
+                                            "company",
+                                            "display",
+                                            "start_end_dates",
+                                            "title",
+                                            "responsabilities",
                                         ],
                                     },
                                 },
                             },
-                            required: ['display', 'items'],
+                            required: ["display", "items"],
                         },
                         education: {
                             type: SchemaType.OBJECT,
@@ -327,14 +329,14 @@ JSON Field-by-Field Instructions:
                                             },
                                         },
                                         required: [
-                                            'degree',
-                                            'school',
-                                            'display',
+                                            "degree",
+                                            "school",
+                                            "display",
                                         ],
                                     },
                                 },
                             },
-                            required: ['display', 'items'],
+                            required: ["display", "items"],
                         },
                         skills: {
                             type: SchemaType.OBJECT,
@@ -352,7 +354,7 @@ JSON Field-by-Field Instructions:
                                     },
                                 },
                             },
-                            required: ['display', 'items'],
+                            required: ["display", "items"],
                         },
                         projects: {
                             type: SchemaType.OBJECT,
@@ -382,27 +384,27 @@ JSON Field-by-Field Instructions:
                                             },
                                         },
                                         required: [
-                                            'name',
-                                            'description',
-                                            'display',
-                                            'start_end_dates',
+                                            "name",
+                                            "description",
+                                            "display",
+                                            "start_end_dates",
                                         ],
                                     },
                                 },
                             },
-                            required: ['display', 'items'],
+                            required: ["display", "items"],
                         },
                     },
                     required: [
-                        'narrative',
-                        'experience',
-                        'education',
-                        'skills',
-                        'projects',
+                        "narrative",
+                        "experience",
+                        "education",
+                        "skills",
+                        "projects",
                     ],
                 },
             },
-            required: ['keywords', 'feedback', 'layout'],
+            required: ["keywords", "feedback", "layout"],
         },
     };
 
@@ -419,15 +421,15 @@ JSON Field-by-Field Instructions:
     //const jobOffer = jobOfferDummyData()[Math.floor(Math.random() * 12)];
 
     // NOTE REAL DATA PASSED BY THE USER
-    const prompt = `User Information: 
+    const prompt = `User Information:
     ${JSON.stringify(userData)}
-    Job Offer: 
+    Job Offer:
     ${JSON.stringify(requestJobDescBody)}`;
-    /* 
+    /*
     NOTE: this is a prompt for dummy data
-    const prompt = `User Information: 
+    const prompt = `User Information:
     ${JSON.stringify(userInfo)}
-    Job Offer: 
+    Job Offer:
     ${JSON.stringify(jobOffer)}`;
     */
 
@@ -445,7 +447,7 @@ JSON Field-by-Field Instructions:
         // Access the usage metadata from the response
         const usageMetadata = result.response.usageMetadata;
         if (usageMetadata) {
-            console.log('Token Usage:');
+            console.log("Token Usage:");
             console.log(`- Prompt Tokens: ${usageMetadata.promptTokenCount}`);
             console.log(
                 `- Response Tokens: ${usageMetadata.candidatesTokenCount}`,
@@ -460,19 +462,19 @@ JSON Field-by-Field Instructions:
             }),
             {
                 status: 200,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { "Content-Type": "application/json" },
             },
         );
     } catch (error) {
-        console.error('Critical Error during resume generation:', error);
+        console.error("Critical Error during resume generation:", error);
         return new Response(
             JSON.stringify({
                 message:
-                    'An unexpected error occurred while generating the resume. Please try again later.',
+                    "An unexpected error occurred while generating the resume. Please try again later.",
             }),
             {
                 status: 500,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { "Content-Type": "application/json" },
             },
         );
     }

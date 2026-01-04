@@ -13,7 +13,10 @@ export const CHARACTER_LIMITS = {
     // --- Experience & Projects ---
     title: 90, // Reusable for Job Title and Project Name
     company: 70,
-    description: 8000, // A generous limit for descriptions
+    description: 500, // Used for Summary / Problem Solved
+
+    bulletPoint: 300, // For Responsibilities, Achievements, Features (generous for a bullet)
+    techItem: 50, // For individual skills/tech stack (e.g. "Google Cloud Platform")
 
     // --- Skills ---
     skill: 20,

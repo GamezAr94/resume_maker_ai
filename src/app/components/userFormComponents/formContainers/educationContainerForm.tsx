@@ -1,12 +1,12 @@
-'user client';
-import { Dispatch, SetStateAction, useState } from 'react';
-import EducationInfoForm from '../forms/educationInfoForm';
-import { FormEducationStructure, RefreshSections } from '@/utils/interfaces';
-import ShowUserDataSection from '../showUserDataSection';
-import styles from './formContainerStyles.module.css';
+"user client";
+import { Dispatch, SetStateAction, useState } from "react";
+import EducationInfoForm from "../forms/educationInfoForm";
+import { FormEducationStructure, RefreshSections } from "@/utils/interfaces";
+import ShowUserDataSection from "../showUserDataSection";
+import styles from "./formContainerStyles.module.css";
 
 interface Params {
-    educationInfo: [FormEducationStructure] | [];
+    educationInfo: FormEducationStructure[] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
 }
 
@@ -22,7 +22,7 @@ export default function EducationContainerForm({
             <div className={styles.formCard}>
                 <h2 className={styles.formCardTitle}>Education Management</h2>
                 <h3 className={styles.formCardSubtitle}>
-                    {getEditRecord ? 'Edit Education' : 'Add New Education'}
+                    {getEditRecord ? "Edit Education" : "Add New Education"}
                 </h3>
                 <EducationInfoForm
                     infoQuery={null}

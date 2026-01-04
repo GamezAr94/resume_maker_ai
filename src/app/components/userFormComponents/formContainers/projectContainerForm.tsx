@@ -1,17 +1,17 @@
-'user client';
+"user client";
 import {
     FormEducationStructure,
     FormExperienceStructure,
     FormProjectStructure,
     RefreshSections,
-} from '@/utils/interfaces';
-import { Dispatch, SetStateAction, useState } from 'react';
-import ProjectsInfoForm from '../forms/projectsInfoForm';
-import ShowUserDataSection from '../showUserDataSection';
-import styles from './formContainerStyles.module.css';
+} from "@/utils/interfaces";
+import { Dispatch, SetStateAction, useState } from "react";
+import ProjectsInfoForm from "../forms/projectsInfoForm";
+import ShowUserDataSection from "../showUserDataSection";
+import styles from "./formContainerStyles.module.css";
 
 interface Params {
-    projectInfo: [FormProjectStructure] | [];
+    projectInfo: FormProjectStructure[] | [];
     setRefreshTrigger: Dispatch<SetStateAction<RefreshSections>>;
     educationInfo: [FormEducationStructure] | [];
     experienceInfo: [FormExperienceStructure] | [];
@@ -25,15 +25,15 @@ export default function ProjectContainerForm({
     const [getEditRecord, setEditRecord] =
         useState<FormProjectStructure | null>(null);
     const [selectedType, setSelectedType] = useState<
-        'personal_type' | 'experience_type' | 'education_type'
-    >('personal_type');
+        "personal_type" | "experience_type" | "education_type"
+    >("personal_type");
     return (
         <div>
             {/* --- Card for the Add/Edit Form --- */}
             <div className={styles.formCard}>
                 <h2 className={styles.formCardTitle}>Project Management</h2>
                 <h3 className={styles.formCardSubtitle}>
-                    {getEditRecord ? 'Edit Project' : 'Add New Project'}
+                    {getEditRecord ? "Edit Project" : "Add New Project"}
                 </h3>
                 <ProjectsInfoForm
                     // This form is now for both adding and editing
