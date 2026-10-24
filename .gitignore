@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 *.swp
+
+# local sqlite database
+/data
+*.db
+*.db-journal
+*.db-wal
