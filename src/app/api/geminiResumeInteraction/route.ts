@@ -1,18 +1,16 @@
 import { createClient } from "@/utils/supabase/server";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import { TOKEN_COSTS } from "@/app/config/costs.config";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
     const supabase = await createClient();
 
-    // Get the user from the request this will help for the authentication of the request
+    // Get the user from the request
     const {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // Check if the user is authenticated
     if (!user) {
         return new Response(JSON.stringify({ message: "Not authenticated" }), {
             status: 401,
@@ -21,7 +19,6 @@ export async function POST(req: Request) {
     }
 
     const requestJobDescBody = await req.json();
-
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -29,7 +26,7 @@ export async function POST(req: Request) {
         return new Response(
             JSON.stringify({
                 message:
-                    "API configuration error. Please contact the administrator.",
+                    "API configuration error. Please set GEMINI_API_KEY.",
             }),
             {
                 status: 500,
@@ -41,47 +38,17 @@ export async function POST(req: Request) {
     const { data: userData, error: userError } =
         await supabase.rpc("get_user_data");
 
-    // Check if userData is null or undefined or if there is an error
     if (userError || !userData) {
         return new Response(
             JSON.stringify({
                 message:
-                    "Error accessing your account. Please close your session and login again " +
+                    "Error accessing your profile data: " +
                     userError?.message,
             }),
             {
                 status: 400,
                 headers: { "Content-Type": "application/json" },
             },
-        );
-    }
-
-    const resumeCost = TOKEN_COSTS.AI_RESUME_GENERATION;
-
-    // Check if the user has enough tokens to generate a resume
-    if (!userData.token_balance || userData.token_balance < resumeCost) {
-        // TODO maybe we need to show the user a modal to buy more tokens
-        return new Response(
-            JSON.stringify({
-                message: "Not enough tokens to generate a resume.",
-            }),
-            { status: 402 },
-        ); // 402 Payment Required
-    }
-
-    // Deduct tokens if the user has enough
-    const { error: rpcError } = await supabase.rpc("deduct_tokens", {
-        user_id_param: user.id,
-        amount: resumeCost,
-    });
-
-    // If there was an error deducting tokens, return an error response
-    if (rpcError) {
-        return new Response(
-            JSON.stringify({
-                message: "An error occurred with your account transaction.",
-            }),
-            { status: 500 },
         );
     }
 

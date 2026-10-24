@@ -16,15 +16,12 @@ import {
     educationSchema,
     skillSchema,
     projectSchema,
-    jobOfferSchema, // Assuming you created this one as well
+    jobOfferSchema,
 } from '@/utils/zod_schemas';
 import { createClient } from '@/utils/supabase/server';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { PROFILE_RECORD_LIMITS } from '@/app/config/profile.config';
 
-// Helper function to format Zod errors into a user-friendly string
 function formatZodError(error: ZodError): string {
-    // returns only the first error message
     const firstError = error.errors[0];
     if (firstError) {
         return `${firstError.path.join('.')}: ${firstError.message}`;
@@ -40,7 +37,6 @@ export async function POST(req: Request) {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // If the user is not authenticated, return an error response:
     if (!user) {
         return new Response(
             JSON.stringify({
@@ -48,13 +44,12 @@ export async function POST(req: Request) {
                     'Error accessing your account. Please close your session and login again',
             }),
             {
-                status: 500,
+                status: 401,
                 headers: { 'Content-Type': 'application/json' },
             },
         );
     }
 
-    // Save the user data in the supabase database
     const { id, message, status } = await updatePerType(
         requestBody.type,
         requestBody.data,
@@ -62,14 +57,12 @@ export async function POST(req: Request) {
         user.id,
     );
 
-    // Return a response with the message and status: (either success or error)
     return new Response(JSON.stringify({ message: message, id: id }), {
         status: status,
         headers: { 'Content-Type': 'application/json' },
     });
 }
 
-// Function to update the user data in the database depending on the section type
 async function updatePerType(
     type: SectionTypes,
     requestBodyData:
@@ -83,7 +76,6 @@ async function updatePerType(
     supabase: SupabaseClient<any, 'public', any>,
     user_id: string,
 ): Promise<{ id: string | null; message: string; status: number }> {
-    // Get the user id from the database
     const { data: userData, error: userError } = await supabase
         .from('user')
         .select(`id`)
@@ -98,43 +90,9 @@ async function updatePerType(
         };
     }
 
-    // This check applies only when creating a NEW record (no ID is present)
-    if (type !== SectionTypes.Personal && !('id' in requestBodyData)) {
-        const { count, error: countError } = await supabase
-            .from(type)
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userData.id);
-
-        if (countError) {
-            return {
-                id: null,
-                message: 'Could not verify record count.',
-                status: 500,
-            };
-        }
-
-        const limits = {
-            [SectionTypes.Experience]: PROFILE_RECORD_LIMITS.EXPERIENCE,
-            [SectionTypes.Education]: PROFILE_RECORD_LIMITS.EDUCATION,
-            [SectionTypes.Skill]: PROFILE_RECORD_LIMITS.SKILLS,
-            [SectionTypes.Project]: PROFILE_RECORD_LIMITS.PROJECTS,
-        };
-
-        const limit = limits[type as keyof typeof limits];
-
-        if (limit !== undefined && count !== null && count >= limit) {
-            return {
-                id: null,
-                message: `You have reached the maximum of ${limit} records for this section.`,
-                status: 403, // 403 Forbidden is a good status code here
-            };
-        }
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let schema: z.ZodType<any>;
 
-    // Select the correct schema based on the type
     switch (type) {
         case SectionTypes.Personal:
             schema = personalInfoSchema;
@@ -162,7 +120,6 @@ async function updatePerType(
             };
     }
 
-    // Validate the incoming data using the selected schema
     const validationResult = schema.safeParse(requestBodyData);
 
     if (!validationResult.success) {
@@ -177,7 +134,6 @@ async function updatePerType(
         };
     }
 
-    // The data is valid, proceed with the database operation
     const validatedData = validationResult.data;
 
     try {
@@ -189,7 +145,6 @@ async function updatePerType(
                 .eq('supabase_id', user_id)
                 .select('id');
         } else {
-            // For all other types, we upsert into their respective tables
             if (type === SectionTypes.Experience && validatedData.is_current) {
                 validatedData.end_date = null;
             }
@@ -200,12 +155,9 @@ async function updatePerType(
                 validatedData.grades = null;
             }
             if (type === SectionTypes.Project) {
-                // If an experience_id is provided, nullify education_id
                 if (validatedData.experience_id) {
                     validatedData.education_id = null;
-                }
-                // If an education_id is provided, nullify experience_id
-                else if (validatedData.education_id) {
+                } else if (validatedData.education_id) {
                     validatedData.experience_id = null;
                 } else {
                     validatedData.experience_id = null;
