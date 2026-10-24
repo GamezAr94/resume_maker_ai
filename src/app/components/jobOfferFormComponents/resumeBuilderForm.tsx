@@ -91,7 +91,7 @@ export default function ResumeBuilderForm({
         if (!parseJobOffer.success) {
             const error = parseJobOffer.error;
             let newErrors = emptyStateJobDataOffer;
-            for (const issue of error.errors) {
+            for (const issue of error.issues) {
                 newErrors = {
                     ...newErrors,
                     [issue.path[0]]: issue.message,

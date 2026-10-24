@@ -112,7 +112,7 @@ export default function ExperienceForm({
                 // 1. Create a plain object, NOT emptyStateExperience
                 const newErrors: Record<string, string> = {};
 
-                for (const issue of error.errors) {
+                for (const issue of error.issues) {
                     // 2. Join the FULL path (e.g., "details" + "skills_used" + "0")
                     // This creates the string: "details.skills_used.0"
                     const path = issue.path.join(".");

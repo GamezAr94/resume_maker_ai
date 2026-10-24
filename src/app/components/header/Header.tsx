@@ -3,7 +3,6 @@
 import {
     Container,
     Group,
-    Button,
     Text,
     Burger,
     Drawer,
@@ -13,7 +12,6 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import Link from 'next/link';
 import styles from './header.module.css';
-import { signOutAction } from '@/app/actions';
 
 export default function Header() {
     const [opened, { toggle }] = useDisclosure(false);
@@ -47,17 +45,6 @@ export default function Header() {
                         >
                             My Applications
                         </Anchor>
-                        <form action={signOutAction} style={{ margin: 0 }}>
-                            <Button
-                                type="submit"
-                                variant="transparent"
-                                classNames={{
-                                    root: styles.navLink,
-                                }}
-                            >
-                                Logout
-                            </Button>
-                        </form>
                     </Group>
                 </Group>
 
@@ -104,19 +91,6 @@ export default function Header() {
                         >
                             My Applications
                         </Anchor>
-
-                        <form
-                            action={signOutAction}
-                            style={{ marginTop: 'auto' }}
-                        >
-                            <Button
-                                type="submit"
-                                variant="default"
-                                fullWidth
-                            >
-                                Logout
-                            </Button>
-                        </form>
                     </Stack>
                 </Drawer>
             </Container>

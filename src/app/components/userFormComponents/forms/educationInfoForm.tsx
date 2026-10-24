@@ -113,7 +113,7 @@ export default function EducationInfoForm({
             if (!parseUser.success) {
                 const error = parseUser.error;
                 let newErrors = emptyStateEducation;
-                for (const issue of error.errors) {
+                for (const issue of error.issues) {
                     newErrors = {
                         ...newErrors,
                         [issue.path[0]]: issue.message,

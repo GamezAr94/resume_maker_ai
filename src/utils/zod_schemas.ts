@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { CHARACTER_LIMITS } from "@/utils/configLimits";
 
-// --- Schema for Personal Information Form ---
+const flexibleId = z.union([z.string(), z.number()]).optional().nullable();
+
 export const personalInfoSchema = z.object({
-    id: z.string().optional().nullable(),
+    id: flexibleId,
     first_name: z
         .string()
         .min(1, { message: "First name is required." })
@@ -45,10 +46,9 @@ export const personalInfoSchema = z.object({
         .nullable(),
 });
 
-// --- Schema for Work Experience Form ---
 export const experienceSchema = z
     .object({
-        id: z.number().optional().nullable(),
+        id: flexibleId,
         job_title: z
             .string()
             .min(1, { message: "Job title is required." })
@@ -68,7 +68,7 @@ export const experienceSchema = z
                         message: `Summary cannot exceed ${CHARACTER_LIMITS.description} characters.`,
                     })
                     .optional()
-                    .or(z.literal("")), // Allow empty initially
+                    .or(z.literal("")),
                 responsibilities: z
                     .array(
                         z.string().max(CHARACTER_LIMITS.bulletPoint, {
@@ -76,7 +76,6 @@ export const experienceSchema = z
                         }),
                     )
                     .default([]),
-
                 achievements: z
                     .array(
                         z.string().max(CHARACTER_LIMITS.bulletPoint, {
@@ -84,7 +83,6 @@ export const experienceSchema = z
                         }),
                     )
                     .default([]),
-
                 skills_used: z
                     .array(
                         z.string().max(CHARACTER_LIMITS.techItem, {
@@ -93,7 +91,11 @@ export const experienceSchema = z
                     )
                     .default([]),
             })
-            .default({}),
+            .default({
+                responsibilities: [],
+                achievements: [],
+                skills_used: [],
+            }),
     })
     .refine(
         (data) =>
@@ -104,10 +106,9 @@ export const experienceSchema = z
         },
     );
 
-// --- Schema for Education Form ---
 export const educationSchema = z
     .object({
-        id: z.number().optional().nullable(),
+        id: flexibleId,
         school_name: z
             .string()
             .min(1, { message: "School name is required." })
@@ -139,28 +140,23 @@ export const educationSchema = z
         },
     );
 
-// --- Schema for Skills Form ---
 export const skillSchema = z.object({
-    id: z.string().optional().nullable(),
+    id: flexibleId,
     skill_name: z
         .string()
         .min(1, { message: "Skill name is required." })
         .max(CHARACTER_LIMITS.skill),
-    skill_level: z
-        .string() // The form sends the value as a string '1', '2', etc.
-        .optional()
-        .nullable(),
+    skill_level: z.string().optional().nullable(),
 });
 
-// --- Schema for Projects Form ---
 export const projectSchema = z.object({
-    id: z.union([z.string(), z.number()]).optional().nullable(),
+    id: flexibleId,
     project_name: z
         .string()
         .min(1, { message: "Project name is required." })
         .max(CHARACTER_LIMITS.title),
-    experience_id: z.union([z.string(), z.number()]).optional().nullable(),
-    education_id: z.union([z.string(), z.number()]).optional().nullable(),
+    experience_id: flexibleId,
+    education_id: flexibleId,
     details: z
         .object({
             problem_solved: z
@@ -170,7 +166,6 @@ export const projectSchema = z.object({
                 })
                 .optional()
                 .or(z.literal("")),
-
             key_features: z
                 .array(
                     z.string().max(CHARACTER_LIMITS.bulletPoint, {
@@ -178,7 +173,6 @@ export const projectSchema = z.object({
                     }),
                 )
                 .default([]),
-
             tech_stack: z
                 .array(
                     z.string().max(CHARACTER_LIMITS.techItem, {
@@ -186,7 +180,6 @@ export const projectSchema = z.object({
                     }),
                 )
                 .default([]),
-
             url: z
                 .string()
                 .url({
@@ -199,12 +192,14 @@ export const projectSchema = z.object({
                 .optional()
                 .or(z.literal("")),
         })
-        .default({}),
+        .default({
+            key_features: [],
+            tech_stack: [],
+        }),
 });
 
-// --- Schema for the Job Offer Form ---
 export const jobOfferSchema = z.object({
-    id: z.string().or(z.number()).optional().nullable(),
+    id: flexibleId,
     company_name: z
         .string()
         .min(1, { message: "Company name is required." })
@@ -217,6 +212,5 @@ export const jobOfferSchema = z.object({
         .string()
         .min(50, { message: "Job description must be at least 50 characters." })
         .max(CHARACTER_LIMITS.jobDescription),
-    // We also include resume_generated here to validate the whole object before saving
-    resume_generated: z.object({}).passthrough(), // Validate that it's an object, allow any structure inside
+    resume_generated: z.object({}).passthrough(),
 });

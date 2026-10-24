@@ -1,23 +1,9 @@
-import { createClient } from "@/utils/supabase/server";
+import { getAllProfileSections } from "@/lib/db";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-    const supabase = await createClient();
-
-    // Get the user from the request
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-        return new Response(JSON.stringify({ message: "Not authenticated" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
-
     const requestJobDescBody = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -25,8 +11,7 @@ export async function POST(req: Request) {
         console.error("GEMINI_API_KEY is not set.");
         return new Response(
             JSON.stringify({
-                message:
-                    "API configuration error. Please set GEMINI_API_KEY.",
+                message: "API configuration error. Please set GEMINI_API_KEY.",
             }),
             {
                 status: 500,
@@ -35,22 +20,7 @@ export async function POST(req: Request) {
         );
     }
 
-    const { data: userData, error: userError } =
-        await supabase.rpc("get_user_data");
-
-    if (userError || !userData) {
-        return new Response(
-            JSON.stringify({
-                message:
-                    "Error accessing your profile data: " +
-                    userError?.message,
-            }),
-            {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            },
-        );
-    }
+    const userData = getAllProfileSections();
 
     // prepare the gemini tool
     const genAI = new GoogleGenerativeAI(apiKey);

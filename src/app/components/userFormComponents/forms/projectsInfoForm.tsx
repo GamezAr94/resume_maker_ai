@@ -125,7 +125,7 @@ export default function ProjectsInfoForm({
             if (!parseUser.success) {
                 const error = parseUser.error;
                 const newErrors: Record<string, string> = {};
-                for (const issue of error.errors) {
+                for (const issue of error.issues) {
                     const path = issue.path.join("."); // e.g. "details.url"
                     newErrors[path] = issue.message;
                 }
