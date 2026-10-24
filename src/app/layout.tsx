@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-
-import Script from 'next/script';
 import '@mantine/core/styles.css';
 import { Notifications } from '@mantine/notifications';
 import {
@@ -11,50 +9,15 @@ import {
     mantineHtmlProps,
 } from '@mantine/core';
 import '@mantine/notifications/styles.css';
-import { Analytics } from '@vercel/analytics/next';
-
 import './globals.css';
-
-const siteUrl = 'https://www.fazume.com';
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | Fazume',
-        default:
-            'Fazume | AI Resume Builder for Career Changers & Professionals',
+        template: '%s | Resume Maker AI',
+        default: 'Resume Maker AI | Self-Hosted Career & Resume Engine',
     },
     description:
-        'Stop wasting hours tailoring your resume. Fazume analyzes your entire career history against any job description to generate a perfectly optimized, job-specific resume in seconds. Ideal for career changers and professionals with a lot of experience, projects or studies.',
-    keywords:
-        'AI resume builder, resume tailor, automated resume, career change resume, professional resume, job-specific resume, ATS resume, resume optimization',
-    metadataBase: new URL(siteUrl),
-    alternates: {
-        canonical: '/',
-    },
-    openGraph: {
-        type: 'website',
-        url: siteUrl,
-        title: 'Fazume: Job-Specific Resumes in Seconds',
-        description:
-            'Fazume analyzes your full career profile against a job offer to create the perfect resume, every time.',
-        // IMPORTANT: Remember to create this social sharing image (1200x630px)
-        // and place it in your `public` folder.
-        images: [
-            {
-                url: '/social-sharing-image.png',
-                width: 1200,
-                height: 630,
-                alt: 'Fazume AI Resume Builder Banner',
-            },
-        ],
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Fazume: Job-Specific Resumes in Seconds',
-        description:
-            'Fazume analyzes your full career profile against a job offer to create the perfect resume, every time.',
-        images: ['/social-sharing-image.png'],
-    },
+        'Self-hosted AI Resume Builder and Career Vault for generating tailored resumes.',
 };
 
 export default function RootLayout({
@@ -73,21 +36,15 @@ export default function RootLayout({
             } as ButtonProps,
         },
     });
-
     return (
         <html lang="en" {...mantineHtmlProps}>
             <head>
                 <ColorSchemeScript />
-                <Script
-                    src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
-                    strategy="beforeInteractive"
-                />
             </head>
             <body>
                 <MantineProvider theme={theme}>
                     <Notifications position="top-right" zIndex={9999} />
                     {children}
-                    <Analytics />
                 </MantineProvider>
             </body>
         </html>

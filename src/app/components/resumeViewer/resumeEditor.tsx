@@ -302,8 +302,8 @@ export default function ResumeEditor({
                             dataResume.resume_generated.networkingLinks
                         }
                         userName={dataResume.resume_generated.contact_info.name}
-                        jobTitle={dataResume.company_name}
-                        companyName={dataResume.job_position}
+                        jobTitle={dataResume.job_position}
+                        companyName={dataResume.company_name}
                     />
                 </Tabs.Panel>
             </Tabs>
