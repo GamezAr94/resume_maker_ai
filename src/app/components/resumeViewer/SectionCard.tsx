@@ -1,56 +1,85 @@
 import React from 'react';
-import { Accordion, Group, Text, ActionIcon } from '@mantine/core';
-import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import { Accordion, Group, Text, ActionIcon, Badge } from '@mantine/core';
+import {
+    IconEye,
+    IconEyeOff,
+    IconArrowUp,
+    IconArrowDown,
+} from '@tabler/icons-react';
 import type { ResumeLayoutItem } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
 
-/**
- * Defines the props that the SectionCard component will accept.
- */
 interface SectionCardProps {
     section: ResumeLayoutItem;
     idx: number;
-    children: React.ReactNode; // To render the specific form fields for each section
+    totalSections: number;
+    children: React.ReactNode;
     onVisibilityToggle: (e: React.MouseEvent<HTMLElement>) => void;
+    onMoveSection: (index: number, direction: 'up' | 'down') => void;
 }
 
-/**
- * A reusable UI component that renders a collapsible card for a resume section.
- * It encapsulates the header with its title, drag handle, and visibility toggle,
- * and provides a panel to display the editable form content passed as children.
- */
 export function SectionCard({
     section,
     idx,
+    totalSections,
     children,
     onVisibilityToggle,
+    onMoveSection,
 }: SectionCardProps) {
-    // Determine the visibility state based on the section's display property.
     const isVisible = section.display !== false;
-    // Create a unique key for the Accordion item, essential for React's rendering.
     const key = `${section.id}-${idx}`;
 
     return (
         <Accordion.Item value={key} key={key} className={classes.accordionItem}>
             <Accordion.Control>
                 <Group justify="space-between">
-                    <Group>
-                        <Text>{section.title}</Text>
+                    <Group gap="xs">
+                        <Text fw={600}>{section.title}</Text>
+                        {!isVisible && (
+                            <Badge size="xs" color="gray" variant="outline">
+                                Hidden
+                            </Badge>
+                        )}
                     </Group>
-                    <Group>
+                    <Group gap={4}>
                         <ActionIcon
                             component="div"
                             variant="subtle"
                             color="gray"
+                            disabled={idx === 0}
+                            title="Move Section Up"
                             onClick={(e) => {
-                                // Prevent the click from also toggling the accordion open/closed
                                 e.stopPropagation();
-                                // Call the handler function passed from the parent component
+                                if (idx > 0) onMoveSection(idx, 'up');
+                            }}
+                        >
+                            <IconArrowUp size={16} />
+                        </ActionIcon>
+                        <ActionIcon
+                            component="div"
+                            variant="subtle"
+                            color="gray"
+                            disabled={idx >= totalSections - 1}
+                            title="Move Section Down"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (idx < totalSections - 1)
+                                    onMoveSection(idx, 'down');
+                            }}
+                        >
+                            <IconArrowDown size={16} />
+                        </ActionIcon>
+                        <ActionIcon
+                            component="div"
+                            variant="subtle"
+                            color={isVisible ? 'blue' : 'gray'}
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 onVisibilityToggle(e);
                             }}
                             data-section={section.id}
                             data-iterator={idx.toString()}
-                            title={isVisible ? `Hide` : `Show`}
+                            title={isVisible ? 'Hide Section' : 'Show Section'}
                         >
                             {isVisible ? (
                                 <IconEye size={18} />
@@ -61,10 +90,7 @@ export function SectionCard({
                     </Group>
                 </Group>
             </Accordion.Control>
-            <Accordion.Panel>
-                {/* The form content for the specific section is rendered here */}
-                {children}
-            </Accordion.Panel>
+            <Accordion.Panel>{children}</Accordion.Panel>
         </Accordion.Item>
     );
 }

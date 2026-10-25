@@ -139,8 +139,13 @@ export default function Resume() {
                                         ? resumeData.contact_info.portfolio
                                         : userInfo.data.portfolio_url,
                             },
-                            styles: {
-                                theme: resumeData.styles?.theme || 'minimalist',
+			    styles: {
+                                theme: resumeData.styles?.theme || 'modern',
+                                accentColor: resumeData.styles?.accentColor,
+                                headerColor: resumeData.styles?.headerColor,
+                                fontSize: resumeData.styles?.fontSize || 'medium',
+                                lineSpacing: resumeData.styles?.lineSpacing || 'normal',
+                                pageMargin: resumeData.styles?.pageMargin || 'normal',
                             },
                         },
                     });

@@ -1,55 +1,38 @@
-'use server';
-import React from 'react';
-import ReactPDF from '@react-pdf/renderer';
 import { NextResponse } from 'next/server';
-
-import { ClassicResumeTemplate } from '@/lib/pdf-templates/ClassicResume';
-import { ModernResumeTemplate } from '@/lib/pdf-templates/ModernResume';
-import { MinimalistResumeTemplate } from '@/lib/pdf-templates/MinimalistResume';
+import { renderToStream } from '@react-pdf/renderer';
+import { renderResumeTemplate } from '@/lib/pdf-templates/skinRegistry';
 
 export async function POST(req: Request) {
-    const requestBody = await req.json();
-    const pdfData = requestBody.data;
-
-    // verify that the data is not empty
-    if (!pdfData) {
-        return NextResponse.json(
-            {
-                message: 'PDF Resume Handler POST: Missing data',
-            },
-            { status: 400 },
-        );
-    }
-
     try {
-        let resumeTemplate;
-        // Logic to select the correct template component based on the theme
-        switch (pdfData.resume_generated.styles.theme) {
-            case 'classic':
-                resumeTemplate = <ClassicResumeTemplate dataResume={pdfData} />;
-                break;
-            case 'minimalist':
-                resumeTemplate = (
-                    <MinimalistResumeTemplate dataResume={pdfData} />
-                );
-                break;
-            case 'modern':
-            default:
-                resumeTemplate = <ModernResumeTemplate dataResume={pdfData} />;
+        const body = await req.json();
+        const dataResume = body.data;
+
+        if (!dataResume || !dataResume.resume_generated) {
+            return NextResponse.json(
+                { message: 'Missing resume data' },
+                { status: 400 },
+            );
         }
 
-        const stream = await ReactPDF.renderToStream(resumeTemplate);
+        const documentElement = renderResumeTemplate(dataResume);
+        const stream = await renderToStream(documentElement);
 
         return new NextResponse(stream as unknown as ReadableStream, {
+            status: 200,
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': 'attachment; filename=resume.pdf', // Trigger download
+                'Content-Disposition': 'attachment; filename="resume.pdf"',
             },
         });
     } catch (error) {
         console.error('Error generating PDF:', error);
         return NextResponse.json(
-            { message: 'Error generating PDF' },
+            {
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : 'Failed to generate PDF',
+            },
             { status: 500 },
         );
     }

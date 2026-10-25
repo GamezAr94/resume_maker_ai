@@ -1,12 +1,7 @@
 'use client';
-// Import React and necessary Mantine components
 import React, { useState, SetStateAction, ChangeEvent } from 'react';
 import { Box, Tabs } from '@mantine/core';
-
-// Import your data structure type - MAKE SURE PATH IS CORRECT
-import { FormJobOfferDataStructure } from '@/utils/interfaces';
-
-// Import the CSS module
+import { FormJobOfferDataStructure, ResumeStyles } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
 import { DataForm } from './DataForm';
 import StylesForm from './StylesForm';
@@ -14,7 +9,6 @@ import JobDescriptionDisplay from './JobDescriptionDisplay';
 import AiFeedbackDisplay from './AiFeedbackDisplay';
 import NetworkingDisplay from './NetworkingDisplay';
 
-// Interface using YOUR prop names
 interface ResumeEditorProps {
     dataResume: FormJobOfferDataStructure;
     setDataResume: (updater: SetStateAction<FormJobOfferDataStructure>) => void;
@@ -24,19 +18,14 @@ export default function ResumeEditor({
     dataResume,
     setDataResume,
 }: ResumeEditorProps) {
-    // State for accordion
     const [activeAccordion, setActiveAccordion] = useState<string | null>(
         'personalInfo',
     );
-
-    // State to manage which tab ('Data' or 'Styles') is active
     const [activeTab, setActiveTab] = useState<string | null>('data');
-
     const [activeNestedAccordions, setActiveNestedAccordions] = useState<
         Record<string, string[]>
     >({});
 
-    // Handler for the nested accordions
     const handleNestedAccordionChange = (
         sectionId: string,
         value: string[],
@@ -44,29 +33,20 @@ export default function ResumeEditor({
         setActiveNestedAccordions((prev) => ({ ...prev, [sectionId]: value }));
     };
 
-    /**
-     * A single, unified function to handle toggling visibility for both
-     * main sections and nested items within those sections.
-     */
     const handleVisibilityToggle = (e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         const { section, iterator, subitemIndex } = e.currentTarget.dataset;
-
         setDataResume((prev) => {
             if (!section || !iterator || !prev.resume_generated?.layout) {
                 return prev;
             }
-
             const sectionIndex = parseInt(iterator, 10);
             const newLayout = JSON.parse(
                 JSON.stringify(prev.resume_generated.layout),
             );
-
             if (subitemIndex !== undefined) {
-                // Logic for a nested item (like a single job experience)
                 const itemIndex = parseInt(subitemIndex, 10);
                 const sectionToUpdate = newLayout[sectionIndex];
-
                 if (
                     'items' in sectionToUpdate &&
                     Array.isArray(sectionToUpdate.items)
@@ -79,7 +59,6 @@ export default function ResumeEditor({
                     }
                 }
             } else {
-                // Logic for a main section (like the entire "Experience" block)
                 const sectionToUpdate = newLayout[sectionIndex];
                 if (sectionToUpdate) {
                     sectionToUpdate.display = !(
@@ -87,7 +66,6 @@ export default function ResumeEditor({
                     );
                 }
             }
-
             return {
                 ...prev,
                 resume_generated: {
@@ -98,37 +76,49 @@ export default function ResumeEditor({
         });
     };
 
-    // Function to change the theme of the resume
-    // This function updates the theme in the dataResume state
-    // and can be called from a button or dropdown in the UI
-    // It checks if the theme is already set to avoid unnecessary updates
-    const changeTheme = (theme: string) => {
-        // Check if the theme is already set to avoid unnecessary updates
-        if (dataResume.resume_generated.styles.theme === theme) {
-            return;
-        }
-        console.log(`Changing template to: ${theme}`);
-        // Update the theme in the dataResume state
+    const handleMoveSection = (index: number, direction: 'up' | 'down') => {
         setDataResume((prev) => {
-            const newData = JSON.parse(JSON.stringify(prev));
-            newData.resume_generated.styles.theme = theme;
-            return newData;
+            const currentLayout = prev.resume_generated?.layout;
+            if (!Array.isArray(currentLayout)) return prev;
+            const targetIndex = direction === 'up' ? index - 1 : index + 1;
+            if (targetIndex < 0 || targetIndex >= currentLayout.length) {
+                return prev;
+            }
+            const newLayout = [...currentLayout];
+            const [moved] = newLayout.splice(index, 1);
+            newLayout.splice(targetIndex, 0, moved);
+            return {
+                ...prev,
+                resume_generated: {
+                    ...prev.resume_generated,
+                    layout: newLayout,
+                },
+            };
         });
     };
 
-    // funciton to handle the change of the input
+    const handleStyleChange = (updates: Partial<ResumeStyles>) => {
+        setDataResume((prev) => ({
+            ...prev,
+            resume_generated: {
+                ...prev.resume_generated,
+                styles: {
+                    ...(prev.resume_generated?.styles || { theme: 'modern' }),
+                    ...updates,
+                },
+            },
+        }));
+    };
+
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
         const { name, value } = e.currentTarget;
         const sectionId = e.currentTarget.getAttribute('data-section');
         const iteratorIndex = e.currentTarget.getAttribute('data-iterator');
-
         setDataResume((prev) => {
             const newData = JSON.parse(JSON.stringify(prev));
-
             if (name === 'personalInfo') {
-                // Update the entire personal info object
                 if (sectionId === 'name') {
                     newData.resume_generated.contact_info.name = value;
                 } else if (sectionId === 'job_position') {
@@ -146,7 +136,6 @@ export default function ResumeEditor({
                 }
                 return newData;
             }
-
             if (
                 !sectionId ||
                 !iteratorIndex ||
@@ -154,29 +143,21 @@ export default function ResumeEditor({
             ) {
                 return newData;
             }
-
             const index = parseInt(iteratorIndex, 10);
             const sectionToUpdate = newData.resume_generated.layout[index];
-
             if (name === 'items' && 'items' in sectionToUpdate) {
                 if (sectionId === 'narrative') {
-                    sectionToUpdate.items = value.split('\n\n');
+                    sectionToUpdate.items = value;
                 } else {
-                    // Assumes skills and other simple lists
                     sectionToUpdate.items = value.split('\n');
                 }
             } else if (name === 'title') {
                 sectionToUpdate.title = value;
             }
-            // Add more specific logic for nested items (experience, projects, etc.) here later
-
             return newData;
         });
     };
 
-    /**
-     * Handles changes for fields inside a nested item (e.g., a specific job's title).
-     */
     const handleItemChange = (
         sectionIndex: number,
         itemIndex: number,
@@ -184,24 +165,18 @@ export default function ResumeEditor({
         value: string,
     ) => {
         setDataResume((prev) => {
-            // Create deep copies to ensure immutability
             const newLayout = JSON.parse(
                 JSON.stringify(prev.resume_generated.layout),
             );
             const sectionToUpdate = newLayout[sectionIndex];
-
-            // Check if the item exists before trying to update it
             if (
                 sectionToUpdate &&
                 'items' in sectionToUpdate &&
                 Array.isArray(sectionToUpdate.items) &&
                 sectionToUpdate.items[itemIndex]
             ) {
-                // Update the specific field on the specific item
                 sectionToUpdate.items[itemIndex][fieldName] = value;
             }
-
-            // Return the updated state
             return {
                 ...prev,
                 resume_generated: {
@@ -224,8 +199,8 @@ export default function ResumeEditor({
                 }}
             >
                 <Tabs.List>
-                    <Tabs.Tab value="data">Data</Tabs.Tab>
-                    <Tabs.Tab value="styles">Styles</Tabs.Tab>
+                    <Tabs.Tab value="data">Content & Order</Tabs.Tab>
+                    <Tabs.Tab value="styles">Skins & Styles</Tabs.Tab>
                     <Tabs.Tab value="job_desc">Job Description</Tabs.Tab>
                     <Tabs.Tab
                         value="ai_feedback"
@@ -238,11 +213,10 @@ export default function ResumeEditor({
                                     width: '12px',
                                 }}
                             >
-                                {/* The solid dot in the center */}
                                 <Box
                                     style={{
                                         position: 'relative',
-                                        borderRadius: '9999px', // full circle
+                                        borderRadius: '9999px',
                                         height: '8px',
                                         width: '8px',
                                         backgroundColor:
@@ -257,7 +231,6 @@ export default function ResumeEditor({
                     <Tabs.Tab value="networking">Networking</Tabs.Tab>
                 </Tabs.List>
 
-                {/* Data Panel: Contains all the form fields */}
                 <Tabs.Panel value="data" pt="xs">
                     <DataForm
                         dataResume={dataResume}
@@ -265,6 +238,7 @@ export default function ResumeEditor({
                         setActiveAccordion={setActiveAccordion}
                         handleChange={handleChange}
                         handleVisibilityToggle={handleVisibilityToggle}
+                        onMoveSection={handleMoveSection}
                         activeNestedAccordions={activeNestedAccordions}
                         handleNestedAccordionChange={
                             handleNestedAccordionChange
@@ -273,10 +247,9 @@ export default function ResumeEditor({
                     />
                 </Tabs.Panel>
 
-                {/* Styles Panel: Contains style and template options */}
                 <Tabs.Panel value="styles" pt="xs">
                     <StylesForm
-                        changeTheme={changeTheme}
+                        onStyleChange={handleStyleChange}
                         dataResume={dataResume}
                     />
                 </Tabs.Panel>

@@ -11,6 +11,7 @@ import {
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import type { Experience } from '@/utils/interfaces';
 import { CHARACTER_LIMITS } from '@/utils/configLimits';
+import classes from './resumeEditor.module.css';
 
 interface ExperienceItemCardProps {
     item: Experience;
@@ -24,18 +25,8 @@ interface ExperienceItemCardProps {
         fieldName: string,
         value: string,
     ) => void;
-    // We'll add functions to handle changes and deletion later
-    // onUpdate: (itemIndex: number, field: string, value: any) => void;
-    // onDelete: (itemIndex: number) => void;
 }
 
-// Import the shared CSS module
-import classes from './resumeEditor.module.css';
-
-/**
- * A reusable card for displaying a single item within a section (e.g., one job experience).
- * It has its own collapsible header and panel for editing the item's details.
- */
 export function ExperienceItemCard({
     item,
     sectionId,
@@ -60,12 +51,10 @@ export function ExperienceItemCard({
                         <ActionIcon
                             component="div"
                             variant="subtle"
-                            color="gray"
-                            title={isVisible ? `Hide` : `Show`}
+                            color={isVisible ? 'blue' : 'gray'}
+                            title={isVisible ? 'Hide' : 'Show'}
                             onClick={(e) => {
-                                // Prevent the click from also toggling the accordion open/closed
                                 e.stopPropagation();
-                                // Call the handler function passed from the parent component
                                 onVisibilityToggle(e);
                             }}
                             data-section={sectionId.toString()}
@@ -83,36 +72,49 @@ export function ExperienceItemCard({
             </Accordion.Control>
             <Accordion.Panel>
                 <Stack>
+                    <Group grow>
+                        <TextInput
+                            label="Job Title"
+                            maxLength={CHARACTER_LIMITS.title}
+                            value={item.title || ''}
+                            onChange={(e) =>
+                                onItemChange(
+                                    idx,
+                                    itemIndex,
+                                    'title',
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                        <TextInput
+                            label="Company"
+                            maxLength={CHARACTER_LIMITS.company}
+                            value={item.company || ''}
+                            onChange={(e) =>
+                                onItemChange(
+                                    idx,
+                                    itemIndex,
+                                    'company',
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                    </Group>
                     <TextInput
-                        label="Job Title"
-                        maxLength={CHARACTER_LIMITS.title}
-                        defaultValue={item.title}
+                        label="Dates (e.g., Jul 2022 - Present)"
+                        value={item.start_end_dates || ''}
                         onChange={(e) =>
                             onItemChange(
                                 idx,
                                 itemIndex,
-                                'title',
+                                'start_end_dates',
                                 e.currentTarget.value,
                             )
                         }
                     />
-                    <TextInput
-                        label="Company"
-                        maxLength={CHARACTER_LIMITS.company}
-                        defaultValue={item.company}
-                        onChange={(e) =>
-                            onItemChange(
-                                idx,
-                                itemIndex,
-                                'company',
-                                e.currentTarget.value,
-                            )
-                        }
-                    />
-                    {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
                     <Textarea
-                        label="Responsibilities"
-                        value={item.responsabilities}
+                        label="Bullet Points (One per line)"
+                        value={item.responsabilities || ''}
                         maxLength={CHARACTER_LIMITS.description}
                         autosize
                         minRows={4}

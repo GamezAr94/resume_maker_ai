@@ -50,12 +50,10 @@ export function EducationItemCard({
                         <ActionIcon
                             component="div"
                             variant="subtle"
-                            color="gray"
-                            title={isVisible ? `Hide` : `Show`}
+                            color={isVisible ? 'blue' : 'gray'}
+                            title={isVisible ? 'Hide' : 'Show'}
                             onClick={(e) => {
-                                // Prevent the click from also toggling the accordion open/closed
                                 e.stopPropagation();
-                                // Call the handler function passed from the parent component
                                 onVisibilityToggle(e);
                             }}
                             data-section={sectionId.toString()}
@@ -75,7 +73,7 @@ export function EducationItemCard({
                 <Stack>
                     <TextInput
                         label="Degree"
-                        defaultValue={item.degree}
+                        value={item.degree || ''}
                         maxLength={CHARACTER_LIMITS.title}
                         onChange={(e) =>
                             onItemChange(
@@ -88,13 +86,25 @@ export function EducationItemCard({
                     />
                     <TextInput
                         label="School"
-                        defaultValue={item.school}
+                        value={item.school || ''}
                         maxLength={CHARACTER_LIMITS.title}
                         onChange={(e) =>
                             onItemChange(
                                 idx,
                                 itemIndex,
                                 'school',
+                                e.currentTarget.value,
+                            )
+                        }
+                    />
+                    <TextInput
+                        label="Dates"
+                        value={item.start_end_dates || ''}
+                        onChange={(e) =>
+                            onItemChange(
+                                idx,
+                                itemIndex,
+                                'start_end_dates',
                                 e.currentTarget.value,
                             )
                         }

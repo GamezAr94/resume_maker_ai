@@ -4,29 +4,26 @@ import styles_css from "./resumeViewer.module.css";
 import { PDFViewer } from "@react-pdf/renderer";
 import { FormJobOfferDataStructure } from "@/utils/interfaces";
 import { Button } from "@mantine/core";
+import { useDebouncedValue } from "@mantine/hooks";
 import { SectionTypes } from "@/utils/enums";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
-import {
-    ClassicResumeTemplate,
-    styles as pdfStyles,
-} from "@/lib/pdf-templates/ClassicResume";
-import { ModernResumeTemplate } from "@/lib/pdf-templates/ModernResume";
-import { MinimalistResumeTemplate } from "@/lib/pdf-templates/MinimalistResume";
+import { styles as pdfStyles } from "@/lib/pdf-templates/ClassicResume";
+import { renderResumeTemplate } from "@/lib/pdf-templates/skinRegistry";
 
 interface Props {
     dataResume: FormJobOfferDataStructure;
-    viewerKey: number;
+    viewerKey?: number;
     setDataResume: Dispatch<SetStateAction<FormJobOfferDataStructure>>;
 }
 
-export default function ResumeViewer({
-    dataResume,
-    viewerKey,
-}: Props) {
+export default function ResumeViewer({ dataResume }: Props) {
     const [isFirefox, setIsFirefox] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Debounce PDF re-compilation by 450ms so typing in the editor is 60fps with zero lag!
+    const [debouncedResume] = useDebouncedValue(dataResume, 450);
 
     useEffect(() => {
         const userAgent = navigator.userAgent;
@@ -104,10 +101,12 @@ export default function ResumeViewer({
             const a = document.createElement("a");
             a.href = url;
 
-            const safeName = (dataResume.resume_generated?.contact_info?.name || "Resume")
-                .replace(/[^a-zA-Z0-9_-]/g, "_");
-            const safeCompany = (dataResume.company_name || "Application")
-                .replace(/[^a-zA-Z0-9_-]/g, "_");
+            const safeName = (
+                dataResume.resume_generated?.contact_info?.name || "Resume"
+            ).replace(/[^a-zA-Z0-9_-]/g, "_");
+            const safeCompany = (
+                dataResume.company_name || "Application"
+            ).replace(/[^a-zA-Z0-9_-]/g, "_");
             a.download = `${safeName}_${safeCompany}.pdf`;
 
             document.body.appendChild(a);
@@ -147,33 +146,8 @@ export default function ResumeViewer({
             {isFirefox && (
                 <div className={styles_css.firefox_cover_container}></div>
             )}
-            <PDFViewer
-                key={viewerKey}
-                showToolbar={false}
-                style={pdfStyles.viewer}
-            >
-                {(() => {
-                    if (!dataResume?.resume_generated?.styles?.theme) {
-                        return <ModernResumeTemplate dataResume={dataResume} />;
-                    }
-                    switch (dataResume.resume_generated.styles.theme) {
-                        case "classic":
-                            return (
-                                <ClassicResumeTemplate dataResume={dataResume} />
-                            );
-                        case "minimalist":
-                            return (
-                                <MinimalistResumeTemplate
-                                    dataResume={dataResume}
-                                />
-                            );
-                        case "modern":
-                        default:
-                            return (
-                                <ModernResumeTemplate dataResume={dataResume} />
-                            );
-                    }
-                })()}
+            <PDFViewer showToolbar={false} style={pdfStyles.viewer}>
+                {renderResumeTemplate(debouncedResume)}
             </PDFViewer>
             <div className={styles_css.action_buttons_container}>
                 <Button
@@ -182,7 +156,7 @@ export default function ResumeViewer({
                     disabled={isDownloading || isSaving}
                     loading={isSaving}
                 >
-                    Save
+                    Save Changes
                 </Button>
                 <Button
                     onClick={gettingPDF}

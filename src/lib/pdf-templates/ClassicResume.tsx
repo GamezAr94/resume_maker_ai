@@ -9,194 +9,183 @@ import {
     Link,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
-import { renderBulletPoints } from './pdfUtils';
+import {
+    renderBulletPoints,
+    getResolvedStyleTokens,
+    getPdfMetadata,
+    cleanUrlDisplay,
+} from './pdfUtils';
 
-// --- FONT REGISTRATION ---
-/*
- NOTE: This is very tricky ... to set up a new font we need to go to this link: 
- https://developers.google.com/fonts/docs/developer_api?apix_params=%7B%22family%22%3A%5B%22Roboto%22%5D%2C%22sort%22%3A%22ALPHA%22%7D
- then we need to click on the API option on the right side of the screen, and then we can perform a query to get the font we want to use
- for example we can sort by ALPHA and the family Roboto. then you will get a result with all the information of the font
- you just need to copy the url from the style that you want for example the bold "900", and then you can paste that URL in the font.register
- and then you can set the fontWeight for each of your fonts you want to use, so when you assign a fontFamily to a component you need to specify the weight to target that specific font
-*/
-// Register fonts
 Font.register({
     family: 'Lato',
     fonts: [
         {
-            src: 'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHjxswWyWrFCbw7A.ttf', // The actual font file URL
+            src: 'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHjxswWyWrFCbw7A.ttf',
             fontWeight: 400,
-            fontStyle: 'italic', // Optional: if you have italic version. It will break if not specified
+            fontStyle: 'italic',
         },
         {
-            src: 'https://fonts.gstatic.com/s/lato/v24/S6uyw4BMUTPHvxk6XweuBCY.ttf', // The actual font file URL
+            src: 'https://fonts.gstatic.com/s/lato/v24/S6uyw4BMUTPHvxk6XweuBCY.ttf',
             fontWeight: 400,
         },
         {
-            src: 'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh6UVew-FGC_p9dw.ttf', // The actual font file URL
+            src: 'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh6UVew-FGC_p9dw.ttf',
             fontWeight: 700,
         },
     ],
 });
-
-// This prevents words from being cut off awkwardly.
 Font.registerHyphenationCallback((word) => [word]);
 
-// --- THEME & COLORS ---
-const theme = {
-    primary: '#2C3E50',
-    secondary: '#FFFFFF',
-    accent: '#3498DB',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#2C3E50',
-    textMuted: '#808080',
-};
-
-// --- STYLESHEET ---
 export const styles = StyleSheet.create({
     viewer: {
         aspectRatio: '210/297',
         maxWidth: '712px',
         width: '100%',
     },
-    page: {
-        fontFamily: 'Lato',
-        fontWeight: 400,
-        flexDirection: 'row',
-        backgroundColor: theme.secondary,
-    },
-    sidebar: {
-        width: '32%',
-        backgroundColor: theme.primary,
-        color: theme.textPrimary,
-        padding: 20,
-    },
-    mainContent: {
-        width: '67%',
-        padding: '20px 30px',
-        marginBottom: 0,
-        paddingBottom: 0,
-    },
-    header: {
-        marginBottom: 0,
-    },
-    userName: {
-        fontSize: 32,
-        fontFamily: 'Lato',
-        fontWeight: 700,
-        color: theme.accent,
-        marginBottom: 0,
-    },
-    jobPosition: {
-        fontSize: 16,
-        color: theme.textSecondary,
-        marginBottom: 10,
-        fontWeight: 400,
-    },
-    sidebarSection: {
-        marginBottom: 0,
-        paddingBottom: 0,
-    },
-    sidebarTitle: {
-        fontSize: 14,
-        fontWeight: 700,
-        marginBottom: 10,
-        color: theme.accent,
-        textTransform: 'uppercase',
-    },
-    contactItem: {
-        fontSize: 10,
-        marginBottom: 6,
-        fontWeight: 400,
-    },
-    contactLink: {
-        fontSize: 10,
-        color: theme.textPrimary,
-        textDecoration: 'none',
-        fontWeight: 400,
-        marginBottom: 5,
-    },
-    skill: {
-        fontSize: 10,
-        marginBottom: 5,
-        fontWeight: 400,
-    },
-    educationEntry: {
-        marginBottom: 12,
-    },
-    degree: {
-        fontSize: 11,
-        fontWeight: 700,
-    },
-    school: {
-        fontSize: 10,
-        fontWeight: 400,
-    },
-    educationDates: {
-        fontSize: 9,
-        color: theme.textMuted,
-        fontStyle: 'italic',
-        fontWeight: 400,
-    },
-    mainSection: {
-        marginBottom: 10,
-    },
-    sectionTitle: {
-        fontSize: 14,
-        fontWeight: 700,
-        color: theme.accent,
-        textTransform: 'uppercase',
-        marginBottom: 4,
-    },
-    sectionDivider: {
-        borderBottom: `1px solid ${theme.accent}`,
-        marginBottom: 8,
-    },
-    entryContainer: {
-        marginBottom: 10,
-    },
-    jobTitle: {
-        fontSize: 13,
-        fontWeight: 700,
-    },
-    companyAndDate: {
-        fontSize: 11,
-        fontStyle: 'italic',
-        color: theme.textMuted,
-        marginBottom: 6,
-        fontWeight: 400,
-    },
-    description: {
-        fontSize: 10,
-        textAlign: 'justify',
-        fontWeight: 400,
-    },
-    bulletPoint: {
-        flexDirection: 'row',
-        marginBottom: 4,
-    },
-    bullet: {
-        width: 15,
-        fontSize: 10, // Match description font size
-    },
-    bulletText: {
-        flex: 1,
-        fontSize: 10, // Match description font size
-        textAlign: 'justify',
-    },
 });
 
-// --- TEMPLATE COMPONENT ---
 export const ClassicResumeTemplate = ({
     dataResume,
 }: {
     dataResume: FormJobOfferDataStructure;
 }) => {
+    const tokens = getResolvedStyleTokens(dataResume?.resume_generated?.styles, {
+        accentColor: '#38bdf8',
+        headerColor: '#1e293b',
+    });
+    const meta = getPdfMetadata(dataResume);
+
+    const dynamicStyles = StyleSheet.create({
+        page: {
+            fontFamily: 'Lato',
+            fontWeight: 400,
+            flexDirection: 'row',
+            backgroundColor: '#FFFFFF',
+        },
+        sidebar: {
+            width: '32%',
+            backgroundColor: tokens.headerColor,
+            color: '#FFFFFF',
+            padding: tokens.pagePadding * 0.75,
+        },
+        mainContent: {
+            width: '68%',
+            paddingTop: tokens.pagePadding * 0.75,
+            paddingBottom: tokens.pagePadding * 0.75,
+            paddingHorizontal: tokens.pagePadding,
+        },
+        header: {
+            marginBottom: 4,
+        },
+        userName: {
+            fontSize: tokens.nameFontSize,
+            fontFamily: 'Lato',
+            fontWeight: 700,
+            color: tokens.headerColor,
+        },
+        jobPosition: {
+            fontSize: tokens.entryTitleSize + 2,
+            color: tokens.accentColor,
+            marginBottom: 8,
+            fontWeight: 700,
+        },
+        sidebarSection: {
+            marginBottom: tokens.sectionGap + 4,
+        },
+        sidebarTitle: {
+            fontSize: tokens.sectionTitleSize - 1,
+            fontWeight: 700,
+            marginBottom: 6,
+            color: tokens.accentColor,
+            textTransform: 'uppercase',
+            borderBottomWidth: 1,
+            borderBottomColor: tokens.accentColor,
+            paddingBottom: 2,
+        },
+        contactItem: {
+            fontSize: tokens.smallFontSize,
+            marginBottom: 5,
+        },
+        contactLink: {
+            fontSize: tokens.smallFontSize,
+            color: '#FFFFFF',
+            textDecoration: 'none',
+            marginBottom: 5,
+        },
+        skill: {
+            fontSize: tokens.smallFontSize,
+            marginBottom: 4,
+        },
+        educationEntry: {
+            marginBottom: 10,
+        },
+        degree: {
+            fontSize: tokens.baseFontSize,
+            fontWeight: 700,
+        },
+        school: {
+            fontSize: tokens.smallFontSize,
+        },
+        educationDates: {
+            fontSize: tokens.smallFontSize - 1,
+            color: '#cbd5e1',
+            fontStyle: 'italic',
+        },
+        mainSection: {
+            marginBottom: tokens.sectionGap,
+        },
+        sectionTitle: {
+            fontSize: tokens.sectionTitleSize,
+            fontWeight: 700,
+            color: tokens.headerColor,
+            textTransform: 'uppercase',
+            marginBottom: 3,
+        },
+        sectionDivider: {
+            borderBottomWidth: 1.5,
+            borderBottomColor: tokens.accentColor,
+            marginBottom: 8,
+        },
+        entryContainer: {
+            marginBottom: tokens.entryGap,
+        },
+        jobTitle: {
+            fontSize: tokens.entryTitleSize,
+            fontWeight: 700,
+            color: '#0f172a',
+        },
+        companyAndDate: {
+            fontSize: tokens.smallFontSize,
+            fontStyle: 'italic',
+            color: '#64748b',
+            marginBottom: 4,
+        },
+        description: {
+            fontSize: tokens.baseFontSize,
+            textAlign: 'justify',
+            lineHeight: tokens.lineHeight,
+        },
+        bulletPoint: {
+            flexDirection: 'row',
+            marginBottom: 2.5,
+        },
+        bullet: {
+            width: 12,
+            fontSize: tokens.baseFontSize,
+            color: tokens.accentColor,
+        },
+        bulletText: {
+            flex: 1,
+            fontSize: tokens.baseFontSize,
+            lineHeight: tokens.lineHeight,
+            textAlign: 'justify',
+        },
+    });
+
     if (!dataResume || !dataResume.resume_generated) {
         return (
             <Document>
-                <Page size="A4" style={styles.page}>
+                <Page size="A4" style={dynamicStyles.page}>
                     <View style={{ padding: 30 }}>
                         <Text>Generating resume...</Text>
                     </View>
@@ -205,106 +194,79 @@ export const ClassicResumeTemplate = ({
         );
     }
 
-    function getCleanUrl(urlString: string) {
-        return urlString.replace(/^(https?:\/\/)?(www\.)?/, '');
-    }
-
     const { resume_generated, job_position } = dataResume;
 
     return (
-        <Document
-            author={resume_generated.contact_info.name}
-            title={`Resume for ${job_position}`}
-        >
-            <Page size="A4" style={styles.page}>
-                <View style={styles.sidebar}>
-                    <View style={styles.sidebarSection}>
-                        <Text style={styles.sidebarTitle}>Contact</Text>
-                        <Text style={styles.contactItem}>
-                            {resume_generated.contact_info.phone}
-                        </Text>
-                        <Link
-                            style={styles.contactLink}
-                            src={`mailto:${resume_generated.contact_info.email}`}
-                        >
-                            {resume_generated.contact_info.email}
-                        </Link>
+        <Document {...meta}>
+            <Page size="A4" style={dynamicStyles.page}>
+                <View style={dynamicStyles.sidebar}>
+                    <View style={dynamicStyles.sidebarSection}>
+                        <Text style={dynamicStyles.sidebarTitle}>Contact</Text>
+                        {resume_generated.contact_info.phone ? (
+                            <Text style={dynamicStyles.contactItem}>
+                                {resume_generated.contact_info.phone}
+                            </Text>
+                        ) : null}
+                        {resume_generated.contact_info.email ? (
+                            <Link
+                                style={dynamicStyles.contactLink}
+                                src={`mailto:${resume_generated.contact_info.email}`}
+                            >
+                                {resume_generated.contact_info.email}
+                            </Link>
+                        ) : null}
                         {resume_generated.contact_info.linkedin ? (
                             <Link
-                                style={styles.contactLink}
+                                style={dynamicStyles.contactLink}
                                 src={resume_generated.contact_info.linkedin}
                             >
-                                {getCleanUrl(
-                                    resume_generated.contact_info.linkedin,
-                                )}
+                                {cleanUrlDisplay(resume_generated.contact_info.linkedin)}
                             </Link>
                         ) : null}
                         {resume_generated.contact_info.github ? (
                             <Link
-                                style={styles.contactLink}
+                                style={dynamicStyles.contactLink}
                                 src={resume_generated.contact_info.github}
                             >
-                                {getCleanUrl(
-                                    resume_generated.contact_info.github,
-                                )}
+                                {cleanUrlDisplay(resume_generated.contact_info.github)}
                             </Link>
                         ) : null}
                         {resume_generated.contact_info.portfolio ? (
                             <Link
-                                style={styles.contactLink}
+                                style={dynamicStyles.contactLink}
                                 src={resume_generated.contact_info.portfolio}
                             >
-                                {getCleanUrl(
-                                    resume_generated.contact_info.portfolio,
-                                )}
+                                {cleanUrlDisplay(resume_generated.contact_info.portfolio)}
                             </Link>
                         ) : null}
                     </View>
 
                     {resume_generated?.layout?.map((section, idx) => {
-                        // Use a switch on the 'id' property as a type guard
                         switch (section.id) {
                             case 'education':
                                 return section.display ? (
                                     <View
-                                        key={`education-title-${idx}`}
-                                        style={styles.sidebarSection}
+                                        key={`edu-${idx}`}
+                                        style={dynamicStyles.sidebarSection}
                                     >
-                                        <Text style={styles.sidebarTitle}>
+                                        <Text style={dynamicStyles.sidebarTitle}>
                                             {section.title}
                                         </Text>
-
                                         {section.items.map(
                                             (edu, id) =>
                                                 edu.display !== false && (
                                                     <View
                                                         key={id}
-                                                        style={
-                                                            styles.educationEntry
-                                                        }
+                                                        style={dynamicStyles.educationEntry}
                                                     >
-                                                        <Text
-                                                            style={
-                                                                styles.degree
-                                                            }
-                                                        >
+                                                        <Text style={dynamicStyles.degree}>
                                                             {edu.degree}
                                                         </Text>
-                                                        <Text
-                                                            style={
-                                                                styles.school
-                                                            }
-                                                        >
+                                                        <Text style={dynamicStyles.school}>
                                                             {edu.school}
                                                         </Text>
-                                                        <Text
-                                                            style={
-                                                                styles.educationDates
-                                                            }
-                                                        >
-                                                            {
-                                                                edu.start_end_dates
-                                                            }
+                                                        <Text style={dynamicStyles.educationDates}>
+                                                            {edu.start_end_dates}
                                                         </Text>
                                                     </View>
                                                 ),
@@ -314,19 +276,18 @@ export const ClassicResumeTemplate = ({
                             case 'skills':
                                 return section.display ? (
                                     <View
-                                        key={`skills-title-${idx}`}
-                                        style={styles.sidebarSection}
+                                        key={`skills-${idx}`}
+                                        style={dynamicStyles.sidebarSection}
                                     >
-                                        <Text style={styles.sidebarTitle}>
+                                        <Text style={dynamicStyles.sidebarTitle}>
                                             {section.title}
                                         </Text>
-
                                         {section.items.map(
                                             (skill, id) =>
                                                 skill && (
                                                     <Text
                                                         key={id}
-                                                        style={styles.skill}
+                                                        style={dynamicStyles.skill}
                                                     >
                                                         • {skill}
                                                     </Text>
@@ -335,33 +296,32 @@ export const ClassicResumeTemplate = ({
                                     </View>
                                 ) : null;
                             default:
-                                return null; // Or some fallback UI
+                                return null;
                         }
                     })}
                 </View>
-                <View style={styles.mainContent}>
-                    <View style={styles.header}>
-                        <Text style={styles.userName}>
+
+                <View style={dynamicStyles.mainContent}>
+                    <View style={dynamicStyles.header}>
+                        <Text style={dynamicStyles.userName}>
                             {resume_generated.contact_info.name}
                         </Text>
-                        <Text style={styles.jobPosition}>{job_position}</Text>
+                        <Text style={dynamicStyles.jobPosition}>{job_position}</Text>
                     </View>
+                    <View style={dynamicStyles.sectionDivider} />
 
-                    <View style={styles.sectionDivider} />
                     {resume_generated?.layout?.map((section, idx) => {
-                        // Use a switch on the 'id' property as a type guard
                         switch (section.id) {
                             case 'narrative':
                                 return section.display ? (
                                     <View
-                                        key={`narrative-title-${idx}`}
-                                        style={styles.mainSection}
+                                        key={`nar-${idx}`}
+                                        style={dynamicStyles.mainSection}
                                     >
-                                        <Text style={styles.sectionTitle}>
+                                        <Text style={dynamicStyles.sectionTitle}>
                                             {section.title}
                                         </Text>
-
-                                        <Text style={styles.description}>
+                                        <Text style={dynamicStyles.description}>
                                             {section.items}
                                         </Text>
                                     </View>
@@ -369,43 +329,28 @@ export const ClassicResumeTemplate = ({
                             case 'experience':
                                 return section.display ? (
                                     <View
-                                        key={`experience-title-${idx}`}
-                                        style={styles.mainSection}
+                                        key={`exp-${idx}`}
+                                        style={dynamicStyles.mainSection}
                                     >
-                                        <Text style={styles.sectionTitle}>
+                                        <Text style={dynamicStyles.sectionTitle}>
                                             {section.title}
                                         </Text>
-
                                         {section.items.map(
                                             (exp, id) =>
                                                 exp.display !== false && (
                                                     <View
                                                         key={id}
-                                                        style={
-                                                            styles.entryContainer
-                                                        }
+                                                        style={dynamicStyles.entryContainer}
                                                     >
-                                                        <Text
-                                                            style={
-                                                                styles.jobTitle
-                                                            }
-                                                        >
+                                                        <Text style={dynamicStyles.jobTitle}>
                                                             {exp.title}
                                                         </Text>
-                                                        <Text
-                                                            style={
-                                                                styles.companyAndDate
-                                                            }
-                                                        >
-                                                            {exp.company} |{' '}
-                                                            {
-                                                                exp.start_end_dates
-                                                            }
+                                                        <Text style={dynamicStyles.companyAndDate}>
+                                                            {exp.company} | {exp.start_end_dates}
                                                         </Text>
-
                                                         {renderBulletPoints(
                                                             exp.responsabilities,
-                                                            styles,
+                                                            dynamicStyles,
                                                         )}
                                                     </View>
                                                 ),
@@ -415,61 +360,38 @@ export const ClassicResumeTemplate = ({
                             case 'projects':
                                 return section.display ? (
                                     <View
-                                        key={`projects-title-${idx}`}
-                                        style={styles.mainSection}
+                                        key={`proj-${idx}`}
+                                        style={dynamicStyles.mainSection}
                                     >
-                                        <Text style={styles.sectionTitle}>
+                                        <Text style={dynamicStyles.sectionTitle}>
                                             {section.title}
                                         </Text>
-
                                         {section.items.map(
                                             (pro, id) =>
                                                 pro.display !== false && (
                                                     <View
                                                         key={id}
-                                                        style={
-                                                            styles.entryContainer
-                                                        }
+                                                        style={dynamicStyles.entryContainer}
                                                     >
-                                                        <Text
-                                                            style={
-                                                                styles.jobTitle
-                                                            }
-                                                        >
+                                                        <Text style={dynamicStyles.jobTitle}>
                                                             {pro.name}
                                                         </Text>
-                                                        {/*
-                                                       // TODO I dont think it is important to show the start and end dates 
-                                                        <Text
-                                                            style={
-                                                                styles.companyAndDate
-                                                            }
-                                                        >
-                                                            {
-                                                                pro.start_end_dates
-                                                            }
-                                                        </Text>
-                                                        */}
+                                                        {pro.start_end_dates ? (
+                                                            <Text style={dynamicStyles.companyAndDate}>
+                                                                {pro.start_end_dates}
+                                                            </Text>
+                                                        ) : null}
                                                         {renderBulletPoints(
                                                             pro.description,
-                                                            styles,
+                                                            dynamicStyles,
                                                         )}
-                                                        {/*
-                                                        IMPORTANT: this will display the content as text, not as bullet points
-                                                        <Text
-                                                            style={
-                                                                styles.description
-                                                            }
-                                                        >
-                                                            {pro.description}
-                                                        </Text>*/}
                                                     </View>
                                                 ),
                                         )}
                                     </View>
                                 ) : null;
                             default:
-                                return null; // Or some fallback UI
+                                return null;
                         }
                     })}
                 </View>

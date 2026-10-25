@@ -258,19 +258,26 @@ export interface NetworkingLink {
     url: string;
 }
 // NEW: The updated main response interface.
-export interface GeminiResponse {
-    contact_info: ContactInfo;
-    layout: ResumeLayoutItem[]; // This ordered array replaces the fixed properties.
-    keywords: string[];
-    feedback: AiFeedback;
-    styles: {
-        theme: "modern" | "classic" | "minimalist"; // Assuming these are the only two themes for now.
-    };
-    networkingLinks?: NetworkingLink[];
-    // selected_narrative can be inferred from the presence of summary vs career_objective in the layout
+export type ResumeThemeId = "modern" | "classic" | "minimalist" | "executive";
+
+export interface ResumeStyles {
+    theme: ResumeThemeId;
+    accentColor?: string;
+    headerColor?: string;
+    fontSize?: "small" | "medium" | "large";
+    lineSpacing?: "compact" | "normal" | "relaxed";
+    pageMargin?: "narrow" | "normal" | "wide";
 }
 
-// NEW: The updated empty state for the Gemini response.
+export interface GeminiResponse {
+    contact_info: ContactInfo;
+    layout: ResumeLayoutItem[];
+    keywords: string[];
+    feedback: AiFeedback;
+    styles: ResumeStyles;
+    networkingLinks?: NetworkingLink[];
+}
+
 export const emptyStateGeminiReponse: GeminiResponse = {
     contact_info: {
         name: "",
@@ -280,7 +287,7 @@ export const emptyStateGeminiReponse: GeminiResponse = {
         github: "",
         portfolio: "",
     },
-    layout: [], // Initialize with an empty layout array.
+    layout: [],
     keywords: [],
     feedback: {
         candidateFit: {
@@ -295,7 +302,12 @@ export const emptyStateGeminiReponse: GeminiResponse = {
     },
     networkingLinks: [],
     styles: {
-        theme: "minimalist", // Default theme, can be changed later.
+        theme: "modern",
+        accentColor: "#2563eb",
+        headerColor: "#1e293b",
+        fontSize: "medium",
+        lineSpacing: "normal",
+        pageMargin: "normal",
     },
 };
 

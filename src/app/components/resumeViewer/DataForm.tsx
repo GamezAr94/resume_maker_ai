@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction, ChangeEvent } from 'react';
 import {
     Accordion,
     Paper,
@@ -28,19 +28,18 @@ import { EducationItemCard } from './ItemsCards/EducationItemCard';
 interface DataFormProps {
     dataResume: FormJobOfferDataStructure;
     activeAccordion: string | null;
-    setActiveAccordion: (value: string | null) => void;
-    handleChange: (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    ) => void;
+    setActiveAccordion: Dispatch<SetStateAction<string | null>>;
+    handleChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    handleVisibilityToggle: (e: React.MouseEvent<HTMLElement>) => void;
+    onMoveSection: (index: number, direction: 'up' | 'down') => void;
+    activeNestedAccordions: Record<string, string[]>;
+    handleNestedAccordionChange: (sectionId: string, value: string[]) => void;
     handleItemChange: (
         sectionIndex: number,
         itemIndex: number,
         fieldName: string,
         value: string,
     ) => void;
-    handleVisibilityToggle: (e: React.MouseEvent<HTMLElement>) => void;
-    handleNestedAccordionChange: (sectionId: string, value: string[]) => void;
-    activeNestedAccordions: Record<string, string[]>;
 }
 
 export function DataForm({
@@ -48,10 +47,11 @@ export function DataForm({
     activeAccordion,
     setActiveAccordion,
     handleChange,
-    handleItemChange,
     handleVisibilityToggle,
-    handleNestedAccordionChange,
+    onMoveSection,
     activeNestedAccordions,
+    handleNestedAccordionChange,
+    handleItemChange,
 }: DataFormProps) {
     return (
         <Accordion
@@ -173,7 +173,9 @@ export function DataForm({
                         key={`${section.id}-${idx}`}
                         section={section}
                         idx={idx}
+                        totalSections={dataResume.resume_generated?.layout?.length || 0}
                         onVisibilityToggle={handleVisibilityToggle}
+                        onMoveSection={onMoveSection}
                     >
                         {/* Title Editor - Common to all sections */}
                         <Textarea

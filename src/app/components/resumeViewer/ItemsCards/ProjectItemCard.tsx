@@ -51,12 +51,10 @@ export function ProjectItemCard({
                         <ActionIcon
                             component="div"
                             variant="subtle"
-                            color="gray"
-                            title={isVisible ? `Hide` : `Show`}
+                            color={isVisible ? 'blue' : 'gray'}
+                            title={isVisible ? 'Hide' : 'Show'}
                             onClick={(e) => {
-                                // Prevent the click from also toggling the accordion open/closed
                                 e.stopPropagation();
-                                // Call the handler function passed from the parent component
                                 onVisibilityToggle(e);
                             }}
                             data-section={sectionId.toString()}
@@ -74,24 +72,37 @@ export function ProjectItemCard({
             </Accordion.Control>
             <Accordion.Panel>
                 <Stack>
-                    <TextInput
-                        label="Project Name"
-                        maxLength={CHARACTER_LIMITS.title}
-                        defaultValue={item.name}
-                        onChange={(e) =>
-                            onItemChange(
-                                idx,
-                                itemIndex,
-                                'name',
-                                e.currentTarget.value,
-                            )
-                        }
-                    />
-                    {/* TODO this array is not to make an union, it is to show multiple options to the user to choose */}
+                    <Group grow>
+                        <TextInput
+                            label="Project Name"
+                            maxLength={CHARACTER_LIMITS.title}
+                            value={item.name || ''}
+                            onChange={(e) =>
+                                onItemChange(
+                                    idx,
+                                    itemIndex,
+                                    'name',
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                        <TextInput
+                            label="Dates / Subtitle (Optional)"
+                            value={item.start_end_dates || ''}
+                            onChange={(e) =>
+                                onItemChange(
+                                    idx,
+                                    itemIndex,
+                                    'start_end_dates',
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                    </Group>
                     <Textarea
-                        label="Description"
+                        label="Bullet Points (One per line)"
                         maxLength={CHARACTER_LIMITS.description}
-                        defaultValue={item.description}
+                        value={item.description || ''}
                         autosize
                         minRows={4}
                         onChange={(e) =>

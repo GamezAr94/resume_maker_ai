@@ -9,9 +9,12 @@ import {
     Font,
 } from '@react-pdf/renderer';
 import { FormJobOfferDataStructure } from '@/utils/interfaces';
-import { renderBulletPoints } from './pdfUtils';
+import {
+    renderBulletPoints,
+    getResolvedStyleTokens,
+    getPdfMetadata,
+} from './pdfUtils';
 
-// Using Lato for a clean, standard look.
 Font.register({
     family: 'Lato',
     fonts: [
@@ -30,117 +33,118 @@ Font.register({
         },
     ],
 });
-
 Font.registerHyphenationCallback((word) => [word]);
 
-// --- STYLESHEET ---
-// Styles to replicate the single-column, black & white screenshot.
-export const styles = StyleSheet.create({
-    viewer: {
-        aspectRatio: '210/297',
-        maxWidth: '712px',
-        width: '100%',
-    },
-    page: {
-        fontFamily: 'Lato',
-        fontSize: 11,
-        paddingTop: 20,
-        paddingLeft: 40,
-        paddingRight: 40,
-        paddingBottom: 25,
-        color: '#000000',
-        backgroundColor: '#FFFFFF',
-    },
-    header: {
-        textAlign: 'center',
-        marginBottom: 15,
-    },
-    userName: {
-        fontSize: 28,
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        marginBottom: 5,
-    },
-    contactInfo: {
-        fontSize: 10,
-        color: '#000000',
-    },
-    section: {
-        marginBottom: 10,
-    },
-    sectionTitle: {
-        fontSize: 14,
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        borderBottomWidth: 1,
-        borderBottomColor: '#000000',
-        paddingBottom: 3,
-        marginBottom: 10,
-    },
-    entryContainer: {
-        marginBottom: 5,
-    },
-    entryHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 4,
-    },
-    entryTitle: {
-        fontSize: 11,
-        fontWeight: 700,
-    },
-    entrySubtitle: {
-        fontSize: 11,
-        fontStyle: 'italic',
-    },
-    entryDate: {
-        fontSize: 11,
-        fontWeight: 700,
-    },
-    description: {
-        fontSize: 11,
-        textAlign: 'justify',
-        lineHeight: 1.4,
-    },
-    bulletPoint: {
-        flexDirection: 'row',
-        marginBottom: 4,
-        paddingRight: 15,
-    },
-    bullet: {
-        width: 15,
-        fontSize: 11,
-    },
-    bulletText: {
-        flex: 1,
-        fontSize: 11,
-        textAlign: 'justify',
-    },
-    skillsContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    skillColumn: {
-        width: '25%', // 4 columns
-        flexDirection: 'column',
-    },
-    skillItem: {
-        flexDirection: 'row',
-        marginBottom: 3,
-    },
-});
-
-// --- TEMPLATE COMPONENT ---
 export const MinimalistResumeTemplate = ({
     dataResume,
 }: {
     dataResume: FormJobOfferDataStructure;
 }) => {
+    const tokens = getResolvedStyleTokens(dataResume?.resume_generated?.styles, {
+        accentColor: '#111827',
+        headerColor: '#000000',
+    });
+    const meta = getPdfMetadata(dataResume);
+
+    const dynamicStyles = StyleSheet.create({
+        page: {
+            fontFamily: 'Lato',
+            fontSize: tokens.baseFontSize,
+            paddingTop: tokens.pagePadding * 0.8,
+            paddingLeft: tokens.pagePadding + 6,
+            paddingRight: tokens.pagePadding + 6,
+            paddingBottom: tokens.pagePadding * 0.8,
+            color: '#000000',
+            backgroundColor: '#FFFFFF',
+        },
+        header: {
+            textAlign: 'center',
+            marginBottom: tokens.sectionGap + 2,
+        },
+        userName: {
+            fontSize: tokens.nameFontSize,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            color: tokens.headerColor,
+            marginBottom: 4,
+        },
+        contactInfo: {
+            fontSize: tokens.smallFontSize,
+            color: '#1f2937',
+        },
+        section: {
+            marginBottom: tokens.sectionGap,
+        },
+        sectionTitle: {
+            fontSize: tokens.sectionTitleSize - 1,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            color: tokens.headerColor,
+            borderBottomWidth: 1,
+            borderBottomColor: tokens.accentColor,
+            paddingBottom: 2,
+            marginBottom: 6,
+        },
+        entryContainer: {
+            marginBottom: tokens.entryGap,
+        },
+        entryHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: 2,
+        },
+        entryTitle: {
+            fontSize: tokens.entryTitleSize,
+            fontWeight: 700,
+        },
+        entrySubtitle: {
+            fontSize: tokens.baseFontSize,
+            fontStyle: 'italic',
+            color: tokens.accentColor,
+        },
+        entryDate: {
+            fontSize: tokens.smallFontSize,
+            fontWeight: 700,
+        },
+        description: {
+            fontSize: tokens.baseFontSize,
+            textAlign: 'justify',
+            lineHeight: tokens.lineHeight,
+        },
+        bulletPoint: {
+            flexDirection: 'row',
+            marginBottom: 2.5,
+            paddingRight: 10,
+        },
+        bullet: {
+            width: 12,
+            fontSize: tokens.baseFontSize,
+        },
+        bulletText: {
+            flex: 1,
+            fontSize: tokens.baseFontSize,
+            lineHeight: tokens.lineHeight,
+            textAlign: 'justify',
+        },
+        skillsContainer: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+        },
+        skillColumn: {
+            width: '25%',
+            flexDirection: 'column',
+        },
+        skillItem: {
+            flexDirection: 'row',
+            marginBottom: 2.5,
+        },
+    });
+
     if (!dataResume || !dataResume.resume_generated) {
         return (
             <Document>
-                <Page size="A4" style={styles.page}>
+                <Page size="A4" style={dynamicStyles.page}>
                     <View style={{ padding: 30, textAlign: 'center' }}>
                         <Text>Generating resume...</Text>
                     </View>
@@ -151,7 +155,6 @@ export const MinimalistResumeTemplate = ({
 
     const { resume_generated } = dataResume;
 
-    // Helper to render skills in 4 columns
     const renderSkills = (skills: string[]) => {
         const columns: string[][] = [[], [], [], []];
         skills.forEach((skill, index) => {
@@ -159,13 +162,13 @@ export const MinimalistResumeTemplate = ({
         });
 
         return (
-            <View style={styles.skillsContainer}>
+            <View style={dynamicStyles.skillsContainer}>
                 {columns.map((col, colIndex) => (
-                    <View key={colIndex} style={styles.skillColumn}>
+                    <View key={colIndex} style={dynamicStyles.skillColumn}>
                         {col.map((skill, skillIndex) => (
-                            <View key={skillIndex} style={styles.skillItem}>
-                                <Text style={styles.bullet}>•</Text>
-                                <Text style={styles.bulletText}>{skill}</Text>
+                            <View key={skillIndex} style={dynamicStyles.skillItem}>
+                                <Text style={dynamicStyles.bullet}>•</Text>
+                                <Text style={dynamicStyles.bulletText}>{skill}</Text>
                             </View>
                         ))}
                     </View>
@@ -175,22 +178,16 @@ export const MinimalistResumeTemplate = ({
     };
 
     return (
-        <Document
-            author={resume_generated.contact_info.name}
-            title={`Resume for ${resume_generated.contact_info.name}`}
-        >
-            <Page size="A4" style={styles.page}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.userName}>
+        <Document {...meta}>
+            <Page size="A4" style={dynamicStyles.page}>
+                <View style={dynamicStyles.header}>
+                    <Text style={dynamicStyles.userName}>
                         {resume_generated.contact_info.name}
                     </Text>
-                    <Text style={styles.contactInfo}>
+                    <Text style={dynamicStyles.contactInfo}>
                         {resume_generated.contact_info.phone}
                         {resume_generated.contact_info.phone && '  \u2022  '}
-                        <Link
-                            src={`mailto:${resume_generated.contact_info.email}`}
-                        >
+                        <Link src={`mailto:${resume_generated.contact_info.email}`}>
                             {resume_generated.contact_info.email}
                         </Link>
                         {(resume_generated.contact_info.linkedin ||
@@ -212,27 +209,24 @@ export const MinimalistResumeTemplate = ({
                     </Text>
                 </View>
 
-                {/* Dynamic Sections */}
                 {resume_generated?.layout?.map((section, idx) => {
                     if (!section.display) return null;
-
                     switch (section.id) {
                         case 'narrative':
                             return (
-                                <View key={idx} style={styles.section}>
-                                    <Text style={styles.sectionTitle}>
+                                <View key={idx} style={dynamicStyles.section}>
+                                    <Text style={dynamicStyles.sectionTitle}>
                                         {section.title}
                                     </Text>
-                                    <Text style={styles.description}>
+                                    <Text style={dynamicStyles.description}>
                                         {section.items}
                                     </Text>
                                 </View>
                             );
-
                         case 'experience':
                             return (
-                                <View key={idx} style={styles.section}>
-                                    <Text style={styles.sectionTitle}>
+                                <View key={idx} style={dynamicStyles.section}>
+                                    <Text style={dynamicStyles.sectionTitle}>
                                         {section.title}
                                     </Text>
                                     {section.items.map(
@@ -240,60 +234,34 @@ export const MinimalistResumeTemplate = ({
                                             exp.display !== false && (
                                                 <View
                                                     key={id}
-                                                    style={
-                                                        styles.entryContainer
-                                                    }
+                                                    style={dynamicStyles.entryContainer}
                                                 >
-                                                    <View
-                                                        style={
-                                                            styles.entryHeader
-                                                        }
-                                                    >
-                                                        <View
-                                                            style={{
-                                                                flexDirection:
-                                                                    'column',
-                                                            }}
-                                                        >
-                                                            <Text
-                                                                style={
-                                                                    styles.entryTitle
-                                                                }
-                                                            >
+                                                    <View style={dynamicStyles.entryHeader}>
+                                                        <View style={{ flexDirection: 'column' }}>
+                                                            <Text style={dynamicStyles.entryTitle}>
                                                                 {exp.company}
                                                             </Text>
-                                                            <Text
-                                                                style={
-                                                                    styles.entrySubtitle
-                                                                }
-                                                            >
+                                                            <Text style={dynamicStyles.entrySubtitle}>
                                                                 {exp.title}
                                                             </Text>
                                                         </View>
-                                                        <Text
-                                                            style={
-                                                                styles.entryDate
-                                                            }
-                                                        >
-                                                            {
-                                                                exp.start_end_dates
-                                                            }
+                                                        <Text style={dynamicStyles.entryDate}>
+                                                            {exp.start_end_dates}
                                                         </Text>
                                                     </View>
                                                     {renderBulletPoints(
                                                         exp.responsabilities,
-                                                        styles,
+                                                        dynamicStyles,
                                                     )}
                                                 </View>
                                             ),
                                     )}
                                 </View>
                             );
-
                         case 'education':
                             return (
-                                <View key={idx} style={styles.section}>
-                                    <Text style={styles.sectionTitle}>
+                                <View key={idx} style={dynamicStyles.section}>
+                                    <Text style={dynamicStyles.sectionTitle}>
                                         {section.title}
                                     </Text>
                                     {section.items.map(
@@ -301,39 +269,19 @@ export const MinimalistResumeTemplate = ({
                                             edu.display !== false && (
                                                 <View
                                                     key={id}
-                                                    style={
-                                                        styles.entryContainer
-                                                    }
+                                                    style={dynamicStyles.entryContainer}
                                                 >
-                                                    <View
-                                                        style={
-                                                            styles.entryHeader
-                                                        }
-                                                    >
+                                                    <View style={dynamicStyles.entryHeader}>
                                                         <View>
-                                                            <Text
-                                                                style={
-                                                                    styles.entryTitle
-                                                                }
-                                                            >
+                                                            <Text style={dynamicStyles.entryTitle}>
                                                                 {edu.school}
                                                             </Text>
-                                                            <Text
-                                                                style={
-                                                                    styles.entrySubtitle
-                                                                }
-                                                            >
+                                                            <Text style={dynamicStyles.entrySubtitle}>
                                                                 {edu.degree}
                                                             </Text>
                                                         </View>
-                                                        <Text
-                                                            style={
-                                                                styles.entryDate
-                                                            }
-                                                        >
-                                                            {
-                                                                edu.start_end_dates
-                                                            }
+                                                        <Text style={dynamicStyles.entryDate}>
+                                                            {edu.start_end_dates}
                                                         </Text>
                                                     </View>
                                                 </View>
@@ -341,21 +289,19 @@ export const MinimalistResumeTemplate = ({
                                     )}
                                 </View>
                             );
-
                         case 'skills':
                             return (
-                                <View key={idx} style={styles.section}>
-                                    <Text style={styles.sectionTitle}>
+                                <View key={idx} style={dynamicStyles.section}>
+                                    <Text style={dynamicStyles.sectionTitle}>
                                         {section.title}
                                     </Text>
                                     {renderSkills(section.items)}
                                 </View>
                             );
-
                         case 'projects':
                             return (
-                                <View key={idx} style={styles.section}>
-                                    <Text style={styles.sectionTitle}>
+                                <View key={idx} style={dynamicStyles.section}>
+                                    <Text style={dynamicStyles.sectionTitle}>
                                         {section.title}
                                     </Text>
                                     {section.items.map(
@@ -363,55 +309,27 @@ export const MinimalistResumeTemplate = ({
                                             pro.display !== false && (
                                                 <View
                                                     key={id}
-                                                    style={
-                                                        styles.entryContainer
-                                                    }
+                                                    style={dynamicStyles.entryContainer}
                                                 >
-                                                    <View
-                                                        style={
-                                                            styles.entryHeader
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.entryTitle
-                                                            }
-                                                        >
+                                                    <View style={dynamicStyles.entryHeader}>
+                                                        <Text style={dynamicStyles.entryTitle}>
                                                             {pro.name}
                                                         </Text>
-                                                        {/*
-                                                        {pro.start_end_dates && (
-                                                            <Text
-                                                                style={
-                                                                    styles.entryDate
-                                                                }
-                                                            >
-                                                                {
-                                                                    pro.start_end_dates
-                                                                }
+                                                        {pro.start_end_dates ? (
+                                                            <Text style={dynamicStyles.entryDate}>
+                                                                {pro.start_end_dates}
                                                             </Text>
-                                                        )}
-                                                            */}
+                                                        ) : null}
                                                     </View>
                                                     {renderBulletPoints(
                                                         pro.description,
-                                                        styles,
+                                                        dynamicStyles,
                                                     )}
-                                                    {/*
-                                                    IMPORTANT: this will display the content as text, not as bullet points
-                                                    <Text
-                                                        style={
-                                                            styles.description
-                                                        }
-                                                    >
-                                                        {pro.description}
-                                                    </Text>*/}
                                                 </View>
                                             ),
                                     )}
                                 </View>
                             );
-
                         default:
                             return null;
                     }
