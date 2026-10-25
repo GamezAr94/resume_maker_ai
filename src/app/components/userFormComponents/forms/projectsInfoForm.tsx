@@ -1,5 +1,4 @@
 "use client";
-
 import { deleteProfileRecord } from "@/app/db/user_queries";
 import { SectionTypes } from "@/utils/enums";
 import {
@@ -12,7 +11,6 @@ import {
 } from "@/utils/interfaces";
 import {
     Button,
-    Input,
     Select,
     Group,
     Text,
@@ -21,6 +19,8 @@ import {
     Textarea,
     ActionIcon,
     Divider,
+    TagsInput,
+    Badge,
 } from "@mantine/core";
 import {
     IconCheck,
@@ -30,13 +30,9 @@ import {
     IconPlus,
 } from "@tabler/icons-react";
 import { Dispatch, SetStateAction, useRef, useState } from "react";
-import { z } from "zod";
 import styles from "./formContainerStyles.module.css";
 import { notifications } from "@mantine/notifications";
-
 import CharacterCounter from "@/app/components/CharacterCounter/CharacterCounter";
-
-// Character limits for the form fields
 import { CHARACTER_LIMITS } from "@/utils/configLimits";
 import { projectSchema } from "@/utils/zod_schemas";
 
@@ -63,82 +59,69 @@ export default function ProjectsInfoForm({
     setSelectedType,
     selectedType,
 }: Params) {
-    // whit this we will erase all the data in the form after saving it
     const formRef = useRef<HTMLFormElement>(null);
-
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // State to store the errors in the form
     const [formErrors, setFormErrors] = useState<Record<string, string | null>>(
         {},
     );
 
-    // Function to validate the user data and save it
     async function validatingAndSaving(
         event: React.FormEvent<HTMLFormElement>,
     ) {
-        // prevent the default form submission and fetch the data
         event.preventDefault();
-
         setIsSubmitting(true);
-
         try {
-            // Get current details
             const currentDetails =
                 getEditRecord?.details || emptyStateProject.details;
 
-            // Filter out empty strings from the arrays
-            // We trim() to ensure "   " is treated as empty
             const cleanFeatures = (currentDetails.key_features || [])
                 .map((item) => item.trim())
                 .filter((item) => item.length > 0);
-
+            const cleanMetrics = (currentDetails.impact_metrics || [])
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0);
             const cleanTechStack = (currentDetails.tech_stack || [])
                 .map((item) => item.trim())
                 .filter((item) => item.length > 0);
+            const cleanKeywords = (currentDetails.keywords || [])
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0);
 
-            // Construct a plain JS object
-            // This ensures nested 'details' are preserved correctly
             const dataToValidate = {
-                // If ID exists, include it
                 ...(getEditRecord?.id && { id: getEditRecord.id }),
-
                 project_name: getEditRecord?.project_name || "",
-
-                // Handle the foreign keys (nullable)
                 experience_id: getEditRecord?.experience_id || null,
                 education_id: getEditRecord?.education_id || null,
-
-                // Pass the nested details object
                 details: {
                     ...currentDetails,
-                    key_features: cleanFeatures, // Use cleaned list
-                    tech_stack: cleanTechStack, // Use cleaned list
+                    my_role: currentDetails.my_role?.trim() || "",
+                    key_features: cleanFeatures,
+                    impact_metrics: cleanMetrics,
+                    tech_stack: cleanTechStack,
+                    keywords: cleanKeywords,
                 },
             };
 
-            // parse the user data with the zod schema
             const parseUser = projectSchema.safeParse(dataToValidate);
-
             setFormErrors({});
 
             if (!parseUser.success) {
                 const error = parseUser.error;
                 const newErrors: Record<string, string> = {};
                 for (const issue of error.issues) {
-                    const path = issue.path.join("."); // e.g. "details.url"
+                    const path = issue.path.join(".");
                     newErrors[path] = issue.message;
                 }
                 setFormErrors(newErrors);
                 return;
             }
 
-            const res = await fetch("api/saveUserInfo", {
+            const res = await fetch("/api/saveUserInfo", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: SectionTypes.Project,
-                    data: parseUser.data, // Send the clean object
+                    data: parseUser.data,
                 }),
             });
             const response = await res.json();
@@ -172,27 +155,21 @@ export default function ProjectsInfoForm({
         }
     }
 
-    // Function to delete the record and refresh the UI
     async function submitDeleteRecord(table: SectionTypes, value: string) {
         try {
-            // Call the helper function and wait for its result
             await deleteProfileRecord(table, value);
-
-            // --- This code only runs if deleteProfileRecord was successful ---
             notifications.show({
                 title: "Success!",
                 message: "The project has been deleted.",
                 color: "teal",
                 icon: <IconCheck />,
             });
-
             setRefreshTrigger((prevTrigger) => ({
                 ...prevTrigger,
                 project: !prevTrigger.project,
             }));
             setEditRecord(null);
         } catch (error) {
-            // --- This code runs if deleteProfileRecord threw an error ---
             const errorMessage =
                 error instanceof Error
                     ? error.message
@@ -206,12 +183,8 @@ export default function ProjectsInfoForm({
         }
     }
 
-    // with this function we can edit an element and we can also cancel the edition
     function editRecord(value: FormProjectStructure | null) {
-        // we need to remove the existing errors if any
-        // TODO this method it is ONLY working when you click the button cancel, if we want to make it work when pressing the edit button then we need to move the useState to the container component of this component so that we can share it accross that one and this one
         setFormErrors({});
-        // elect by default the personal_type just in case
         setSelectedType("personal_type");
         if (value?.experience_id != null) {
             setSelectedType("experience_type");
@@ -219,100 +192,26 @@ export default function ProjectsInfoForm({
         if (value?.education_id != null) {
             setSelectedType("education_type");
         }
-        // set the value that we want to edit
         setEditRecord(value);
     }
 
-    // Function to set the project type experience or education
-    //function setType(event: React.ChangeEvent<HTMLSelectElement>) {
     function setType(event: string | null) {
-        setEditRecord((prev) => ({
-            ...emptyStateProject,
-            ...prev,
-            education_id: null,
-            experience_id: null,
-        }));
-
         setEditRecord((prev) => {
-            if (!prev) return emptyStateProject; // Handle case where prev is null
-
-            const updatedRecord = { ...prev };
-
-            if (event === "Experience") {
-                updatedRecord.education_id = null; // Clear education
-            } else if (event === "Education") {
-                updatedRecord.experience_id = null; // Clear experience
-            } else {
-                // It's a "Personal" project, clear both
-                updatedRecord.education_id = null;
-                updatedRecord.experience_id = null;
-            }
+            const updatedRecord = { ...(prev || emptyStateProject) };
+            updatedRecord.education_id = null;
+            updatedRecord.experience_id = null;
             return updatedRecord;
         });
 
-        if (event == null) {
-            setSelectedType("personal_type");
-        }
-        if (event == "Experience") {
+        if (event === "Experience") {
             setSelectedType("experience_type");
-        } else if (event == "Education") {
+        } else if (event === "Education") {
             setSelectedType("education_type");
         } else {
             setSelectedType("personal_type");
         }
     }
 
-    interface HandleInputChangeEvent {
-        target: {
-            value: string;
-        };
-    }
-    // Function to handle the input change and also to rever the form errors
-    function handleInputChange(
-        event: HandleInputChangeEvent,
-        type: keyof FormProjectStructure,
-        setter: Dispatch<SetStateAction<FormProjectStructure | null>>,
-        prevState: FormProjectStructure | null,
-    ) {
-        if (!prevState) {
-            prevState = emptyStateProject;
-        }
-        setter({
-            ...prevState,
-            [type]: event.target.value,
-        });
-        setFormErrors((prev) => ({
-            ...prev,
-            [type]: null,
-        }));
-    }
-    function handleSelectChange(
-        id: string | null,
-        type: keyof FormProjectStructure,
-        setter: Dispatch<SetStateAction<FormProjectStructure | null>>,
-        prevState: FormProjectStructure | null,
-    ) {
-        if (!prevState) {
-            prevState = emptyStateProject;
-        }
-        setter({
-            ...prevState,
-            [type]: id,
-        });
-        setFormErrors((prev) => ({
-            ...prev,
-            [type]: null,
-        }));
-    }
-    const projectTypeOptions = ["Personal"];
-    if (experienceInfo && experienceInfo.length > 0) {
-        projectTypeOptions.push("Experience");
-    }
-    if (educationInfo && educationInfo.length > 0) {
-        projectTypeOptions.push("Education");
-    }
-
-    // Handle updates for the nested 'details' object (Problem Solved, URL)
     function handleDetailsChange(
         field: keyof ProjectDetails,
         value: string | string[],
@@ -324,16 +223,14 @@ export default function ProjectsInfoForm({
                 [field]: value,
             },
         }));
-
-        setFormErrors((prev) => ({
-            ...prev,
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
             [`details.${field}`]: null,
         }));
     }
 
-    // Update a specific item in a list (Features, Tech Stack)
     function handleArrayItemChange(
-        field: "key_features" | "tech_stack",
+        field: "key_features" | "impact_metrics",
         index: number,
         value: string,
     ) {
@@ -341,22 +238,19 @@ export default function ProjectsInfoForm({
         const newList = [...currentList];
         newList[index] = value;
         handleDetailsChange(field, newList);
-
-        setFormErrors((prev) => ({
-            ...prev,
+        setFormErrors((prevErrors) => ({
+            ...prevErrors,
             [`details.${field}.${index}`]: null,
         }));
     }
 
-    // Add a new empty line to a list
-    function addArrayItem(field: "key_features" | "tech_stack") {
+    function addArrayItem(field: "key_features" | "impact_metrics") {
         const currentList = getEditRecord?.details?.[field] || [];
         handleDetailsChange(field, [...currentList, ""]);
     }
 
-    // Remove a line from a list
     function removeArrayItem(
-        field: "key_features" | "tech_stack",
+        field: "key_features" | "impact_metrics",
         index: number,
     ) {
         const currentList = getEditRecord?.details?.[field] || [];
@@ -366,19 +260,45 @@ export default function ProjectsInfoForm({
         );
     }
 
+    const projectTypeOptions = ["Personal"];
+    if (experienceInfo && experienceInfo.length > 0) {
+        projectTypeOptions.push("Experience");
+    }
+    if (educationInfo && educationInfo.length > 0) {
+        projectTypeOptions.push("Education");
+    }
+
     return (
         <form ref={formRef} onSubmit={validatingAndSaving}>
             {infoQuery && (
                 <div className={styles.infoCard}>
-                    <div>
-                        <Text className={styles.infoTextPrimary}>
-                            {infoQuery.project_name}
-                        </Text>
+                    <div style={{ flex: 1, paddingRight: 12 }}>
+                        <Group gap="xs" mb={4}>
+                            <Text className={styles.infoTextPrimary}>
+                                {infoQuery.project_name}
+                            </Text>
+                            {infoQuery.company_name && (
+                                <Badge size="xs" color="indigo" variant="light">
+                                    Work: {infoQuery.company_name}
+                                </Badge>
+                            )}
+                            {infoQuery.school_name && (
+                                <Badge size="xs" color="teal" variant="light">
+                                    Academic: {infoQuery.school_name}
+                                </Badge>
+                            )}
+                            {!infoQuery.company_name && !infoQuery.school_name && (
+                                <Badge size="xs" color="gray" variant="light">
+                                    Personal / Open Source
+                                </Badge>
+                            )}
+                        </Group>
                         <Text
                             className={styles.infoTextSecondary}
                             lineClamp={1}
                         >
-                            {infoQuery.project_description}
+                            {infoQuery.details?.problem_solved ||
+                                infoQuery.project_description}
                         </Text>
                     </div>
                     <Group
@@ -413,122 +333,106 @@ export default function ProjectsInfoForm({
                 </div>
             )}
             {!infoQuery && (
-                <>
-                    <Input.Wrapper
-                        label="Project Name"
-                        error={formErrors["project_name"]}
-                        classNames={{
-                            root: styles.formField,
-                            label: styles.formLabel,
-                        }}
-                    >
-                        <Input
-                            classNames={{ input: styles.formInput }}
-                            error={!!formErrors.project_name}
-                            type="text"
-                            name="project_name"
+                <Stack gap="md">
+                    <Group grow>
+                        <TextInput
+                            label="Project Name"
+                            placeholder="e.g., Distributed Payment Microservice"
                             maxLength={CHARACTER_LIMITS.title}
-                            placeholder="e.g., AI Resume Analyzer"
-                            onChange={(event) => {
-                                handleInputChange(
-                                    event,
-                                    "project_name",
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
+                            error={formErrors["project_name"]}
+                            value={getEditRecord?.project_name || ""}
+                            onChange={(e) => {
+                                const val = e.currentTarget.value;
+                                setEditRecord((prev) => ({
+                                    ...(prev || emptyStateProject),
+                                    project_name: val,
+                                }));
+                                setFormErrors((prev) => ({
+                                    ...prev,
+                                    project_name: null,
+                                }));
                             }}
+                            required
+                        />
+                        <TextInput
+                            label="Your Role on This Project"
+                            placeholder="e.g., Lead Backend Engineer / Solo Creator"
+                            maxLength={CHARACTER_LIMITS.title}
+                            value={getEditRecord?.details?.my_role || ""}
+                            onChange={(e) =>
+                                handleDetailsChange(
+                                    "my_role",
+                                    e.currentTarget.value,
+                                )
+                            }
+                        />
+                    </Group>
+
+                    <Group grow>
+                        <Select
+                            label="Where Was This Project Built?"
                             value={
-                                getEditRecord ? getEditRecord.project_name : ""
+                                selectedType === "experience_type"
+                                    ? "Experience"
+                                    : selectedType === "education_type"
+                                      ? "Education"
+                                      : "Personal"
                             }
+                            data={projectTypeOptions}
+                            onChange={setType}
                         />
-                    </Input.Wrapper>
+                        {selectedType === "experience_type" && (
+                            <Select
+                                label="Link to Work Experience"
+                                placeholder="Select company"
+                                error={formErrors.experience_id}
+                                value={
+                                    getEditRecord?.experience_id
+                                        ? String(getEditRecord.experience_id)
+                                        : null
+                                }
+                                data={experienceInfo.map((item) => ({
+                                    label: `${item.job_title} @ ${item.company_name}`,
+                                    value: String(item.id),
+                                }))}
+                                onChange={(val) =>
+                                    setEditRecord((prev) => ({
+                                        ...(prev || emptyStateProject),
+                                        experience_id: val,
+                                    }))
+                                }
+                            />
+                        )}
+                        {selectedType === "education_type" && (
+                            <Select
+                                label="Link to Education"
+                                placeholder="Select school"
+                                error={formErrors.education_id}
+                                value={
+                                    getEditRecord?.education_id
+                                        ? String(getEditRecord.education_id)
+                                        : null
+                                }
+                                data={educationInfo.map((item) => ({
+                                    label: item.school_name,
+                                    value: String(item.id),
+                                }))}
+                                onChange={(val) =>
+                                    setEditRecord((prev) => ({
+                                        ...(prev || emptyStateProject),
+                                        education_id: val,
+                                    }))
+                                }
+                            />
+                        )}
+                    </Group>
 
-                    {/* Project Type Select */}
-                    <Select
-                        label="Project Type"
-                        placeholder="Select a type"
-                        value={
-                            selectedType === "experience_type"
-                                ? "Experience"
-                                : selectedType === "education_type"
-                                  ? "Education"
-                                  : "Personal"
-                        }
-                        data={projectTypeOptions}
-                        onChange={setType}
-                        classNames={{
-                            root: styles.formField,
-                            label: styles.formLabel,
-                            input: styles.formInput,
-                        }}
-                    />
-
-                    {selectedType === "experience_type" && (
-                        <Select
-                            label="Link to Experience"
-                            placeholder="Select an experience"
-                            error={formErrors.experience_id}
-                            defaultValue={
-                                getEditRecord?.experience_id
-                                    ? String(getEditRecord.experience_id)
-                                    : ""
-                            }
-                            data={experienceInfo.map((item) => ({
-                                label: item.company_name,
-                                value: String(item.id),
-                            }))}
-                            onChange={(event) => {
-                                handleSelectChange(
-                                    event,
-                                    "experience_id",
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            classNames={{
-                                root: styles.formField,
-                                label: styles.formLabel,
-                                input: styles.formInput,
-                            }}
-                        />
-                    )}
-
-                    {selectedType === "education_type" && (
-                        <Select
-                            label="Link to Education"
-                            placeholder="Select an institution"
-                            error={formErrors.education_id}
-                            defaultValue={
-                                getEditRecord?.education_id
-                                    ? String(getEditRecord.education_id)
-                                    : ""
-                            }
-                            data={educationInfo.map((item) => ({
-                                label: item.school_name,
-                                value: String(item.id),
-                            }))}
-                            onChange={(event) => {
-                                handleSelectChange(
-                                    event,
-                                    "education_id",
-                                    setEditRecord,
-                                    getEditRecord,
-                                );
-                            }}
-                            classNames={{
-                                root: styles.formField,
-                                label: styles.formLabel,
-                                input: styles.formInput,
-                            }}
-                        />
-                    )}
-
-                    {/* Project Description Input */}
+                    {/* Pillar 1: Problem Solved / Context */}
                     <div className={styles.inputWrapper}>
                         <Textarea
-                            label="Problem Solved / Summary"
-                            description="What does this project do? (The 'Elevator Pitch')"
-                            placeholder="e.g. A micro-SaaS that helps users generate resumes..."
+                            label="1. Problem Solved & Context (Situation)"
+                            description="What business or technical challenge did this project solve?"
+                            placeholder="e.g., Built an automated CI/CD and container monitoring system to replace manual deployments..."
                             value={getEditRecord?.details?.problem_solved || ""}
                             onChange={(e) =>
                                 handleDetailsChange(
@@ -537,7 +441,7 @@ export default function ProjectsInfoForm({
                                 )
                             }
                             autosize
-                            minRows={3}
+                            minRows={2}
                             maxLength={CHARACTER_LIMITS.description}
                         />
                         <CharacterCounter
@@ -549,19 +453,23 @@ export default function ProjectsInfoForm({
                         />
                     </div>
 
-                    <Divider my="sm" label="Details" labelPosition="center" />
+                    <Divider
+                        my="xs"
+                        label="Technical Implementation & Impact"
+                        labelPosition="center"
+                    />
 
-                    {/* 2. Key Features List */}
+                    {/* Pillar 2: What You Built / Key Features */}
                     <Stack gap="xs">
                         <Text size="sm" fw={500}>
-                            Key Features
+                            2. What You Architected & Built (Technical Actions)
                         </Text>
                         {(getEditRecord?.details?.key_features || []).map(
                             (item, index) => (
                                 <Group key={`feat-${index}`} gap="xs">
                                     <TextInput
                                         style={{ flex: 1 }}
-                                        placeholder="e.g. Real-time chat integration"
+                                        placeholder="e.g., Designed REST API and webhook worker queue using Node.js and Redis"
                                         value={item}
                                         maxLength={CHARACTER_LIMITS.bulletPoint}
                                         error={
@@ -598,31 +506,31 @@ export default function ProjectsInfoForm({
                             leftSection={<IconPlus size={14} />}
                             onClick={() => addArrayItem("key_features")}
                         >
-                            Add Feature
+                            Add Technical Action / Feature
                         </Button>
                     </Stack>
 
-                    {/* 3. Tech Stack List */}
-                    <Stack gap="xs" mt="md">
+                    {/* Pillar 3: Quantifiable Impact & Metrics */}
+                    <Stack gap="xs">
                         <Text size="sm" fw={500}>
-                            Tech Stack
+                            3. Quantifiable Impact & Metrics (Results / Wins)
                         </Text>
-                        {(getEditRecord?.details?.tech_stack || []).map(
+                        {(getEditRecord?.details?.impact_metrics || []).map(
                             (item, index) => (
-                                <Group key={`tech-${index}`} gap="xs">
+                                <Group key={`metric-${index}`} gap="xs">
                                     <TextInput
                                         style={{ flex: 1 }}
-                                        placeholder="e.g. Next.js"
+                                        placeholder="e.g., Reduced deployment time by 75% and supported 10,000+ daily requests"
                                         value={item}
-                                        maxLength={CHARACTER_LIMITS.techItem}
+                                        maxLength={CHARACTER_LIMITS.bulletPoint}
                                         error={
                                             formErrors[
-                                                `details.tech_stack.${index}`
+                                                `details.impact_metrics.${index}`
                                             ]
                                         }
                                         onChange={(e) =>
                                             handleArrayItemChange(
-                                                "tech_stack",
+                                                "impact_metrics",
                                                 index,
                                                 e.currentTarget.value,
                                             )
@@ -632,7 +540,10 @@ export default function ProjectsInfoForm({
                                         color="red"
                                         variant="subtle"
                                         onClick={() =>
-                                            removeArrayItem("tech_stack", index)
+                                            removeArrayItem(
+                                                "impact_metrics",
+                                                index,
+                                            )
                                         }
                                     >
                                         <IconTrash size={16} />
@@ -642,18 +553,38 @@ export default function ProjectsInfoForm({
                         )}
                         <Button
                             variant="light"
+                            color="teal"
                             size="xs"
                             leftSection={<IconPlus size={14} />}
-                            onClick={() => addArrayItem("tech_stack")}
+                            onClick={() => addArrayItem("impact_metrics")}
                         >
-                            Add Tech
+                            Add Impact / Metric
                         </Button>
                     </Stack>
 
-                    {/* 4. Project URL (Optional) */}
+                    {/* Pillar 4: Fast TagsInput for Tech Stack & Domain Keywords */}
+                    <TagsInput
+                        label="4. Tech Stack (Type & press Enter or Comma)"
+                        description="Languages, frameworks, databases, and tools used in this project"
+                        placeholder="e.g., TypeScript, Next.js, PostgreSQL, Docker, n8n"
+                        value={getEditRecord?.details?.tech_stack || []}
+                        onChange={(tags) =>
+                            handleDetailsChange("tech_stack", tags)
+                        }
+                    />
+
+                    <TagsInput
+                        label="5. Domain & Architecture Keywords (Optional - Helps AI Retrieval)"
+                        description="High-level concepts proven by this project"
+                        placeholder="e.g., Microservices, CI/CD, RAG, Authentication, System Migration"
+                        value={getEditRecord?.details?.keywords || []}
+                        onChange={(tags) =>
+                            handleDetailsChange("keywords", tags)
+                        }
+                    />
+
                     <TextInput
-                        mt="md"
-                        label="Project URL"
+                        label="Project / Repository URL (Optional)"
                         placeholder="https://github.com/..."
                         value={getEditRecord?.details?.url || ""}
                         maxLength={CHARACTER_LIMITS.url}
@@ -663,12 +594,11 @@ export default function ProjectsInfoForm({
                         }
                     />
 
-                    <Divider my="sm" />
+                    <Divider my="xs" />
 
-                    {/* Action Buttons */}
-                    <Group justify="flex-start" mt="xl">
+                    <Group justify="flex-start">
                         <Button type="submit" loading={isSubmitting}>
-                            {getEditRecord?.id ? "Save Changes" : "Add Entry"}
+                            {getEditRecord?.id ? "Save Changes" : "Add Project"}
                         </Button>
                         {getEditRecord && (
                             <Button
@@ -681,7 +611,7 @@ export default function ProjectsInfoForm({
                             </Button>
                         )}
                     </Group>
-                </>
+                </Stack>
             )}
         </form>
     );

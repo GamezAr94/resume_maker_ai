@@ -10,7 +10,6 @@ function getDb(): Database.Database {
         return dbInstance;
     }
 
-    // Store the SQLite file in ./data/resume_maker.db (easy to mount as a Docker volume)
     const DATA_DIR = path.join(process.cwd(), 'data');
     if (!fs.existsSync(/*turbopackIgnore: true*/ DATA_DIR)) {
         fs.mkdirSync(/*turbopackIgnore: true*/ DATA_DIR, { recursive: true });
@@ -19,11 +18,9 @@ function getDb(): Database.Database {
     const DB_PATH = path.join(DATA_DIR, 'resume_maker.db');
     const db = new Database(DB_PATH, { timeout: 10000 });
 
-    // Enable WAL mode for fast concurrent reads/writes
     db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');
 
-    // Initialize Schema
     db.exec(`
         CREATE TABLE IF NOT EXISTS user (
             id INTEGER PRIMARY KEY CHECK (id = 1),
@@ -68,7 +65,8 @@ function getDb(): Database.Database {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL DEFAULT 1,
             skill_name TEXT NOT NULL,
-            skill_level TEXT DEFAULT '2'
+            skill_level TEXT DEFAULT '2',
+            skill_category TEXT DEFAULT 'General'
         );
 
         CREATE TABLE IF NOT EXISTS project (
@@ -95,6 +93,12 @@ function getDb(): Database.Database {
         );
     `);
 
+    // Safe auto-migration for existing databases created before skill_category was added
+    const skillColumns = db.prepare("PRAGMA table_info(skill)").all() as { name: string }[];
+    if (!skillColumns.some((col) => col.name === 'skill_category')) {
+        db.exec("ALTER TABLE skill ADD COLUMN skill_category TEXT DEFAULT 'General'");
+    }
+
     dbInstance = db;
     return dbInstance;
 }
@@ -108,10 +112,6 @@ function safeJsonParse<T>(str: string | null | undefined, fallback: T): T {
     }
 }
 
-// ==========================================
-// EXPORTED MODULAR DATABASE FUNCTIONS
-// ==========================================
-
 export function getUserProfile() {
     const db = getDb();
     return db.prepare('SELECT * FROM user WHERE id = 1').get() as Record<string, unknown>;
@@ -121,25 +121,98 @@ export function getAllProfileSections() {
     const db = getDb();
     const userInfo = getUserProfile();
 
+    // Fetch Projects first with LEFT JOIN so we know company_name and school_name
+    const rawProjects = db
+        .prepare(`
+            SELECT p.*,
+                   e.company_name AS company_name,
+                   e.job_title AS experience_job_title,
+                   ed.school_name AS school_name
+            FROM project p
+            LEFT JOIN experience e ON p.experience_id = e.id
+            LEFT JOIN education ed ON p.education_id = ed.id
+            WHERE p.user_id = 1
+            ORDER BY p.id DESC
+        `)
+        .all() as Record<string, unknown>[];
+
+    const projectInfo = rawProjects.map((row) => {
+        const parsedDetails = safeJsonParse(row.details as string, {
+            my_role: '',
+            problem_solved: '',
+            key_features: [] as string[],
+            impact_metrics: [] as string[],
+            tech_stack: [] as string[],
+            keywords: [] as string[],
+            url: '',
+        });
+        return {
+            id: String(row.id),
+            project_name: String(row.project_name || ''),
+            project_description:
+                (row.project_description as string) || parsedDetails.problem_solved || '',
+            experience_id: row.experience_id ? String(row.experience_id) : null,
+            education_id: row.education_id ? String(row.education_id) : null,
+            company_name: (row.company_name as string) || null,
+            school_name: (row.school_name as string) || null,
+            details: {
+                my_role: parsedDetails.my_role || '',
+                problem_solved: parsedDetails.problem_solved || '',
+                key_features: parsedDetails.key_features || [],
+                impact_metrics: parsedDetails.impact_metrics || [],
+                tech_stack: parsedDetails.tech_stack || [],
+                keywords: parsedDetails.keywords || [],
+                url: parsedDetails.url || '',
+            },
+        };
+    });
+
     const rawExperiences = db
         .prepare('SELECT * FROM experience WHERE user_id = 1 ORDER BY id DESC')
         .all() as Record<string, unknown>[];
-    const experienceInfo = rawExperiences.map((row) => ({
-        ...row,
-        is_current: Boolean(row.is_current),
-        details: safeJsonParse(row.details as string, {
-            summary: '',
-            responsibilities: [],
-            achievements: [],
-            skills_used: [],
-        }),
-    }));
+    const experienceInfo = rawExperiences.map((row) => {
+        const expIdStr = String(row.id);
+        const linkedProjects = projectInfo
+            .filter((p) => p.experience_id === expIdStr)
+            .map((p) => ({
+                id: p.id,
+                project_name: p.project_name,
+                my_role: p.details.my_role,
+                problem_solved: p.details.problem_solved,
+                key_features: p.details.key_features,
+                impact_metrics: p.details.impact_metrics,
+                tech_stack: p.details.tech_stack,
+            }));
+
+        return {
+            id: expIdStr,
+            company_name: String(row.company_name || ''),
+            job_title: String(row.job_title || ''),
+            start_date: String(row.start_date || ''),
+            end_date: row.end_date ? String(row.end_date) : null,
+            description: String(row.description || ''),
+            is_current: Boolean(row.is_current),
+            details: safeJsonParse(row.details as string, {
+                summary: '',
+                responsibilities: [] as string[],
+                achievements: [] as string[],
+                skills_used: [] as string[],
+            }),
+            linked_projects: linkedProjects,
+        };
+    });
 
     const rawEducation = db
         .prepare('SELECT * FROM education WHERE user_id = 1 ORDER BY id DESC')
         .all() as Record<string, unknown>[];
     const educationInfo = rawEducation.map((row) => ({
-        ...row,
+        id: String(row.id),
+        school_name: String(row.school_name || ''),
+        degree: String(row.degree || ''),
+        field_of_study: String(row.field_of_study || ''),
+        grades: row.grades ? String(row.grades) : null,
+        start_date: String(row.start_date || ''),
+        end_date: row.end_date ? String(row.end_date) : null,
         is_current: Boolean(row.is_current),
     }));
 
@@ -147,28 +220,11 @@ export function getAllProfileSections() {
         .prepare('SELECT * FROM skill WHERE user_id = 1 ORDER BY id DESC')
         .all() as Record<string, unknown>[];
     const skillInfo = rawSkills.map((row) => ({
-        ...row,
         id: String(row.id),
+        skill_name: String(row.skill_name || ''),
         skill_level: row.skill_level ? String(row.skill_level) : null,
+        skill_category: (row.skill_category as string) || 'General',
     }));
-
-    const rawProjects = db
-        .prepare('SELECT * FROM project WHERE user_id = 1 ORDER BY id DESC')
-        .all() as Record<string, unknown>[];
-    const projectInfo = rawProjects.map((row) => {
-        const details = safeJsonParse(row.details as string, {
-            problem_solved: '',
-            key_features: [],
-            tech_stack: [],
-            url: '',
-        });
-        return {
-            ...row,
-            project_description:
-                (row.project_description as string) || details.problem_solved || '',
-            details,
-        };
-    });
 
     return {
         userInfo,
@@ -280,18 +336,19 @@ export function saveSectionRecord(type: SectionTypes, data: any): number | strin
 
         case SectionTypes.Skill: {
             const skillLevel = data.skill_level || null;
+            const skillCategory = data.skill_category || 'General';
             if (data.id) {
                 db.prepare(`
                     UPDATE skill
-                    SET skill_name = ?, skill_level = ?
+                    SET skill_name = ?, skill_level = ?, skill_category = ?
                     WHERE id = ? AND user_id = 1
-                `).run(data.skill_name, skillLevel, Number(data.id));
+                `).run(data.skill_name, skillLevel, skillCategory, Number(data.id));
                 return Number(data.id);
             } else {
                 const info = db.prepare(`
-                    INSERT INTO skill (user_id, skill_name, skill_level)
-                    VALUES (1, ?, ?)
-                `).run(data.skill_name, skillLevel);
+                    INSERT INTO skill (user_id, skill_name, skill_level, skill_category)
+                    VALUES (1, ?, ?, ?)
+                `).run(data.skill_name, skillLevel, skillCategory);
                 return Number(info.lastInsertRowid);
             }
         }

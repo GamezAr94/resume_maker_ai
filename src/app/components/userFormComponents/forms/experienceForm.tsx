@@ -26,6 +26,7 @@ import {
     Textarea,
     ActionIcon,
     Divider,
+    TagsInput,
 } from "@mantine/core";
 import { MonthPickerInput } from "@mantine/dates";
 import { notifications } from "@mantine/notifications";
@@ -563,56 +564,16 @@ export default function ExperienceForm({
                         </Button>
                     </Stack>
 
-                    {/* 4. Skills Used List */}
-                    <Stack gap="xs" mt="md">
-                        <Text size="sm" fw={500}>
-                            Tech Stack / Skills Used
-                        </Text>
-                        {(getEditRecord?.details?.skills_used || []).map(
-                            (item, index) => (
-                                <Group key={`skill-${index}`} gap="xs">
-                                    <TextInput
-                                        style={{ flex: 1 }}
-                                        placeholder="e.g. React"
-                                        value={item}
-                                        maxLength={CHARACTER_LIMITS.techItem}
-                                        error={
-                                            formErrors[
-                                                `details.skills_used.${index}`
-                                            ]
-                                        }
-                                        onChange={(e) =>
-                                            handleArrayItemChange(
-                                                "skills_used",
-                                                index,
-                                                e.currentTarget.value,
-                                            )
-                                        }
-                                    />
-                                    <ActionIcon
-                                        color="red"
-                                        variant="subtle"
-                                        onClick={() =>
-                                            removeArrayItem(
-                                                "skills_used",
-                                                index,
-                                            )
-                                        }
-                                    >
-                                        <IconTrash size={16} />
-                                    </ActionIcon>
-                                </Group>
-                            ),
-                        )}
-                        <Button
-                            variant="light"
-                            size="xs"
-                            leftSection={<IconPlus size={14} />}
-                            onClick={() => addArrayItem("skills_used")}
-                        >
-                            Add Skill
-                        </Button>
-                    </Stack>
+		   {/* 4. Skills Used TagsInput */}
+		   <TagsInput
+                        mt="md"
+                        label="Tech Stack / Skills Used (Type & press Enter or Comma)"
+                        placeholder="e.g., React, Node.js, AWS, PostgreSQL, Docker"
+                        value={getEditRecord?.details?.skills_used || []}
+                        onChange={(tags) =>
+                            handleDetailsChange("skills_used", tags)
+                        }
+                    />
 
                     <Divider my="sm" />
 

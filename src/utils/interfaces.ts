@@ -9,8 +9,9 @@ export const emptyStatePersonal: FormPersonalStructure = {
     portfolio_url: "",
     other_url: "",
 };
-// Interface for the form personal structure
+
 export interface FormPersonalStructure {
+    id?: number | string;
     first_name: string;
     last_name: string;
     phone: string;
@@ -21,14 +22,14 @@ export interface FormPersonalStructure {
     other_url: string;
 }
 
-//EXPERIENCE FORM
+// EXPERIENCE FORM
 export interface ExperienceDetails {
     summary: string;
     responsibilities: string[];
     achievements: string[];
     skills_used: string[];
 }
-// Initial state for the experience form errors
+
 export const emptyStateExperience: FormExperienceStructure = {
     id: "",
     company_name: "",
@@ -37,7 +38,7 @@ export const emptyStateExperience: FormExperienceStructure = {
     end_date: "",
     description: "",
     is_current: false,
-    display: true, // Optional field to control visibility in the UI
+    display: true,
     details: {
         summary: "",
         responsibilities: [],
@@ -45,7 +46,7 @@ export const emptyStateExperience: FormExperienceStructure = {
         skills_used: [],
     },
 };
-// Interface for the form experience structure
+
 export interface FormExperienceStructure {
     id: string;
     company_name: string;
@@ -53,13 +54,12 @@ export interface FormExperienceStructure {
     start_date: Date | string;
     end_date: Date | string | null;
     description: string;
-    is_current?: boolean | null; // Optional field to indicate if the job is current
-    display?: boolean; // Optional field to control visibility in the UI
+    is_current?: boolean | null;
+    display?: boolean;
     details: ExperienceDetails;
 }
 
 // EDUCATION FORM
-// Initial state for the education form errors
 export const emptyStateEducation: FormEducationStructure = {
     id: "",
     school_name: "",
@@ -70,7 +70,7 @@ export const emptyStateEducation: FormEducationStructure = {
     start_date: "",
     grades: "",
 };
-// Interface for the form education structure
+
 export interface FormEducationStructure {
     id: string;
     school_name: string;
@@ -83,47 +83,58 @@ export interface FormEducationStructure {
 }
 
 // SKILLS FORM
-// Initial state for the skills form errors
 export const emptyStateSkill: FormSkillStructure = {
     id: "",
     skill_name: "",
     skill_level: null,
+    skill_category: "General",
 };
-// Interface for the form skills structure
+
 export interface FormSkillStructure {
     id: string;
     skill_name: string;
     skill_level: string | null;
+    skill_category?: string | null;
 }
 
-// PROJECT FORM
+// PROJECT FORM (4-Pillar STAR Structure for AI Retrieval)
 export interface ProjectDetails {
-    problem_solved: string; // The "Elevator Pitch"
-    key_features: string[]; // Specific functionality
-    tech_stack: string[]; // Technologies used
-    url?: string; // Live link or repo
+    my_role?: string;           // e.g., "Lead Backend Engineer", "Creator"
+    problem_solved: string;     // Pillar 1: Context / Problem Solved
+    key_features: string[];     // Pillar 2: Technical Actions / Architecture Built
+    impact_metrics?: string[];  // Pillar 3: Quantifiable Results / Metrics / Outcomes
+    tech_stack: string[];       // Pillar 4a: Technologies Used
+    keywords?: string[];        // Pillar 4b: Domain/Architecture tags (e.g., "Microservices", "RAG")
+    url?: string;
 }
-// Initial state for the project form errors
+
 export const emptyStateProject: FormProjectStructure = {
     id: "",
     project_name: "",
     project_description: "",
     experience_id: null,
     education_id: null,
+    company_name: null,
+    school_name: null,
     details: {
+        my_role: "",
         problem_solved: "",
         key_features: [],
+        impact_metrics: [],
         tech_stack: [],
+        keywords: [],
         url: "",
     },
 };
-// Interface for the form project structure
+
 export interface FormProjectStructure {
     id: string;
     project_name: string;
     project_description: string;
     experience_id: string | null;
     education_id: string | null;
+    company_name?: string | null;
+    school_name?: string | null;
     details: ProjectDetails;
 }
 

@@ -147,6 +147,7 @@ export const skillSchema = z.object({
         .min(1, { message: "Skill name is required." })
         .max(CHARACTER_LIMITS.skill),
     skill_level: z.string().optional().nullable(),
+    skill_category: z.string().optional().nullable(),
 });
 
 export const projectSchema = z.object({
@@ -159,6 +160,11 @@ export const projectSchema = z.object({
     education_id: flexibleId,
     details: z
         .object({
+            my_role: z
+                .string()
+                .max(CHARACTER_LIMITS.title)
+                .optional()
+                .or(z.literal("")),
             problem_solved: z
                 .string()
                 .max(CHARACTER_LIMITS.description, {
@@ -173,10 +179,24 @@ export const projectSchema = z.object({
                     }),
                 )
                 .default([]),
+            impact_metrics: z
+                .array(
+                    z.string().max(CHARACTER_LIMITS.bulletPoint, {
+                        message: `Metric cannot exceed ${CHARACTER_LIMITS.bulletPoint} chars.`,
+                    }),
+                )
+                .default([]),
             tech_stack: z
                 .array(
                     z.string().max(CHARACTER_LIMITS.techItem, {
                         message: `Tech item cannot exceed ${CHARACTER_LIMITS.techItem} chars.`,
+                    }),
+                )
+                .default([]),
+            keywords: z
+                .array(
+                    z.string().max(CHARACTER_LIMITS.techItem, {
+                        message: `Keyword cannot exceed ${CHARACTER_LIMITS.techItem} chars.`,
                     }),
                 )
                 .default([]),
@@ -194,7 +214,9 @@ export const projectSchema = z.object({
         })
         .default({
             key_features: [],
+            impact_metrics: [],
             tech_stack: [],
+            keywords: [],
         }),
 });
 
