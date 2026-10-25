@@ -24,17 +24,17 @@ export async function POST(req: Request) {
         // Optionally wipe current profile records before importing (great for switching test profiles)
         if (clearExisting) {
             const current = getAllProfileSections();
-            for (const proj of current.projectInfo) {
-                if (proj.id) deleteProfileSectionRecord(SectionTypes.Project, proj.id as string | number);
+	    for (const proj of current.projectInfo as Array<{ id?: string | number }>) {
+                if (proj.id) deleteProfileSectionRecord(SectionTypes.Project, proj.id);
             }
-            for (const exp of current.experienceInfo) {
-                if (exp.id) deleteProfileSectionRecord(SectionTypes.Experience, exp.id as string | number);
+            for (const exp of current.experienceInfo as Array<{ id?: string | number }>) {
+                if (exp.id) deleteProfileSectionRecord(SectionTypes.Experience, exp.id);
             }
-            for (const edu of current.educationInfo) {
-                if (edu.id) deleteProfileSectionRecord(SectionTypes.Education, edu.id as string | number);
+            for (const edu of current.educationInfo as Array<{ id?: string | number }>) {
+                if (edu.id) deleteProfileSectionRecord(SectionTypes.Education, edu.id);
             }
-            for (const sk of current.skillInfo) {
-                if (sk.id) deleteProfileSectionRecord(SectionTypes.Skill, sk.id as string | number);
+            for (const sk of current.skillInfo as Array<{ id?: string | number }>) {
+                if (sk.id) deleteProfileSectionRecord(SectionTypes.Skill, sk.id);
             }
         }
 
