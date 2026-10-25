@@ -1,10 +1,9 @@
 "use client";
 
 import styles from "./page.module.css";
-
 import MainUserForm from "../components/userFormComponents/mainUserForm";
 import MainJobForm from "../components/jobOfferFormComponents/mainJobForm";
-import { Alert, Divider } from "@mantine/core";
+import { Alert, Button, Divider, Group, FileButton } from "@mantine/core";
 import { ProfileCompletionCard } from "../components/ProfileCompletion/ProfileCompletionCard";
 import { useRef, useState, useEffect } from "react";
 import {
@@ -15,16 +14,25 @@ import {
     FormSkillStructure,
     RefreshSections,
 } from "@/utils/interfaces";
-
 import { calculateProfileCompleteness } from "@/utils/profile-completeness";
 import { PROFILE_COMPLETION_WEIGHTS } from "../config/profile.config";
-import { IconAlertCircle } from "@tabler/icons-react";
+import {
+    IconAlertCircle,
+    IconArrowRight,
+    IconDownload,
+    IconUpload,
+    IconFileUpload,
+    IconCheck,
+} from "@tabler/icons-react";
 import ResumeUploader from "../components/onboarding/ResumeUploader";
+import { notifications } from "@mantine/notifications";
 
 export default function Home() {
     const mainFormRef = useRef<HTMLDivElement>(null);
 
     const [error, setError] = useState<string | null>(null);
+    const [skipOnboarding, setSkipOnboarding] = useState(false);
+    const [showUploader, setShowUploader] = useState(false);
 
     const [refreshTrigger, setRefreshTrigger] = useState<RefreshSections>({
         experience: false,
@@ -50,7 +58,6 @@ export default function Home() {
         false,
     );
 
-    // Calculate the profile completeness percentage and status
     const { percentage, status = "ready" } = calculateProfileCompleteness({
         userInfo: userInfo || null,
         experienceInfo: experienceInfo || [],
@@ -59,11 +66,6 @@ export default function Home() {
         projectInfo: projectInfo || [],
     });
 
-    // Define the section counts for the profile completion card
-    // Each section has a current count, required count, label, and value
-    // The current count is the number of entries the user has in that section
-    // The required count is the number of entries required for that section to be considered complete
-    // The label is the name of the section, and the value is the value used to
     const sectionCounts = {
         personal: {
             current:
@@ -106,9 +108,7 @@ export default function Home() {
 
     useEffect(() => {
         const fetchAllData = async () => {
-            // Reset error state on each new fetch attempt
             setError(null);
-
             try {
                 const response = await fetch("/api/profile/all-sections");
                 if (!response.ok) {
@@ -116,14 +116,12 @@ export default function Home() {
                 }
                 const allData = await response.json();
 
-                // Set all of your states from this single API call
                 setUserInfo(allData.userInfo);
                 setExperienceInfo(allData.experienceInfo);
                 setEducationInfo(allData.educationInfo);
                 setSkillInfo(allData.skillInfo);
                 setProjectInfo(allData.projectInfo);
             } catch (error) {
-                // Set the error state if the fetch fails
                 const errorMessage =
                     error instanceof Error
                         ? error.message
@@ -133,7 +131,6 @@ export default function Home() {
         };
 
         fetchAllData();
-        // This hook now runs whenever *any* section is refreshed
     }, [refreshTrigger]);
 
     const handleScrollToForm = () => {
@@ -143,8 +140,58 @@ export default function Home() {
         });
     };
 
-    // validating if the user is new or not (has a profile ready or not)
-    let isNewUser =
+    const handleExportProfileJson = async () => {
+        try {
+            const res = await fetch("/api/profile/backup");
+            const data = await res.json();
+            const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            const name = userInfo && userInfo.first_name ? userInfo.first_name : "profile";
+            a.download = `${name}_master_profile.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleImportProfileJson = async (file: File | null) => {
+        if (!file) return;
+        try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            const res = await fetch("/api/profile/backup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    clearExisting: true,
+                    ...parsed,
+                }),
+            });
+            if (!res.ok) throw new Error("Failed to import JSON profile");
+            notifications.show({
+                title: "Profile Loaded!",
+                message: "Your master profile JSON was imported into SQLite.",
+                color: "teal",
+                icon: <IconCheck />,
+            });
+            setSkipOnboarding(true);
+            setShowUploader(false);
+            setRefreshTrigger((prev) => ({ ...prev, personal: !prev.personal }));
+        } catch (err) {
+            notifications.show({
+                title: "Import Error",
+                message: err instanceof Error ? err.message : "Invalid JSON file",
+                color: "red",
+            });
+        }
+    };
+
+    const isNewUser =
         experienceInfo !== false &&
         experienceInfo.length === 0 &&
         educationInfo !== false &&
@@ -152,9 +199,48 @@ export default function Home() {
         projectInfo !== false &&
         projectInfo.length === 0;
 
+    const shouldShowUploader = (isNewUser && !skipOnboarding) || showUploader;
+
     return (
         <div>
             <main className={styles.main}>
+                {/* Top Utility Bar: Switch / Backup / Restore Profiles or Upload PDF */}
+                <Group justify="flex-end" mb="md" gap="xs">
+                    {!shouldShowUploader && (
+                        <Button
+                            variant="light"
+                            size="xs"
+                            leftSection={<IconFileUpload size={16} />}
+                            onClick={() => setShowUploader(true)}
+                        >
+                            AI Resume Uploader (PDF/DOCX)
+                        </Button>
+                    )}
+                    <FileButton
+                        onChange={handleImportProfileJson}
+                        accept="application/json"
+                    >
+                        {(props) => (
+                            <Button
+                                {...props}
+                                variant="default"
+                                size="xs"
+                                leftSection={<IconUpload size={16} />}
+                            >
+                                Load Profile JSON
+                            </Button>
+                        )}
+                    </FileButton>
+                    <Button
+                        variant="default"
+                        size="xs"
+                        leftSection={<IconDownload size={16} />}
+                        onClick={handleExportProfileJson}
+                    >
+                        Backup Profile JSON
+                    </Button>
+                </Group>
+
                 {error ? (
                     <Alert
                         variant="light"
@@ -169,18 +255,32 @@ export default function Home() {
                     </Alert>
                 ) : (
                     <>
-                        {isNewUser ? (
-                            <ResumeUploader
-                                onUploadComplete={() => {
-                                    // This function will simply trigger a refresh
-                                    // causing the dashboard to reload and see the new data
-                                    // thus automatically switching to the standard view!
-                                    setRefreshTrigger((prev) => ({
-                                        ...prev,
-                                        personal: !prev.personal,
-                                    }));
-                                }}
-                            />
+                        {shouldShowUploader ? (
+                            <div>
+                                <ResumeUploader
+                                    onUploadComplete={() => {
+                                        setShowUploader(false);
+                                        setSkipOnboarding(true);
+                                        setRefreshTrigger((prev) => ({
+                                            ...prev,
+                                            personal: !prev.personal,
+                                        }));
+                                    }}
+                                />
+                                <Group justify="center" mt="md">
+                                    <Button
+                                        variant="subtle"
+                                        size="md"
+                                        rightSection={<IconArrowRight size={18} />}
+                                        onClick={() => {
+                                            setSkipOnboarding(true);
+                                            setShowUploader(false);
+                                        }}
+                                    >
+                                        Skip & Enter Data Manually
+                                    </Button>
+                                </Group>
+                            </div>
                         ) : (
                             <>
                                 <div className={styles.topSectionContainer}>
