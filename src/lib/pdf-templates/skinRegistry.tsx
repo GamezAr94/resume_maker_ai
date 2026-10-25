@@ -60,7 +60,6 @@ export const ExecutiveResumeTemplate = ({
             flexDirection: 'row',
             flexWrap: 'wrap',
             marginTop: 8,
-            gap: 10,
         },
         contactText: {
             fontSize: tokens.smallFontSize,
@@ -192,7 +191,7 @@ export const ExecutiveResumeTemplate = ({
                 </View>
 
                 {resume_generated?.layout?.map((section, idx) => {
-                    if (!section.display) return null;
+                    if (section.display === false) return null;
                     switch (section.id) {
                         case 'narrative':
                             return (

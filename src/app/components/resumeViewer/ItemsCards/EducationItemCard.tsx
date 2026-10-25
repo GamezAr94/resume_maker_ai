@@ -73,6 +73,7 @@ export function EducationItemCard({
                 <Stack>
                     <TextInput
                         label="Degree"
+			name="{edu-degree-${itemIndex}}"
                         value={item.degree || ''}
                         maxLength={CHARACTER_LIMITS.title}
                         onChange={(e) =>
@@ -86,6 +87,7 @@ export function EducationItemCard({
                     />
                     <TextInput
                         label="School"
+			name="{edu-school-${itemIndex}}"
                         value={item.school || ''}
                         maxLength={CHARACTER_LIMITS.title}
                         onChange={(e) =>
@@ -99,6 +101,7 @@ export function EducationItemCard({
                     />
                     <TextInput
                         label="Dates"
+			name="{edu-dates-${itemIndex}}"
                         value={item.start_end_dates || ''}
                         onChange={(e) =>
                             onItemChange(

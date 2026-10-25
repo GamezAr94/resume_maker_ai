@@ -75,6 +75,7 @@ export function ProjectItemCard({
                     <Group grow>
                         <TextInput
                             label="Project Name"
+			    name="{proj-name-${itemIndex}}"
                             maxLength={CHARACTER_LIMITS.title}
                             value={item.name || ''}
                             onChange={(e) =>
@@ -88,6 +89,7 @@ export function ProjectItemCard({
                         />
                         <TextInput
                             label="Dates / Subtitle (Optional)"
+			    name="{proj-dates-${itemIndex}}"
                             value={item.start_end_dates || ''}
                             onChange={(e) =>
                                 onItemChange(
@@ -101,6 +103,7 @@ export function ProjectItemCard({
                     </Group>
                     <Textarea
                         label="Bullet Points (One per line)"
+			name="{proj-desc-${itemIndex}}"
                         maxLength={CHARACTER_LIMITS.description}
                         value={item.description || ''}
                         autosize

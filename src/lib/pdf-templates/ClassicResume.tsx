@@ -244,7 +244,7 @@ export const ClassicResumeTemplate = ({
                     {resume_generated?.layout?.map((section, idx) => {
                         switch (section.id) {
                             case 'education':
-                                return section.display ? (
+				return section.display !== false ? (
                                     <View
                                         key={`edu-${idx}`}
                                         style={dynamicStyles.sidebarSection}
@@ -274,7 +274,7 @@ export const ClassicResumeTemplate = ({
                                     </View>
                                 ) : null;
                             case 'skills':
-                                return section.display ? (
+				return section.display !== false ? (
                                     <View
                                         key={`skills-${idx}`}
                                         style={dynamicStyles.sidebarSection}
@@ -313,7 +313,7 @@ export const ClassicResumeTemplate = ({
                     {resume_generated?.layout?.map((section, idx) => {
                         switch (section.id) {
                             case 'narrative':
-                                return section.display ? (
+				return section.display !== false ? (
                                     <View
                                         key={`nar-${idx}`}
                                         style={dynamicStyles.mainSection}
@@ -327,7 +327,7 @@ export const ClassicResumeTemplate = ({
                                     </View>
                                 ) : null;
                             case 'experience':
-                                return section.display ? (
+				return section.display !== false ? (
                                     <View
                                         key={`exp-${idx}`}
                                         style={dynamicStyles.mainSection}
@@ -358,7 +358,7 @@ export const ClassicResumeTemplate = ({
                                     </View>
                                 ) : null;
                             case 'projects':
-                                return section.display ? (
+				return section.display !== false ? (
                                     <View
                                         key={`proj-${idx}`}
                                         style={dynamicStyles.mainSection}

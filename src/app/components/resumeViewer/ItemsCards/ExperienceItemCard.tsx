@@ -75,6 +75,7 @@ export function ExperienceItemCard({
                     <Group grow>
                         <TextInput
                             label="Job Title"
+		            name="{exp-title-${itemIndex}}"
                             maxLength={CHARACTER_LIMITS.title}
                             value={item.title || ''}
                             onChange={(e) =>
@@ -88,6 +89,7 @@ export function ExperienceItemCard({
                         />
                         <TextInput
                             label="Company"
+		            name="{exp-company-${itemIndex}}"
                             maxLength={CHARACTER_LIMITS.company}
                             value={item.company || ''}
                             onChange={(e) =>
@@ -102,6 +104,7 @@ export function ExperienceItemCard({
                     </Group>
                     <TextInput
                         label="Dates (e.g., Jul 2022 - Present)"
+			name="{exp-dates-${itemIndex}}"
                         value={item.start_end_dates || ''}
                         onChange={(e) =>
                             onItemChange(
@@ -114,6 +117,7 @@ export function ExperienceItemCard({
                     />
                     <Textarea
                         label="Bullet Points (One per line)"
+			name="{exp-bullets-${itemIndex}}"
                         value={item.responsabilities || ''}
                         maxLength={CHARACTER_LIMITS.description}
                         autosize

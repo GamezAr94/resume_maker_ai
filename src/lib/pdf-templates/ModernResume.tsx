@@ -237,7 +237,7 @@ export const ModernResumeTemplate = ({
                 </View>
 
                 {resume_generated?.layout?.map((section, idx) => {
-                    if (!section.display) return null;
+		    if (section.display === false) return null;
                     switch (section.id) {
                         case 'narrative':
                             return (
