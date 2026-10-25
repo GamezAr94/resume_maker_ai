@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { NetworkingLink } from './interfaces';
+import { ResumeLayoutItem, NetworkingLink } from './interfaces';
 
 /**
  * Redirects to a specified path with an encoded message as a query parameter.
@@ -22,7 +22,6 @@ export function encodedRedirect(
  */
 interface SortableItem {
     id: string;
-    [key: string]: string; // This index signature allows for any other properties.
 }
 
 /**
@@ -41,7 +40,7 @@ type PriorityMap = Record<string, number>;
  * @param priorityKey - The property name within each item that holds the priority value (e.g., "priority").
  * @returns {T[]} A new, sorted array of layout items.
  */
-export function ensureLayoutIsOrderedArray<T extends SortableItem>(
+export function ensureLayoutIsOrderedArray<T extends SortableItem = ResumeLayoutItem>(
     layoutData: Record<string, Omit<T, 'id'>> | T[] | null | undefined,
     priorityMap: PriorityMap,
     priorityKey: keyof T,
@@ -59,8 +58,8 @@ export function ensureLayoutIsOrderedArray<T extends SortableItem>(
     // We need to convert it to an array AND apply the default sorting logic.
     if (typeof layoutData === 'object' && layoutData !== null) {
         // Convert the object to an array of items.
-        const normalizedArray = Object.keys(layoutData).map((key) => {
-            return { id: key, ...layoutData[key] } as T;
+	const normalizedArray = Object.keys(layoutData).map((key) => {
+            return { id: key, ...layoutData[key] } as unknown as T;
         });
 
         const defaultPriority = Object.keys(priorityMap).length;
@@ -98,28 +97,50 @@ export function ensureLayoutIsOrderedArray<T extends SortableItem>(
 
 const LINKEDIN_BASE_URL =
     'https://www.linkedin.com/search/results/people/?keywords=';
+const GOOGLE_BASE_URL = 'https://www.google.com/search?q=';
 
 export function generateNetworkingLinks(
     companyName: string,
     jobTitle: string,
 ): NetworkingLink[] {
-    // Basic templates - you can make these more sophisticated later
-    const recruiterQuery = `("Technical Recruiter" OR "Talent Acquisition OR Recruiter") AND "${companyName}"`;
-    const managerQuery = `("Engineering Manager" OR "Hiring Manager" OR "${jobTitle} Manager OR Manager") AND "${companyName}"`;
-    const teammateQuery = `("${jobTitle}") AND "${companyName}"`;
+    const recruiterQuery = `("Technical Recruiter" OR "Talent Acquisition") AND "${companyName}"`;
+    const managerQuery = `("Engineering Manager" OR "Hiring Manager" OR "Director of Engineering") AND "${companyName}"`;
+    const teammateQuery = `"${jobTitle}" AND "${companyName}"`;
+
+    const xrayManagerQuery = `site:linkedin.com/in/ "${companyName}" ("Engineering Manager" OR "Director of Engineering" OR "Tech Lead")`;
+    const xrayRecruiterQuery = `site:linkedin.com/in/ "${companyName}" ("Technical Recruiter" OR "Talent Acquisition")`;
+    const xrayPeerQuery = `site:linkedin.com/in/ "${companyName}" "${jobTitle}"`;
 
     return [
         {
-            label: `Find Recruiters at ${companyName}`,
-            url: `${LINKEDIN_BASE_URL}${encodeURIComponent(recruiterQuery)}`,
-        },
-        {
-            label: `Find Hiring Managers at ${companyName}`,
+            label: `LinkedIn Search: Hiring Managers at ${companyName}`,
             url: `${LINKEDIN_BASE_URL}${encodeURIComponent(managerQuery)}`,
+            category: 'linkedin',
         },
         {
-            label: `Find Potential Teammates at ${companyName}`,
+            label: `LinkedIn Search: Technical Recruiters at ${companyName}`,
+            url: `${LINKEDIN_BASE_URL}${encodeURIComponent(recruiterQuery)}`,
+            category: 'linkedin',
+        },
+        {
+            label: `LinkedIn Search: ${jobTitle} Peers at ${companyName}`,
             url: `${LINKEDIN_BASE_URL}${encodeURIComponent(teammateQuery)}`,
+            category: 'linkedin',
+        },
+        {
+            label: `Google X-Ray (Bypass Network Limit): Managers at ${companyName}`,
+            url: `${GOOGLE_BASE_URL}${encodeURIComponent(xrayManagerQuery)}`,
+            category: 'xray',
+        },
+        {
+            label: `Google X-Ray (Bypass Network Limit): Recruiters at ${companyName}`,
+            url: `${GOOGLE_BASE_URL}${encodeURIComponent(xrayRecruiterQuery)}`,
+            category: 'xray',
+        },
+        {
+            label: `Google X-Ray (Bypass Network Limit): ${jobTitle}s at ${companyName}`,
+            url: `${GOOGLE_BASE_URL}${encodeURIComponent(xrayPeerQuery)}`,
+            category: 'xray',
         },
     ];
 }

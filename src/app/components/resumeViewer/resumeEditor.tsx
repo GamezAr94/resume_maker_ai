@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, SetStateAction, ChangeEvent } from 'react';
+import React, { useState, useEffect, SetStateAction, ChangeEvent } from 'react';
 import { Box, Tabs } from '@mantine/core';
 import { FormJobOfferDataStructure, ResumeStyles } from '@/utils/interfaces';
 import classes from './resumeEditor.module.css';
@@ -8,6 +8,8 @@ import StylesForm from './StylesForm';
 import JobDescriptionDisplay from './JobDescriptionDisplay';
 import AiFeedbackDisplay from './AiFeedbackDisplay';
 import NetworkingDisplay from './NetworkingDisplay';
+import { notifications } from '@mantine/notifications';
+import { IconCheck, IconX } from '@tabler/icons-react';
 
 interface ResumeEditorProps {
     dataResume: FormJobOfferDataStructure;
@@ -25,6 +27,81 @@ export default function ResumeEditor({
     const [activeNestedAccordions, setActiveNestedAccordions] = useState<
         Record<string, string[]>
     >({});
+
+    // On-Demand AI Coach (Feedback + Networking) state
+    const [isGeneratingCoach, setIsGeneratingCoach] = useState(false);
+    const [coachStep, setCoachStep] = useState(0);
+    const [coachElapsed, setCoachElapsed] = useState(0);
+    const [coachError, setCoachError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!isGeneratingCoach) return;
+        const timer = setInterval(() => {
+            setCoachElapsed((prev) => {
+                const next = prev + 1;
+                if (next === 2) setCoachStep(1);
+                if (next === 5) setCoachStep(2);
+                if (next === 10) setCoachStep(3);
+                return next;
+            });
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [isGeneratingCoach]);
+
+    const handleGenerateCoach = async () => {
+        if (isGeneratingCoach || !dataResume.id) return;
+        setIsGeneratingCoach(true);
+        setCoachStep(0);
+        setCoachElapsed(0);
+        setCoachError(null);
+
+        try {
+            const res = await fetch('/api/geminiCareerCoach', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ applicationId: dataResume.id }),
+            });
+
+            const result = await res.json();
+            if (!res.ok) {
+                throw new Error(
+                    result.message || 'Failed to generate AI coaching.',
+                );
+            }
+
+            setDataResume((prev) => ({
+                ...prev,
+                resume_generated: {
+                    ...prev.resume_generated,
+                    feedback: result.feedback,
+                    outreachMessages: result.outreachMessages,
+                    networkingLinks:
+                        result.networkingLinks ||
+                        prev.resume_generated.networkingLinks,
+                },
+            }));
+
+            notifications.show({
+                title: 'AI Coach Complete!',
+                message:
+                    'Role-fit score, interview prep, and outreach messages saved!',
+                color: 'teal',
+                icon: <IconCheck size={16} />,
+            });
+        } catch (err) {
+            const msg =
+                err instanceof Error ? err.message : 'Unexpected error occurred';
+            setCoachError(msg);
+            notifications.show({
+                title: 'Generation Failed',
+                message: msg,
+                color: 'red',
+                icon: <IconX size={16} />,
+            });
+        } finally {
+            setIsGeneratingCoach(false);
+        }
+    };
 
     const handleNestedAccordionChange = (
         sectionId: string,
@@ -187,6 +264,10 @@ export default function ResumeEditor({
         });
     };
 
+    const hasCoachFeedback = Boolean(
+        dataResume.resume_generated?.feedback?.candidateFit?.summary,
+    );
+
     return (
         <Box className={classes.editorContainer}>
             <Tabs
@@ -207,26 +288,17 @@ export default function ResumeEditor({
                         rightSection={
                             <Box
                                 style={{
-                                    position: 'relative',
-                                    display: 'flex',
-                                    height: '12px',
-                                    width: '12px',
+                                    borderRadius: '9999px',
+                                    height: '8px',
+                                    width: '8px',
+                                    backgroundColor: hasCoachFeedback
+                                        ? 'var(--mantine-color-teal-6)'
+                                        : 'var(--mantine-color-orange-6)',
                                 }}
-                            >
-                                <Box
-                                    style={{
-                                        position: 'relative',
-                                        borderRadius: '9999px',
-                                        height: '8px',
-                                        width: '8px',
-                                        backgroundColor:
-                                            'var(--mantine-color-orange-6)',
-                                    }}
-                                />
-                            </Box>
+                            />
                         }
                     >
-                        Feedback
+                        Feedback & Keywords
                     </Tabs.Tab>
                     <Tabs.Tab value="networking">Networking</Tabs.Tab>
                 </Tabs.List>
@@ -266,6 +338,12 @@ export default function ResumeEditor({
                     <AiFeedbackDisplay
                         feedback={dataResume.resume_generated.feedback}
                         keywords={dataResume.resume_generated.keywords}
+                        dataResume={dataResume}
+                        isGeneratingCoach={isGeneratingCoach}
+                        coachStep={coachStep}
+                        coachElapsed={coachElapsed}
+                        coachError={coachError}
+                        onGenerateCoach={handleGenerateCoach}
                     />
                 </Tabs.Panel>
 
@@ -274,9 +352,16 @@ export default function ResumeEditor({
                         networkingLinks={
                             dataResume.resume_generated.networkingLinks
                         }
+                        outreachMessages={
+                            dataResume.resume_generated.outreachMessages
+                        }
                         userName={dataResume.resume_generated.contact_info.name}
                         jobTitle={dataResume.job_position}
                         companyName={dataResume.company_name}
+                        isGeneratingCoach={isGeneratingCoach}
+                        coachElapsed={coachElapsed}
+                        coachError={coachError}
+                        onGenerateCoach={handleGenerateCoach}
                     />
                 </Tabs.Panel>
             </Tabs>

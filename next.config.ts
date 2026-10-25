@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     "pdf2json",
     "mammoth",
     "better-sqlite3",
+    "docx",
   ],
 };
 

@@ -256,9 +256,23 @@ export interface AiFeedback {
 export interface NetworkingLink {
     label: string;
     url: string;
+    category?: "linkedin" | "xray";
 }
-// NEW: The updated main response interface.
-export type ResumeThemeId = "modern" | "classic" | "minimalist" | "executive";
+
+export interface OutreachMessages {
+    recruiterConnectionNote: string; // < 280 chars for LinkedIn free connection note
+    recruiterFullMessage: string;    // Longer InMail / Email message
+    hiringManagerNote: string;       // < 280 chars for Engineering Manager / Lead
+    teammateNote: string;            // < 280 chars for Peer Engineer
+}
+
+export type ResumeThemeId =
+    | "modern"
+    | "classic"
+    | "minimalist"
+    | "executive"
+    | "tech_mono"
+    | "compact_pro";
 
 export interface ResumeStyles {
     theme: ResumeThemeId;
@@ -273,7 +287,8 @@ export interface GeminiResponse {
     contact_info: ContactInfo;
     layout: ResumeLayoutItem[];
     keywords: string[];
-    feedback: AiFeedback;
+    feedback?: AiFeedback | null;
+    outreachMessages?: OutreachMessages | null;
     styles: ResumeStyles;
     networkingLinks?: NetworkingLink[];
 }
@@ -289,17 +304,8 @@ export const emptyStateGeminiReponse: GeminiResponse = {
     },
     layout: [],
     keywords: [],
-    feedback: {
-        candidateFit: {
-            score: 0,
-            summary: "",
-        },
-        masterProfileSuggestions: [],
-        interviewPrep: {
-            companyFocus: "",
-            technicalTopics: [],
-        },
-    },
+    feedback: null,
+    outreachMessages: null,
     networkingLinks: [],
     styles: {
         theme: "modern",

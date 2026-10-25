@@ -91,11 +91,11 @@ export default function Resume() {
                     // it to set the data for the resumeViewer and the resumeEditor
                     setDataResume({
                         ...data.data[0],
+
                         resume_generated: {
                             layout: reorderedLayoutArray,
-                            feedback: {
-                                ...resumeData.feedback,
-                            },
+                            outreachMessages: resumeData.outreachMessages || null,
+                            feedback: resumeData.feedback || null,
                             keywords: resumeData.keywords || [],
                             networkingLinks: networkingLinks,
                             selected_narrative:
